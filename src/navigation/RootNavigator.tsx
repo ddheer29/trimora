@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../screens/SplashScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import TabNavigation from './TabNavigation';
+import SalonDetailsScreen from '../screens/SalonDetailsScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -32,6 +34,8 @@ const RootNavigator = () => {
         name="NotificationsScreen"
         component={NotificationsScreen}
       />
+      <Stack.Screen name="SalonDetailsScreen" component={SalonDetailsScreen} />
+      <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
     </Stack.Navigator>
   );
 };

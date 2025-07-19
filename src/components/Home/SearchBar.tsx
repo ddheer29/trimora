@@ -5,21 +5,27 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import theme from '../../utils/Theme';
 
 const SearchBar = ({ searchQuery, setSearchQuery }) => (
-  <View style={styles.searchBar}>
+  <View style={styles.container}>
     <View style={styles.inputWrapper}>
-      <Icon name="search" size={26} color={theme.colors.primaryDark} />
+      <Icon
+        name="search"
+        size={20}
+        color={theme.colors.primaryDark}
+        style={styles.icon}
+      />
       <TextInput
         value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search for salon, service..."
+        placeholderTextColor={theme.colors.textPrimary}
         style={styles.input}
         cursorColor={theme.colors.primaryDark}
-        onChangeText={setSearchQuery}
-        placeholder="Salon, service..."
       />
     </View>
-    <TouchableOpacity>
+    <TouchableOpacity style={styles.filterIconWrapper}>
       <Ionicons
         name="filter-outline"
-        size={26}
+        size={22}
         color={theme.colors.primaryDark}
       />
     </TouchableOpacity>
@@ -27,26 +33,33 @@ const SearchBar = ({ searchQuery, setSearchQuery }) => (
 );
 
 const styles = StyleSheet.create({
-  searchBar: {
+  container: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.full,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.sm,
     marginTop: theme.spacing.md,
-    marginBottom: 12,
+    marginBottom: theme.spacing.md,
+    alignItems: 'center',
     ...theme.shadows.soft,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%',
+    flex: 1,
+  },
+  icon: {
+    marginRight: theme.spacing.sm,
   },
   input: {
-    width: '100%',
-    marginLeft: theme.spacing.sm,
+    flex: 1,
+    fontSize: 16,
+    color: theme.colors.textPrimary,
+    paddingVertical: 2,
+  },
+  filterIconWrapper: {
+    marginLeft: theme.spacing.md,
   },
 });
 

@@ -5,15 +5,10 @@ import Navigation from './src/navigation/Navigation';
 import theme from './src/utils/Theme';
 
 function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
   return (
     <GestureHandlerRootView>
       <SafeAreaProvider>
-        <SafeAreaView style={styles.safeAreaView}>
-          <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-          <Navigation />
-        </SafeAreaView>
+        <Navigation />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
