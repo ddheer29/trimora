@@ -6,6 +6,7 @@ import TabNavigation from './TabNavigation';
 import SalonDetailsScreen from '../screens/SalonDetailsScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import SearchScreen from '../screens/SearchScreen';
+import BookingCalendarScreen from '../screens/Calendar/BookingCalendarScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -37,6 +38,10 @@ const RootNavigator = () => {
       />
       <Stack.Screen name="SalonDetailsScreen" component={SalonDetailsScreen} />
       <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
+      <Stack.Screen
+        name="BookingCalendarScreen"
+        component={BookingCalendarScreen}
+      />
       <Stack.Screen
         name="SearchScreen"
         component={SearchScreen}

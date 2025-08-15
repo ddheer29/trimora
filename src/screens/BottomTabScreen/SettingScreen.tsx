@@ -13,7 +13,13 @@ const userProfile = {
 
 const settingsOptions = [
   { title: 'Notifications', icon: 'notifications-outline', onPress: () => {} },
-  { title: 'My Appointments', icon: 'calendar-outline', onPress: () => {} },
+  {
+    title: 'My Appointments',
+    icon: 'calendar-outline',
+    onPress: () => {
+      navigate('BookingCalendarScreen');
+    },
+  },
   { title: 'Saved Salons', icon: 'heart-outline', onPress: () => {} },
   { title: 'Language', icon: 'globe-outline', onPress: () => {} },
   { title: 'Privacy Policy', icon: 'document-text-outline', onPress: () => {} },
