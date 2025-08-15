@@ -6,11 +6,14 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import CommonContainer from '../components/CommonContainer';
 import theme from '../utils/Theme';
+import CustomAlert from '../components/CustomAlert';
 
 const dressTypes = ['Home', 'Work', 'Others'];
 
@@ -24,6 +27,80 @@ const EditProfileScreen = () => {
   const [selectedDressType, setSelectedDressType] = useState('');
   const [dob, setDob] = useState(new Date());
   const [openDatePicker, setOpenDatePicker] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    message: '',
+    options: [],
+  });
+
+  const showCustomAlert = (title, message, options) => {
+    setAlertConfig({ title, message, options });
+    setAlertVisible(true);
+  };
+
+  const requestPermissions = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        ]);
+        return (
+          granted['android.permission.CAMERA'] ===
+            PermissionsAndroid.RESULTS.GRANTED &&
+          granted['android.permission.READ_EXTERNAL_STORAGE'] ===
+            PermissionsAndroid.RESULTS.GRANTED
+        );
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleImagePick = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) {
+      return showCustomAlert(
+        'Permission Denied',
+        'Please grant camera and gallery permissions to continue.',
+        [{ text: 'OK', onPress: () => setAlertVisible(false) }],
+      );
+    }
+
+    showCustomAlert('Choose Option', 'Select image source', [
+      {
+        text: 'Camera',
+        onPress: () => {
+          setAlertVisible(false);
+          launchCamera({ mediaType: 'photo', quality: 0.8 }, res => {
+            if (!res.didCancel && !res.errorCode && res.assets?.[0]?.uri) {
+              setProfileImage(res.assets[0].uri);
+            }
+          });
+        },
+      },
+      {
+        text: 'Gallery',
+        onPress: () => {
+          setAlertVisible(false);
+          launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
+            if (!res.didCancel && !res.errorCode && res.assets?.[0]?.uri) {
+              setProfileImage(res.assets[0].uri);
+            }
+          });
+        },
+      },
+      {
+        text: 'Cancel',
+        style: 'cancel',
+        onPress: () => setAlertVisible(false),
+      },
+    ]);
+  };
 
   const pickImage = () => {
     launchImageLibrary(
@@ -52,7 +129,7 @@ const EditProfileScreen = () => {
       scrollable
     >
       {/* Profile Image */}
-      <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
+      <TouchableOpacity onPress={handleImagePick} style={styles.imageContainer}>
         {profileImage ? (
           <Image source={{ uri: profileImage }} style={styles.image} />
         ) : (
@@ -154,6 +231,14 @@ const EditProfileScreen = () => {
       <TouchableOpacity style={styles.saveButton}>
         <Text style={styles.saveButtonText}>Save Profile</Text>
       </TouchableOpacity>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        options={alertConfig.options}
+        onRequestClose={() => setAlertVisible(false)}
+      />
     </CommonContainer>
   );
 };

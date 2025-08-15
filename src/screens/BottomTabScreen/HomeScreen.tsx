@@ -12,14 +12,12 @@ import BlogsScreen from '../../components/Home/BlogsScreen';
 const Tab = createMaterialTopTabNavigator();
 
 const HomeScreen = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-
   return (
     <CommonContainer>
       <View style={{ flex: 1 }}>
         <Header />
 
-        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <SearchBar />
 
         <Tab.Navigator
           screenOptions={{

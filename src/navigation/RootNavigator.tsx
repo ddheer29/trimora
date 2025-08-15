@@ -5,6 +5,7 @@ import NotificationsScreen from '../screens/NotificationsScreen';
 import TabNavigation from './TabNavigation';
 import SalonDetailsScreen from '../screens/SalonDetailsScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import SearchScreen from '../screens/SearchScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -36,6 +37,11 @@ const RootNavigator = () => {
       />
       <Stack.Screen name="SalonDetailsScreen" component={SalonDetailsScreen} />
       <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
+      <Stack.Screen
+        name="SearchScreen"
+        component={SearchScreen}
+        options={{ animation: 'slide_from_bottom' }}
+      />
     </Stack.Navigator>
   );
 };

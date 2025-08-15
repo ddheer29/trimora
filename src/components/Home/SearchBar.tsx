@@ -1,11 +1,22 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import theme from '../../utils/Theme';
+import { navigate } from '../../utils/NavigationUtil';
 
-const SearchBar = ({ searchQuery, setSearchQuery }) => (
-  <View style={styles.container}>
+const SearchBar = () => (
+  <TouchableOpacity
+    style={styles.container}
+    activeOpacity={1}
+    onPress={() => navigate('SearchScreen')}
+  >
     <View style={styles.inputWrapper}>
       <Icon
         name="search"
@@ -13,14 +24,21 @@ const SearchBar = ({ searchQuery, setSearchQuery }) => (
         color={theme.colors.primaryDark}
         style={styles.icon}
       />
-      <TextInput
+      {/* <TextInput
         value={searchQuery}
         onChangeText={setSearchQuery}
         placeholder="Search for salon, service..."
         placeholderTextColor={theme.colors.textPrimary}
         style={styles.input}
         cursorColor={theme.colors.primaryDark}
-      />
+      /> */}
+      <Text
+        style={{
+          color: theme.colors.textSecondary,
+        }}
+      >
+        Search for salon, service...
+      </Text>
     </View>
     <TouchableOpacity style={styles.filterIconWrapper}>
       <Ionicons
@@ -29,7 +47,7 @@ const SearchBar = ({ searchQuery, setSearchQuery }) => (
         color={theme.colors.primaryDark}
       />
     </TouchableOpacity>
-  </View>
+  </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({

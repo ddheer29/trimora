@@ -9,30 +9,52 @@ import {
 import React from 'react';
 import theme from '../../utils/Theme';
 
+type Props = {
+  imageUrl: string;
+  name: string;
+  location: string;
+  rating: number;
+  onPress: () => void;
+};
+
+export const SalonCard = ({
+  imageUrl,
+  name,
+  location,
+  rating,
+  onPress,
+}: Props) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.card}>
+      <Image source={{ uri: imageUrl }} style={styles.image} />
+
+      <View style={styles.details}>
+        <Text style={styles.name} numberOfLines={1}>
+          {name}
+        </Text>
+        <Text style={styles.location} numberOfLines={1}>
+          📍 {location}
+        </Text>
+        <Text style={styles.rating}>⭐ {rating.toFixed(1)} / 5</Text>
+
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Book Now</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
 const CompletedScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.card}>
-        <Image
-          source={{ uri: 'https://i.imgur.com/GXoYrQy.jpg' }}
-          style={styles.image}
-        />
-        <View style={styles.details}>
-          <Text style={styles.serviceName}>Luxury Facial & Hair Spa</Text>
-          <Text style={styles.datetime}>23 July, 2:30 PM</Text>
-          <Text style={styles.inDays}>in 2 days</Text>
-          <Text style={styles.price}>₹1800</Text>
-
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.viewButton}>
-              <Text style={styles.viewButtonText}>View</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton}>
-              <Text style={styles.cancelButtonText}>Book Again</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+      <SalonCard
+        imageUrl="https://example.com/salon.jpg"
+        name="Blush & Bloom"
+        location="Connaught Place, Delhi"
+        rating={4.6}
+        onPress={() => {}}
+      />
     </ScrollView>
   );
 };
@@ -48,75 +70,46 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.lg,
-    flexDirection: 'row',
-    marginBottom: theme.spacing.lg,
-    overflow: 'hidden',
-    ...theme.shadows.medium,
+    padding: theme.spacing.md,
+    marginVertical: theme.spacing.sm,
+    ...theme.shadows.soft,
   },
   image: {
-    width: 110,
-    height: '100%',
+    width: '100%',
+    height: 160,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.md,
   },
   details: {
-    flex: 1,
-    padding: theme.spacing.md,
+    alignItems: 'center',
   },
-  serviceName: {
-    fontFamily: theme.fonts.subheading,
-    fontSize: theme.fontSizes.md,
+  name: {
+    fontFamily: theme.fonts.heading,
+    fontSize: theme.fontSizes.lg,
     color: theme.colors.textPrimary,
+    marginBottom: 4,
   },
-  datetime: {
-    marginTop: 4,
+  location: {
     fontFamily: theme.fonts.body,
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textSecondary,
+    marginBottom: 4,
   },
-  inDays: {
+  rating: {
     fontFamily: theme.fonts.body,
     fontSize: theme.fontSizes.sm,
-    color: theme.colors.highlight,
-    marginVertical: 4,
+    color: theme.colors.primaryDark,
+    marginBottom: theme.spacing.md,
   },
-  price: {
+  button: {
+    backgroundColor: theme.colors.primaryDark,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: theme.borderRadius.full,
+  },
+  buttonText: {
     fontFamily: theme.fonts.subheading,
     fontSize: theme.fontSizes.md,
-    color: theme.colors.primaryDark,
-    marginTop: 4,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    marginTop: theme.spacing.sm,
-    gap: theme.spacing.sm,
-  },
-  viewButton: {
-    backgroundColor: theme.colors.primaryDark,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: theme.borderRadius.sm,
-  },
-  viewButtonText: {
     color: theme.colors.textOnPrimary,
-    fontFamily: theme.fonts.body,
-  },
-  cancelButton: {
-    backgroundColor: theme.colors.error,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: theme.borderRadius.sm,
-  },
-  cancelButtonText: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.body,
-  },
-  editButton: {
-    backgroundColor: theme.colors.accent,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: theme.borderRadius.sm,
-  },
-  editButtonText: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.body,
   },
 });
