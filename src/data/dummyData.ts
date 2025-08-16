@@ -43,4 +43,47 @@ export const dummyBookings: Booking[] = [
     description: 'Relaxing spa and massage session',
     color: '#f59e0b',
   },
+  // ---------------- Next Day Bookings ----------------
+  {
+    id: '4',
+    customer: {
+      id: 'c4',
+      name: 'Emily Brown',
+      avatar: 'https://i.pravatar.cc/50?img=4',
+    },
+    serviceName: 'Manicure',
+    start: '2025-08-09T09:30:00',
+    end: '2025-08-09T10:15:00',
+    price: 700,
+    description: 'Nail care and polish',
+    color: '#ec4899',
+  },
+  {
+    id: '5',
+    customer: {
+      id: 'c5',
+      name: 'Michael Lee',
+      avatar: 'https://i.pravatar.cc/50?img=5',
+    },
+    serviceName: 'Hair Coloring',
+    start: '2025-08-09T11:00:00',
+    end: '2025-08-09T13:00:00',
+    price: 2000,
+    description: 'Full hair coloring session',
+    color: '#8b5cf6',
+  },
+  {
+    id: '6',
+    customer: {
+      id: 'c6',
+      name: 'Sophia Davis',
+      avatar: 'https://i.pravatar.cc/50?img=6',
+    },
+    serviceName: 'Yoga Class',
+    start: '2025-08-09T15:00:00',
+    end: '2025-08-09T16:00:00',
+    price: 300,
+    description: 'Group yoga session',
+    color: '#10b981',
+  },
 ];

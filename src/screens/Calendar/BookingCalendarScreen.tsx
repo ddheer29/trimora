@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import {
   Platform,
   View,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   ActionSheetIOS,
+  PanResponder,
 } from 'react-native';
 import dayjs from 'dayjs';
 import { Booking } from '../../types';
@@ -66,6 +67,22 @@ export default function BookingCalendarScreen({ navigation }: any) {
   const goAddOrEdit = () =>
     navigation.navigate('EditBooking', { date: selectedDate });
 
+  // 👇 Swipe logic for Day View
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 20, // start detecting swipe if horizontal move
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dx < -50) {
+          // swipe left → next day
+          setSelectedDate(prev => dayjs(prev).add(1, 'day').format(YMD));
+        } else if (gesture.dx > 50) {
+          // swipe right → previous day
+          setSelectedDate(prev => dayjs(prev).subtract(1, 'day').format(YMD));
+        }
+      },
+    }),
+  ).current;
+
   return (
     <CommonContainer scrollable>
       <View style={{ flex: 1 }}>
@@ -78,12 +95,10 @@ export default function BookingCalendarScreen({ navigation }: any) {
             }}
           />
         ) : (
-          <>
+          <View style={{ flex: 1 }} {...panResponder.panHandlers}>
             <TouchableOpacity
               onPress={() => setView('month')}
-              style={{
-                padding: 10,
-              }}
+              style={{ padding: 10 }}
             >
               <Ionicons
                 name="chevron-back"
@@ -106,22 +121,23 @@ export default function BookingCalendarScreen({ navigation }: any) {
               onLongPressBooking={openActions}
             />
 
-            {/* Floating Save Button (bottom-right) */}
+            {/* Floating Save Button */}
             <TouchableOpacity
               onPress={goAddOrEdit}
               style={{
                 position: 'absolute',
-                right: 20,
-                bottom: 20,
-                paddingHorizontal: 18,
-                paddingVertical: 14,
-                borderRadius: 28,
-                backgroundColor: '#2563eb',
+                right: theme.spacing.lg,
+                bottom: theme.spacing.lg,
+                paddingHorizontal: theme.spacing.lg,
+                paddingVertical: theme.spacing.md,
+                borderRadius: theme.borderRadius.full,
+                backgroundColor: theme.colors.primaryDark,
+                ...theme.shadows.medium,
               }}
             >
               <Text style={{ color: '#fff', fontWeight: '700' }}>Save</Text>
             </TouchableOpacity>
-          </>
+          </View>
         )}
       </View>
     </CommonContainer>
