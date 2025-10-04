@@ -83,7 +83,7 @@ export default function BookingCalendarScreen({ navigation }: any) {
   ).current;
 
   return (
-    <CommonContainer scrollable>
+    <CommonContainer scrollable hideHeader={false} showBackButton>
       <View style={styles.container}>
         {view === 'month' ? (
           <CalendarMonthView

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,10 @@ import {
   StyleSheet,
   Platform,
   Keyboard,
+  PermissionsAndroid,
+  Alert,
 } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 
 // Country data with dial codes and flags
 const COUNTRIES = [
@@ -28,6 +31,7 @@ const COUNTRIES = [
   { code: 'BR', name: 'Brazil', dialCode: '+55', flag: '🇧🇷' },
   { code: 'MX', name: 'Mexico', dialCode: '+52', flag: '🇲🇽' },
   { code: 'RU', name: 'Russia', dialCode: '+7', flag: '🇷🇺' },
+  // Add more countries as needed
 ];
 
 const PhoneInput = ({
@@ -50,6 +54,8 @@ const PhoneInput = ({
 
   // States
   defaultCountry = 'US',
+  enableLocationDetection = true,
+  askForPermission = true,
 
   // Other props
   ...props
@@ -63,6 +69,10 @@ const PhoneInput = ({
   const [phoneNumber, setPhoneNumber] = useState(
     value.replace(selectedCountry.dialCode, ''),
   );
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [sortedCountries, setSortedCountries] = useState(COUNTRIES);
+  const [locationPermissionGranted, setLocationPermissionGranted] =
+    useState(false);
   const phoneInputRef = useRef(null);
 
   // Default theme fallback
@@ -71,13 +81,16 @@ const PhoneInput = ({
       primary: '#F9D9D9',
       primaryDark: '#B76E79',
       accent: '#E6E6FA',
-      background: '#FFF9F9',
+      background: '#5a4646ff',
       card: '#FFF1F3',
       border: '#EAD7D7',
       textPrimary: '#333333',
       textSecondary: '#666666',
       textDisabled: '#AAAAAA',
       textOnPrimary: '#FFFFFF',
+      success: '#B4E1C6',
+      warning: '#FFF5BA',
+      error: '#FFCCCC',
     },
     spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 },
     borderRadius: { sm: 8, md: 16, lg: 24, full: 999 },
@@ -93,6 +106,243 @@ const PhoneInput = ({
       },
     },
   };
+
+  // Check location permission status
+  const checkLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const result = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        );
+        setLocationPermissionGranted(result);
+        return result;
+      } catch (error) {
+        console.warn('Error checking location permission:', error);
+        return false;
+      }
+    } else {
+      // iOS - Geolocation API doesn't have a direct permission check method
+      // We'll rely on the error handling in getCurrentPosition
+      return new Promise(resolve => {
+        Geolocation.getCurrentPosition(
+          () => {
+            setLocationPermissionGranted(true);
+            resolve(true);
+          },
+          error => {
+            setLocationPermissionGranted(false);
+            resolve(false);
+          },
+          { enableHighAccuracy: false, timeout: 1000, maximumAge: 10000 },
+        );
+      });
+    }
+  };
+
+  // Request location permission for Android
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Permission',
+            message:
+              'This app needs access to your location to detect your country code.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+        const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+        setLocationPermissionGranted(isGranted);
+        return isGranted;
+      } catch (err) {
+        console.warn('Location permission error:', err);
+        setLocationPermissionGranted(false);
+        return false;
+      }
+    } else {
+      // iOS - Permission is handled automatically by getCurrentPosition
+      // We'll show an alert explaining why we need location
+      return new Promise(resolve => {
+        Alert.alert(
+          'Location Access Needed',
+          'To detect your country code, please allow location access when prompted.',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => {
+                setLocationPermissionGranted(false);
+                resolve(false);
+              },
+            },
+            {
+              text: 'Continue',
+              onPress: () => {
+                // iOS will show native permission dialog when getCurrentPosition is called
+                resolve(true);
+              },
+            },
+          ],
+        );
+      });
+    }
+  };
+
+  // Get country from coordinates using reverse geocoding
+  const getCountryFromCoordinates = (latitude, longitude) => {
+    return new Promise((resolve, reject) => {
+      const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.countryCode) {
+            resolve(data.countryCode);
+          } else {
+            reject(new Error('Could not determine country from location'));
+          }
+        })
+        .catch(error => {
+          reject(error);
+        });
+    });
+  };
+
+  // Handle location-based country detection
+  const getLocationBasedCountry = () => {
+    return new Promise((resolve, reject) => {
+      Geolocation.getCurrentPosition(
+        async position => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const countryCode = await getCountryFromCoordinates(
+              latitude,
+              longitude,
+            );
+            resolve(countryCode);
+          } catch (error) {
+            reject(error);
+          }
+        },
+        error => {
+          reject(error);
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 60000,
+        },
+      );
+    });
+  };
+
+  // Detect user's location and set country
+  const detectUserCountry = async () => {
+    if (!enableLocationDetection) return;
+
+    setIsDetectingLocation(true);
+
+    try {
+      // Check if we already have permission
+      const hasPermission = await checkLocationPermission();
+
+      // Request permission if needed
+      if (!hasPermission && askForPermission) {
+        const permissionGranted = await requestLocationPermission();
+        if (!permissionGranted) {
+          throw new Error('Location permission denied');
+        }
+      }
+
+      // Get location and country
+      const countryCode = await getLocationBasedCountry();
+
+      const detectedCountry = COUNTRIES.find(
+        country => country.code === countryCode.toUpperCase(),
+      );
+
+      if (detectedCountry) {
+        setSelectedCountry(detectedCountry);
+        onCountryChange?.(detectedCountry);
+
+        // Update phone number with new country code
+        const newFullNumber = detectedCountry.dialCode + phoneNumber;
+        onChangeText?.(newFullNumber);
+
+        // Sort countries with detected country first
+        const sorted = [...COUNTRIES].sort((a, b) => {
+          if (a.code === countryCode.toUpperCase()) return -1;
+          if (b.code === countryCode.toUpperCase()) return 1;
+          return a.name.localeCompare(b.name);
+        });
+        setSortedCountries(sorted);
+      }
+    } catch (error) {
+      console.warn('Location-based detection failed:', error);
+
+      // Show appropriate error message
+      if (error.code === 1 || error.code === 2 || error.code === 3) {
+        // Permission denied or location unavailable
+        Alert.alert(
+          'Location Unavailable',
+          'Unable to access your location. Using IP-based detection instead.',
+          [{ text: 'OK' }],
+        );
+      }
+
+      // Fallback to IP-based country detection
+      await fallbackCountryDetection();
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  };
+
+  // Fallback country detection using IP (HTTPS)
+  const fallbackCountryDetection = async () => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+
+      if (data && data.country_code) {
+        const detectedCountry = COUNTRIES.find(
+          country => country.code === data.country_code,
+        );
+
+        if (detectedCountry) {
+          setSelectedCountry(detectedCountry);
+          onCountryChange?.(detectedCountry);
+
+          // Sort countries with detected country first
+          const sorted = [...COUNTRIES].sort((a, b) => {
+            if (a.code === data.country_code) return -1;
+            if (b.code === data.country_code) return 1;
+            return a.name.localeCompare(b.name);
+          });
+          setSortedCountries(sorted);
+
+          Alert.alert(
+            'Country Detected',
+            `Based on your IP, we've set your country to ${detectedCountry.name}`,
+            [{ text: 'OK' }],
+          );
+        }
+      }
+    } catch (error) {
+      console.warn('IP-based country detection failed:', error);
+      // Keep default sorting
+      setSortedCountries(COUNTRIES);
+    }
+  };
+
+  // Auto-detect country on component mount
+  useEffect(() => {
+    if (enableLocationDetection) {
+      detectUserCountry();
+    }
+  }, [enableLocationDetection]);
 
   const handleCountrySelect = country => {
     setSelectedCountry(country);
@@ -119,6 +369,25 @@ const PhoneInput = ({
     setModalVisible(true);
   };
 
+  const manuallyDetectLocation = () => {
+    if (isDetectingLocation) return;
+
+    Alert.alert(
+      'Detect Your Country',
+      'This will use your device location to detect your country. Continue?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Detect',
+          onPress: detectUserCountry,
+        },
+      ],
+    );
+  };
+
   const renderCountryItem = ({ item }) => (
     <TouchableOpacity
       style={[styles(currentTheme).countryItem, countryItemStyle]}
@@ -141,6 +410,9 @@ const PhoneInput = ({
       >
         {item.dialCode}
       </Text>
+      {item.code === selectedCountry.code && (
+        <Text style={styles(currentTheme).selectedIndicator}>✓</Text>
+      )}
     </TouchableOpacity>
   );
 
@@ -150,8 +422,13 @@ const PhoneInput = ({
       <TouchableOpacity
         style={[styles(currentTheme).countryCodeButton, countryCodeButtonStyle]}
         onPress={openCountryPicker}
+        onLongPress={manuallyDetectLocation}
       >
-        <Text style={styles(currentTheme).flag}>{selectedCountry.flag}</Text>
+        {isDetectingLocation ? (
+          <Text style={styles(currentTheme).detectingText}>⌛</Text>
+        ) : (
+          <Text style={styles(currentTheme).flag}>{selectedCountry.flag}</Text>
+        )}
         <Text
           style={[
             styles(currentTheme).dialCodeText,
@@ -181,6 +458,24 @@ const PhoneInput = ({
         {...props}
       />
 
+      {/* Location Detection Indicator */}
+      {enableLocationDetection && (
+        <TouchableOpacity
+          style={styles(currentTheme).locationButton}
+          onPress={manuallyDetectLocation}
+          disabled={isDetectingLocation}
+        >
+          <Text
+            style={[
+              styles(currentTheme).locationIcon,
+              isDetectingLocation && styles(currentTheme).locationIconDisabled,
+            ]}
+          >
+            {isDetectingLocation ? '⌛' : '📍'}
+          </Text>
+        </TouchableOpacity>
+      )}
+
       {/* Country Picker Modal */}
       <Modal
         visible={modalVisible}
@@ -199,16 +494,31 @@ const PhoneInput = ({
               >
                 Select Country
               </Text>
-              <TouchableOpacity
-                style={styles(currentTheme).closeButton}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles(currentTheme).closeButtonText}>✕</Text>
-              </TouchableOpacity>
+              <View style={styles(currentTheme).modalHeaderActions}>
+                <TouchableOpacity
+                  style={[
+                    styles(currentTheme).detectButton,
+                    isDetectingLocation &&
+                      styles(currentTheme).detectButtonDisabled,
+                  ]}
+                  onPress={manuallyDetectLocation}
+                  disabled={isDetectingLocation}
+                >
+                  <Text style={styles(currentTheme).detectButtonText}>
+                    {isDetectingLocation ? 'Detecting...' : '📍 Detect'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles(currentTheme).closeButton}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles(currentTheme).closeButtonText}>✕</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <FlatList
-              data={COUNTRIES}
+              data={sortedCountries}
               renderItem={renderCountryItem}
               keyExtractor={item => item.code}
               showsVerticalScrollIndicator={true}
@@ -226,10 +536,7 @@ const styles = theme =>
     container: {
       flexDirection: 'row',
       alignItems: 'center',
-      borderWidth: 1,
-      borderColor: theme.colors.border,
       borderRadius: theme.borderRadius.md,
-      backgroundColor: theme.colors.background,
       paddingHorizontal: theme.spacing.md,
       height: 56,
       ...theme.shadows.soft,
@@ -241,7 +548,7 @@ const styles = theme =>
       marginRight: theme.spacing.md,
       borderRightWidth: 1,
       borderRightColor: theme.colors.border,
-      minWidth: 80,
+      minWidth: 60,
     },
     flag: {
       fontSize: 20,
@@ -271,6 +578,22 @@ const styles = theme =>
         },
       }),
     },
+    locationButton: {
+      padding: theme.spacing.sm,
+      marginLeft: theme.spacing.sm,
+    },
+    locationIcon: {
+      fontSize: 16,
+      color: theme.colors.primaryDark,
+    },
+    locationIconDisabled: {
+      color: theme.colors.textDisabled,
+    },
+    detectingText: {
+      fontSize: 16,
+      marginRight: theme.spacing.sm,
+      color: theme.colors.textDisabled,
+    },
     modalContainer: {
       flex: 1,
       justifyContent: 'flex-end',
@@ -291,10 +614,29 @@ const styles = theme =>
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.border,
     },
+    modalHeaderActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     modalTitle: {
       fontSize: theme.fontSizes.lg,
       fontWeight: '600',
       color: theme.colors.textPrimary,
+    },
+    detectButton: {
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs,
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.sm,
+      marginRight: theme.spacing.sm,
+    },
+    detectButtonDisabled: {
+      backgroundColor: theme.colors.textDisabled,
+    },
+    detectButtonText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textOnPrimary,
+      fontFamily: theme.fonts.body,
     },
     closeButton: {
       padding: theme.spacing.xs,
@@ -323,6 +665,12 @@ const styles = theme =>
     dialCode: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
+      marginRight: theme.spacing.sm,
+    },
+    selectedIndicator: {
+      fontSize: theme.fontSizes.md,
+      color: theme.colors.primaryDark,
+      fontWeight: 'bold',
     },
   });
 

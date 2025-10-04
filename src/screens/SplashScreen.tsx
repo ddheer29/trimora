@@ -2,9 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { resetAndNavigate } from '../utils/NavigationUtil';
 import theme from '../utils/Theme';
+import { useUserStore } from '../store/userStore';
 
 const SplashScreen = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { isLoggedIn } = useUserStore();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -14,11 +16,15 @@ const SplashScreen = () => {
     }).start();
 
     const timer = setTimeout(() => {
-      resetAndNavigate('MainTabs');
+      if (isLoggedIn) {
+        resetAndNavigate('MainTabs');
+      } else {
+        resetAndNavigate('AuthNavigator');
+      }
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isLoggedIn, fadeAnim]);
 
   return (
     <View style={styles.container}>

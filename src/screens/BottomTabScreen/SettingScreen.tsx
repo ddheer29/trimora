@@ -1,33 +1,75 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
+} from 'react-native';
 import React from 'react';
 import CommonContainer from '../../components/CommonContainer';
 import theme from '../../utils/Theme';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { navigate } from '../../utils/NavigationUtil';
-
-const userProfile = {
-  name: 'Ritika Sharma',
-  photo:
-    'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-};
-
-const settingsOptions = [
-  { title: 'Notifications', icon: 'notifications-outline', onPress: () => {} },
-  {
-    title: 'My Appointments',
-    icon: 'calendar-outline',
-    onPress: () => {
-      navigate('BookingCalendarScreen');
-    },
-  },
-  { title: 'Saved Salons', icon: 'heart-outline', onPress: () => {} },
-  { title: 'Language', icon: 'globe-outline', onPress: () => {} },
-  { title: 'Privacy Policy', icon: 'document-text-outline', onPress: () => {} },
-  { title: 'Rate Us', icon: 'star-outline', onPress: () => {} },
-  { title: 'Logout', icon: 'log-out-outline', onPress: () => {} },
-];
+import { Ionicons } from '@react-native-vector-icons/ionicons';
+import { navigate, resetAndNavigate } from '../../utils/NavigationUtil';
+import { useUserStore } from '../../store/userStore';
 
 const SettingScreen = () => {
+  const { user, isLoggedIn, logout } = useUserStore();
+
+  const userProfile = {
+    name: user?.name || 'Guest User',
+    photo:
+      user?.photo ||
+      'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  };
+
+  const handleLogout = () => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: () => {
+          logout();
+          resetAndNavigate('AuthNavigator');
+        },
+      },
+    ]);
+  };
+
+  const settingsOptions = [
+    {
+      title: 'Notifications',
+      icon: 'notifications-outline',
+      onPress: () => {},
+    },
+    {
+      title: 'My Appointments',
+      icon: 'calendar-outline',
+      onPress: () => {
+        navigate('BookingCalendarScreen');
+      },
+    },
+    { title: 'Saved Salons', icon: 'heart-outline', onPress: () => {} },
+    { title: 'Language', icon: 'globe-outline', onPress: () => {} },
+    {
+      title: 'Privacy Policy',
+      icon: 'document-text-outline',
+      onPress: () => {},
+    },
+    { title: 'Rate Us', icon: 'star-outline', onPress: () => {} },
+    {
+      title: 'Logout',
+      icon: 'log-out-outline',
+      onPress: () => {
+        handleLogout();
+      },
+    },
+  ];
+
   return (
     <CommonContainer scrollable>
       <View style={{ alignItems: 'center', marginVertical: theme.spacing.xl }}>
