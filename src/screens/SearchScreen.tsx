@@ -10,11 +10,10 @@ import {
   Text,
 } from 'react-native';
 import theme from '../utils/Theme';
-import Icon from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Feather } from '@react-native-vector-icons/feather';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import CommonContainer from '../components/CommonContainer';
 import { navigate } from '../utils/NavigationUtil';
-import SalonCard from '../components/Cards/SalonCard';
 
 const genderOptions = ['Unisex', 'Female', 'Male'];
 
@@ -63,7 +62,7 @@ const SearchScreen = () => {
         style={[styles.container, { transform: [{ translateY: slideAnim }] }]}
       >
         <View style={styles.inputWrapper}>
-          <Icon
+          <Feather
             name="search"
             size={20}
             color={theme.colors.primaryDark}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 import theme from '../../utils/Theme';
 import { navigate } from '../../utils/NavigationUtil';
 
@@ -16,13 +16,21 @@ const SalonCard = ({ image, name, location, rating }) => {
           {name}
         </Text>
         <View style={styles.locationRow}>
-          <Icon name="map-marker" size={14} color={theme.colors.primaryDark} />
+          <MaterialDesignIcons
+            name="map-marker"
+            size={14}
+            color={theme.colors.primaryDark}
+          />
           <Text style={styles.location} numberOfLines={1}>
             {location}
           </Text>
         </View>
         <View style={styles.ratingRow}>
-          <Icon name="star" size={14} color={theme.colors.success} />
+          <MaterialDesignIcons
+            name="star"
+            size={14}
+            color={theme.colors.success}
+          />
           <Text style={styles.rating}>{rating}</Text>
         </View>
       </View>

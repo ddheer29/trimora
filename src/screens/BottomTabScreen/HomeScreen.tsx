@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import CommonContainer from '../../components/CommonContainer';
 import theme from '../../utils/Theme';

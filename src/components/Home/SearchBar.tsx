@@ -1,13 +1,7 @@
 import React from 'react';
-import {
-  View,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { Feather } from '@react-native-vector-icons/feather';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import theme from '../../utils/Theme';
 import { navigate } from '../../utils/NavigationUtil';
 
@@ -18,7 +12,7 @@ const SearchBar = () => (
     onPress={() => navigate('SearchScreen')}
   >
     <View style={styles.inputWrapper}>
-      <Icon
+      <Feather
         name="search"
         size={20}
         color={theme.colors.primaryDark}

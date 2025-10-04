@@ -1,11 +1,11 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/BottomTabScreen/HomeScreen';
 import SettingScreen from '../screens/BottomTabScreen/SettingScreen';
 import AppointmentsScreen from '../screens/BottomTabScreen/AppointmentsScreen';
 import TrendsScreen from '../screens/BottomTabScreen/TrendsScreen';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 import theme from '../utils/Theme';
 
 const Tab = createBottomTabNavigator();
@@ -65,7 +65,7 @@ const TabNavigation = () => {
           }
 
           return (
-            <MaterialCommunityIcons name={iconName} size={26} color={color} />
+            <MaterialDesignIcons name={iconName} size={26} color={color} />
           );
         },
       })}

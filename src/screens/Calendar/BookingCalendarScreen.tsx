@@ -7,6 +7,7 @@ import {
   Alert,
   ActionSheetIOS,
   PanResponder,
+  StyleSheet,
 } from 'react-native';
 import dayjs from 'dayjs';
 import { Booking } from '../../types';
@@ -15,7 +16,7 @@ import { YMD } from '../../utils/dateUtils';
 import CalendarMonthView from '../../components/Calendar/CalendarMonthView';
 import CalendarDayView from '../../components/Calendar/CalendarDayView';
 import CommonContainer from '../../components/CommonContainer';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import theme from '../../utils/Theme';
 
 type ViewMode = 'month' | 'day';
@@ -70,13 +71,11 @@ export default function BookingCalendarScreen({ navigation }: any) {
   // 👇 Swipe logic for Day View
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 20, // start detecting swipe if horizontal move
+      onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 20,
       onPanResponderRelease: (_, gesture) => {
         if (gesture.dx < -50) {
-          // swipe left → next day
           setSelectedDate(prev => dayjs(prev).add(1, 'day').format(YMD));
         } else if (gesture.dx > 50) {
-          // swipe right → previous day
           setSelectedDate(prev => dayjs(prev).subtract(1, 'day').format(YMD));
         }
       },
@@ -85,7 +84,7 @@ export default function BookingCalendarScreen({ navigation }: any) {
 
   return (
     <CommonContainer scrollable>
-      <View style={{ flex: 1 }}>
+      <View style={styles.container}>
         {view === 'month' ? (
           <CalendarMonthView
             selectedDate={selectedDate}
@@ -95,10 +94,10 @@ export default function BookingCalendarScreen({ navigation }: any) {
             }}
           />
         ) : (
-          <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+          <View style={styles.dayViewContainer} {...panResponder.panHandlers}>
             <TouchableOpacity
               onPress={() => setView('month')}
-              style={{ padding: 10 }}
+              style={styles.backButton}
             >
               <Ionicons
                 name="chevron-back"
@@ -106,13 +105,7 @@ export default function BookingCalendarScreen({ navigation }: any) {
                 color={theme.colors.primaryDark}
               />
             </TouchableOpacity>
-            <Text
-              style={{
-                paddingHorizontal: 12,
-                paddingBottom: 8,
-                fontWeight: '600',
-              }}
-            >
+            <Text style={styles.dateText}>
               {dayjs(selectedDate).format('MMM D, YYYY')}
             </Text>
             <CalendarDayView
@@ -122,20 +115,8 @@ export default function BookingCalendarScreen({ navigation }: any) {
             />
 
             {/* Floating Save Button */}
-            <TouchableOpacity
-              onPress={goAddOrEdit}
-              style={{
-                position: 'absolute',
-                right: theme.spacing.lg,
-                bottom: theme.spacing.lg,
-                paddingHorizontal: theme.spacing.lg,
-                paddingVertical: theme.spacing.md,
-                borderRadius: theme.borderRadius.full,
-                backgroundColor: theme.colors.primaryDark,
-                ...theme.shadows.medium,
-              }}
-            >
-              <Text style={{ color: '#fff', fontWeight: '700' }}>Save</Text>
+            <TouchableOpacity onPress={goAddOrEdit} style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -143,3 +124,34 @@ export default function BookingCalendarScreen({ navigation }: any) {
     </CommonContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  dayViewContainer: {
+    flex: 1,
+  },
+  backButton: {
+    padding: 10,
+  },
+  dateText: {
+    paddingHorizontal: 12,
+    paddingBottom: 8,
+    fontWeight: '600',
+  },
+  saveButton: {
+    position: 'absolute',
+    right: theme.spacing.lg,
+    bottom: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.primaryDark,
+    ...theme.shadows.medium,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+});
