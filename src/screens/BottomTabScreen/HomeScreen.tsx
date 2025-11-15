@@ -1,13 +1,14 @@
 import React from 'react';
 import { View } from 'react-native';
-import CommonContainer from '../../components/CommonContainer';
-import theme from '../../utils/Theme';
+
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Header from '../../components/Home/Header';
-import SearchBar from '../../components/Home/SearchBar';
-import ForYouScreen from '../../components/Home/ForYouScreen.';
-import NearbyScreen from '../../components/Home/NearbyScreen';
-import BlogsScreen from '../../components/Home/BlogsScreen';
+
+import ForYouScreen from '@components/Home/ForYouScreen.';
+import NearbyScreen from '@components/Home/NearbyScreen';
+import CommonContainer from '@components/CommonContainer';
+import Header from '@components/Home/Header';
+import SearchBar from '@components/Home/SearchBar';
+import theme from '@utils/Theme';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -21,11 +22,10 @@ const HomeScreen = () => {
 
         <Tab.Navigator
           screenOptions={{
-            tabBarScrollEnabled: true,
             tabBarActiveTintColor: theme.colors.primaryDark,
             tabBarInactiveTintColor: theme.colors.textSecondary,
             tabBarLabelStyle: {
-              fontFamily: theme.fonts.body,
+              fontFamily: theme.fonts.subheading,
               fontSize: theme.fontSizes.md,
               textTransform: 'capitalize',
             },
@@ -44,7 +44,6 @@ const HomeScreen = () => {
         >
           <Tab.Screen name="For You" component={ForYouScreen} />
           <Tab.Screen name="Nearby" component={NearbyScreen} />
-          <Tab.Screen name="Blogs" component={BlogsScreen} />
         </Tab.Navigator>
       </View>
     </CommonContainer>

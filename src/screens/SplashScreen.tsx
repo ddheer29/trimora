@@ -1,20 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { resetAndNavigate } from '../utils/NavigationUtil';
 import theme from '../utils/Theme';
 import { useUserStore } from '../store/userStore';
 
 const SplashScreen = () => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [isStop, setIsStop] = useState(false);
+  const scale = useRef(new Animated.Value(1)).current;
   const { isLoggedIn } = useUserStore();
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
-
     const timer = setTimeout(() => {
       if (isLoggedIn) {
         resetAndNavigate('MainTabs');
@@ -24,14 +19,37 @@ const SplashScreen = () => {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [isLoggedIn, fadeAnim]);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const breatingAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scale, {
+          toValue: 1.1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scale, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    if (!isStop) {
+      breatingAnimation.start();
+    }
+    return () => {
+      breatingAnimation.stop();
+    };
+  }, [isStop]);
 
   return (
     <View style={styles.container}>
-      <Animated.Text style={[styles.appName, { opacity: fadeAnim }]}>
+      <Animated.Text style={[styles.appName, { transform: [{ scale }] }]}>
         Trimora
       </Animated.Text>
-      <Animated.Text style={[styles.tagline, { opacity: fadeAnim }]}>
+      <Animated.Text style={[styles.tagline, { transform: [{ scale }] }]}>
         Your beauty, your time.
       </Animated.Text>
     </View>

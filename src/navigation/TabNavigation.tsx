@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/BottomTabScreen/HomeScreen';
@@ -7,10 +7,15 @@ import AppointmentsScreen from '../screens/BottomTabScreen/AppointmentsScreen';
 import TrendsScreen from '../screens/BottomTabScreen/TrendsScreen';
 import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 import theme from '../utils/Theme';
+import { requestMissingPermissions } from '@utils/PermissionHandler';
 
 const Tab = createBottomTabNavigator();
 
 const TabNavigation = () => {
+  useEffect(() => {
+    requestMissingPermissions();
+  }, []);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -39,9 +44,11 @@ const TabNavigation = () => {
           fontFamily: theme.fonts.body,
           marginBottom: 4,
         },
+        // eslint-disable-next-line react/no-unstable-nested-components
         tabBarButton: props => (
           <Pressable
             android_ripple={{ color: '#EAD7D7' }}
+            // eslint-disable-next-line react-native/no-inline-styles
             style={{
               flex: 1,
               alignItems: 'center',
@@ -52,7 +59,8 @@ const TabNavigation = () => {
             {props.children}
           </Pressable>
         ),
-        tabBarIcon: ({ focused, color, size }) => {
+        // eslint-disable-next-line react/no-unstable-nested-components
+        tabBarIcon: ({ focused, color }) => {
           let iconName;
           if (route.name === 'Home') {
             iconName = focused ? 'home-variant' : 'home-variant-outline';

@@ -6,15 +6,32 @@ buildscript {
         targetSdkVersion = 35
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.1.20"
+        googlePlayServicesAuthVersion = "21.3.0"
+        useExoplayerIMA = false
+        useExoplayerRtsp = true
+        useExoplayerSmoothStreaming = true
+        useExoplayerDash = true
+        useExoplayerHls = true
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
+        classpath 'com.google.gms:google-services:4.4.0' // Google Services plugin
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+}
+allprojects {
+    repositories {
+        mavenLocal()
+        google()
+        jcenter()
+         maven {
+            url "$rootDir/../node_modules/react-native-video-cache/android/libs"
+        }
     }
 }
 

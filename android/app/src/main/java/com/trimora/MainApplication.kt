@@ -1,4 +1,4 @@
-package com.trimora
+package com.trimora.app
 
 import android.app.Application
 import com.facebook.react.PackageList

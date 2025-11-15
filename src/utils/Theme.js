@@ -1,3 +1,5 @@
+import { RFValue } from 'react-native-responsive-fontsize';
+
 const theme = {
   colors: {
     // 🎨 Primary Colors
@@ -47,12 +49,12 @@ const theme = {
   },
 
   fontSizes: {
-    xs: 12,
-    sm: 14,
-    md: 16,
-    lg: 18,
-    xl: 22,
-    xxl: 26,
+    xs: RFValue(8),
+    sm: RFValue(12),
+    md: RFValue(14),
+    lg: RFValue(16),
+    xl: RFValue(20),
+    xxl: RFValue(24),
   },
 
   shadows: {

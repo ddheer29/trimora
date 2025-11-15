@@ -4,7 +4,8 @@ import CommonContainer from '../../components/CommonContainer';
 import theme from '../../utils/Theme';
 import { useRoute } from '@react-navigation/native';
 import { OtpInput } from 'react-native-otp-entry';
-import { resetAndNavigate } from '../../utils/NavigationUtil';
+import { goBack, resetAndNavigate } from '../../utils/NavigationUtil';
+import { STRINGS } from '@screens/auth/string';
 
 const VerifyOtpScreen = () => {
   const route = useRoute();
@@ -21,10 +22,10 @@ const VerifyOtpScreen = () => {
       <View style={styles.container}>
         <View>
           <View style={styles.textContainer}>
-            <Text style={styles.infoText}>
-              We have sent a verification code to
+            <Text style={styles.infoText}>{STRINGS.WE_HAVE_SENT_OTP}</Text>
+            <Text style={styles.phoneNumber}>
+              {(route as any)?.params?.phoneNumber}
             </Text>
-            <Text style={styles.phoneNumber}>{route?.params?.phoneNumber}</Text>
           </View>
 
           <View style={styles.otpContainer}>
@@ -63,10 +64,36 @@ const VerifyOtpScreen = () => {
               }}
             />
           </View>
+          <View>
+            <Text
+              style={{
+                marginTop: theme.spacing.lg,
+                textAlign: 'center',
+                color: theme.colors.textPrimary,
+                fontSize: theme.fontSizes.sm,
+                fontFamily: theme.fonts.body,
+              }}
+            >
+              {STRINGS.DID_NOT_GET_OTP}{' '}
+              <Text
+                style={{
+                  marginTop: theme.spacing.lg,
+                  textAlign: 'center',
+                  color: theme.colors.textSecondary,
+                  fontSize: theme.fontSizes.sm,
+                  fontFamily: theme.fonts.body,
+                }}
+              >
+                Resend SMS in 16s
+              </Text>
+            </Text>
+          </View>
         </View>
 
         <View>
-          <Text style={styles.goBackText}>Go back to login methods</Text>
+          <Text style={styles.goBackText} onPress={() => goBack()}>
+            {STRINGS.GO_BACK_TO_LOGIN}
+          </Text>
         </View>
       </View>
     </CommonContainer>

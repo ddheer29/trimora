@@ -20,6 +20,17 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+    <key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.274425122801-m3igrpiqufhqbl91fg46h4p460lqvp6r</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -33,10 +44,12 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>We need camera access to let you upload a profile photo.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your gallery to select a profile image.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need access to your photo library to save images from the app.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string></string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>

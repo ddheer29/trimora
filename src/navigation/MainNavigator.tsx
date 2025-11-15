@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../screens/SplashScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
@@ -17,7 +17,7 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator();
 
-const RootNavigator = () => {
+const MainNavigator: FC = () => {
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
@@ -57,4 +57,4 @@ const RootNavigator = () => {
   );
 };
 
-export default RootNavigator;
+export default MainNavigator;

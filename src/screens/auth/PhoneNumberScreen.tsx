@@ -63,7 +63,6 @@ const PhoneNumberScreen = () => {
             <View style={styles.linksContainer}>
               <Text style={styles.linkText}>Terms of Service</Text>
               <Text style={styles.linkText}>Privacy Policy</Text>
-              <Text style={styles.linkText}>Content Policy</Text>
             </View>
           </View>
         </View>
@@ -132,5 +131,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: theme.spacing.sm / 2,
     textDecorationLine: 'underline',
+    fontSize: theme.fontSizes.xs,
   },
 });
