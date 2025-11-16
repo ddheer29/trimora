@@ -1,11 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import React from 'react';
+import CommonContainer from '@components/CommonContainer';
 
 const NotificationsScreen = () => {
   return (
-    <View>
+    <CommonContainer showBackButton={true} hideHeader={false}>
       <Text>NotificationsScreen</Text>
-    </View>
+    </CommonContainer>
   );
 };
 

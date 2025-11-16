@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,12 +8,17 @@ import {
   Image,
   Platform,
   PermissionsAndroid,
+  Alert,
+  ScrollView,
 } from 'react-native';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import CommonContainer from '../components/CommonContainer';
 import theme from '../utils/Theme';
 import CustomAlert from '../components/CustomAlert';
+import { useUserStore } from '@/store/userStore';
+import { userService } from '@/services/userService';
+import { goBack } from '@utils/NavigationUtil';
 
 const dressTypes = ['Home', 'Work', 'Others'];
 
@@ -28,11 +33,47 @@ const EditProfileScreen = () => {
   const [dob, setDob] = useState(new Date());
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     message: '',
     options: [],
   });
+
+  const { user, updateUser } = useUserStore();
+
+  // Fetch user profile data on component mount
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  // Pre-fill form with existing user data
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setEmail(user.email || '');
+      setPhone(user.phoneNumber || '');
+      setProfileImage(user.userImage || null);
+    }
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await userService.getProfile();
+
+      if (response.user) {
+        const userData = response.user;
+        // Update the global user store
+        updateUser(userData);
+      }
+    } catch (error: any) {
+      console.log('Fetch profile error:', error);
+      Alert.alert('Error', 'Failed to load profile data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const showCustomAlert = (title, message, options) => {
     setAlertConfig({ title, message, options });
@@ -78,7 +119,8 @@ const EditProfileScreen = () => {
           setAlertVisible(false);
           launchCamera({ mediaType: 'photo', quality: 0.8 }, res => {
             if (!res.didCancel && !res.errorCode && res.assets?.[0]?.uri) {
-              setProfileImage(res.assets[0].uri);
+              const imageUri = res.assets[0].uri;
+              setProfileImage(imageUri);
             }
           });
         },
@@ -89,7 +131,8 @@ const EditProfileScreen = () => {
           setAlertVisible(false);
           launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
             if (!res.didCancel && !res.errorCode && res.assets?.[0]?.uri) {
-              setProfileImage(res.assets[0].uri);
+              const imageUri = res.assets[0].uri;
+              setProfileImage(imageUri);
             }
           });
         },
@@ -102,24 +145,67 @@ const EditProfileScreen = () => {
     ]);
   };
 
-  const pickImage = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.8,
-        selectionLimit: 1,
-      },
-      response => {
-        if (
-          !response.didCancel &&
-          !response.errorCode &&
-          response.assets?.[0]?.uri
-        ) {
-          setProfileImage(response.assets[0].uri);
-        }
-      },
-    );
+  const handleSaveProfile = async () => {
+    if (!name.trim()) {
+      Alert.alert('Error', 'Please enter your name');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const updateData = {
+        name: name.trim(),
+        email: email.trim(),
+        userImage: profileImage,
+        addressLine1: address1.trim(),
+        addressLine2: address2.trim(),
+        addressType: selectedDressType,
+        dateOfBirth: dob.toISOString(),
+      };
+      console.log(
+        '🚀 -> handleSaveProfile -> updateData:',
+        JSON.stringify(updateData, null, 2),
+      );
+
+      const response = await userService.updateProfile(updateData);
+      console.log(
+        '🚀 -> handleSaveProfile -> response:',
+        JSON.stringify(response, null, 2),
+      );
+
+      if (response.success) {
+        updateUser(response.user);
+        Alert.alert('Success', 'Profile updated successfully');
+        goBack();
+      } else {
+        Alert.alert('Error', response.message || 'Failed to update profile');
+      }
+    } catch (error: any) {
+      console.log('Update profile error:', error);
+      Alert.alert(
+        'Error',
+        error.response?.data?.message ||
+          'Failed to update profile. Please try again.',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Pre-fill form with existing user data
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setEmail(user.email || '');
+      setPhone(user.phoneNumber || '');
+      setProfileImage(user.userImage || null);
+      setAddress1(user.addressLine1 || '');
+      setAddress2(user.addressLine2 || '');
+      setSelectedDressType(user.addressType || '');
+      setDob(user.dateOfBirth ? new Date(user.dateOfBirth) : new Date());
+    }
+  }, [user]);
 
   return (
     <CommonContainer
@@ -128,117 +214,148 @@ const EditProfileScreen = () => {
       headerStyle={{ borderBottomWidth: 0 }}
       scrollable
     >
-      {/* Profile Image */}
-      <TouchableOpacity onPress={handleImagePick} style={styles.imageContainer}>
-        {profileImage ? (
-          <Image source={{ uri: profileImage }} style={styles.image} />
-        ) : (
-          <Text style={styles.imagePlaceholder}>Add Photo</Text>
-        )}
-      </TouchableOpacity>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Profile Image */}
+        <TouchableOpacity
+          onPress={handleImagePick}
+          style={styles.imageContainer}
+        >
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.image} />
+          ) : user?.userImage ? (
+            <Image source={{ uri: user.userImage }} style={styles.image} />
+          ) : (
+            <View style={styles.imagePlaceholder}>
+              <Text style={styles.imagePlaceholderText}>Add Photo</Text>
+            </View>
+          )}
+          {loading && (
+            <View style={styles.imageOverlay}>
+              <Text style={styles.loadingText}>Uploading...</Text>
+            </View>
+          )}
+        </TouchableOpacity>
 
-      {/* Form Fields */}
-      <TextInput
-        style={styles.input}
-        placeholder="Full Name"
-        value={name}
-        onChangeText={setName}
-        placeholderTextColor={theme.colors.textDisabled}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        placeholderTextColor={theme.colors.textDisabled}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Phone Number"
-        keyboardType="phone-pad"
-        value={phone}
-        onChangeText={setPhone}
-        placeholderTextColor={theme.colors.textDisabled}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Address Line 1"
-        value={address1}
-        onChangeText={setAddress1}
-        placeholderTextColor={theme.colors.textDisabled}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Address Line 2"
-        value={address2}
-        onChangeText={setAddress2}
-        placeholderTextColor={theme.colors.textDisabled}
-      />
+        {/* Form Fields */}
+        <TextInput
+          style={styles.input}
+          placeholder="Full Name"
+          value={name}
+          onChangeText={setName}
+          placeholderTextColor={theme.colors.textDisabled}
+          editable={!loading}
+        />
 
-      {/* Dress Type */}
-      <Text style={styles.label}>Dress Type</Text>
-      <View style={styles.dressTypeContainer}>
-        {dressTypes.map(type => (
-          <TouchableOpacity
-            key={type}
-            style={[
-              styles.dressTypeButton,
-              selectedDressType === type && styles.dressTypeSelected,
-            ]}
-            onPress={() => setSelectedDressType(type)}
-          >
-            <Text
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+          placeholderTextColor={theme.colors.textDisabled}
+          editable={!loading}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Phone Number"
+          keyboardType="phone-pad"
+          value={phone}
+          onChangeText={setPhone}
+          placeholderTextColor={theme.colors.textDisabled}
+          editable={!loading}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Address Line 1"
+          value={address1}
+          onChangeText={setAddress1}
+          placeholderTextColor={theme.colors.textDisabled}
+          editable={!loading}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Address Line 2"
+          value={address2}
+          onChangeText={setAddress2}
+          placeholderTextColor={theme.colors.textDisabled}
+          editable={!loading}
+        />
+
+        {/* Dress Type */}
+        <Text style={styles.label}>Dress Type</Text>
+        <View style={styles.dressTypeContainer}>
+          {dressTypes.map(type => (
+            <TouchableOpacity
+              key={type}
               style={[
-                styles.dressTypeText,
-                selectedDressType === type && styles.dressTypeTextSelected,
+                styles.dressTypeButton,
+                selectedDressType === type && styles.dressTypeSelected,
               ]}
+              onPress={() => !loading && setSelectedDressType(type)}
+              disabled={loading}
             >
-              {type}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text
+                style={[
+                  styles.dressTypeText,
+                  selectedDressType === type && styles.dressTypeTextSelected,
+                ]}
+              >
+                {type}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {/* Date of Birth */}
-      <Text style={styles.label}>Date of Birth</Text>
-      <TouchableOpacity
-        onPress={() => setOpenDatePicker(true)}
-        style={styles.input}
-      >
-        <Text style={styles.dateText}>
-          {dob ? new Date(dob).toDateString() : 'Select Date of Birth'}
-        </Text>
-      </TouchableOpacity>
+        {/* Date of Birth */}
+        <Text style={styles.label}>Date of Birth</Text>
+        <TouchableOpacity
+          onPress={() => !loading && setOpenDatePicker(true)}
+          style={styles.input}
+          disabled={loading}
+        >
+          <Text style={styles.dateText}>
+            {dob ? new Date(dob).toDateString() : 'Select Date of Birth'}
+          </Text>
+        </TouchableOpacity>
 
-      <DatePicker
-        modal
-        open={openDatePicker}
-        date={dob}
-        mode="date"
-        maximumDate={new Date()}
-        onConfirm={date => {
-          setOpenDatePicker(false);
-          setDob(date);
-        }}
-        onCancel={() => setOpenDatePicker(false)}
-        theme="light"
-        textColor={theme.colors.textPrimary}
-        fadeToColor={theme.colors.background}
-      />
+        <DatePicker
+          modal
+          open={openDatePicker}
+          date={dob}
+          mode="date"
+          maximumDate={new Date()}
+          onConfirm={date => {
+            setOpenDatePicker(false);
+            setDob(date);
+          }}
+          onCancel={() => setOpenDatePicker(false)}
+          theme="light"
+          textColor={theme.colors.textPrimary}
+          fadeToColor={theme.colors.background}
+        />
 
-      {/* Save Button */}
-      <TouchableOpacity style={styles.saveButton}>
-        <Text style={styles.saveButtonText}>Save Profile</Text>
-      </TouchableOpacity>
+        {/* Save Button */}
+        <TouchableOpacity
+          style={[styles.saveButton, loading && styles.saveButtonDisabled]}
+          onPress={handleSaveProfile}
+          disabled={loading}
+        >
+          <Text style={styles.saveButtonText}>
+            {loading ? 'Saving...' : 'Save Profile'}
+          </Text>
+        </TouchableOpacity>
 
-      <CustomAlert
-        visible={alertVisible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        options={alertConfig.options}
-        onRequestClose={() => setAlertVisible(false)}
-      />
+        <CustomAlert
+          visible={alertVisible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          options={alertConfig.options}
+          onRequestClose={() => setAlertVisible(false)}
+        />
+      </ScrollView>
     </CommonContainer>
   );
 };
@@ -260,6 +377,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...theme.shadows.medium,
+    overflow: 'hidden',
   },
   image: {
     width: '100%',
@@ -267,8 +385,32 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.full,
   },
   imagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imagePlaceholderText: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.body,
+  },
+  imageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: theme.borderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: theme.colors.textOnPrimary,
+    fontSize: theme.fontSizes.xs,
     fontFamily: theme.fonts.body,
   },
   input: {
@@ -280,6 +422,9 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
     color: theme.colors.textPrimary,
     ...theme.shadows.soft,
+  },
+  bioInput: {
+    minHeight: 80,
   },
   dateText: {
     color: theme.colors.textSecondary,
@@ -323,6 +468,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: theme.spacing.lg,
     ...theme.shadows.medium,
+  },
+  saveButtonDisabled: {
+    backgroundColor: theme.colors.border,
   },
   saveButtonText: {
     color: theme.colors.textOnPrimary,

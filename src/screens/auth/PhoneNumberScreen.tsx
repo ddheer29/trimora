@@ -1,22 +1,64 @@
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
-import theme from '../../utils/Theme';
-import PhoneInput from '../../components/Input/PhoneInput';
-import CustomButton from '../../components/Buttons/CustomButton';
-import { navigate } from '../../utils/NavigationUtil';
+import theme from '@utils/Theme';
+import CustomButton from '@components/Buttons/CustomButton';
+import PhoneInput from '@components/Input/PhoneInput';
+import { navigate } from '@utils/NavigationUtil';
+import { authService } from '@/services/authService';
 
 const PhoneNumberScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [loginLoading, setLoginLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
+    if (!cleanedPhoneNumber || cleanedPhoneNumber.length < 10) {
+      Alert.alert('Error', 'Please enter a valid phone number');
+      return;
+    }
     setLoginLoading(true);
-    setTimeout(() => {
+    try {
+      const response = await authService.sendOtp(phoneNumber);
+
+      if (response.message === 'OTP sent successfully') {
+        Alert.alert('Success', 'OTP sent successfully to ' + phoneNumber);
+        navigate('VerifyOtpScreen', { phoneNumber: phoneNumber });
+      } else {
+        Alert.alert('Error', response.message || 'Failed to send OTP');
+      }
+    } catch (error: any) {
+      console.log('OTP Send Error:', error.response?.data);
+      Alert.alert(
+        'Error',
+        error.response?.data?.message ||
+          'Failed to send OTP. Please try again.',
+      );
+    } finally {
       setLoginLoading(false);
-      Alert.alert('Success', 'OTP sent successfully to ' + phoneNumber);
-      navigate('VerifyOtpScreen', { phoneNumber });
-    }, 2000);
+    }
+  };
+
+  const handlePhoneNumberChange = (text: string) => {
+    const cleaned = text.replace(/\D/g, '');
+    setPhoneNumber(cleaned);
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return '';
+
+    const cleaned = value.replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
+
+    if (match) {
+      return (
+        match[1] +
+        (match[2] ? ' ' + match[2] : '') +
+        (match[3] ? ' ' + match[3] : '')
+      );
+    }
+
+    return value;
   };
 
   return (
@@ -30,11 +72,11 @@ const PhoneNumberScreen = () => {
         <View style={styles.bottomContainer}>
           <View style={styles.phoneInputContainer}>
             <PhoneInput
-              value={phoneNumber}
+              value={formatPhoneNumber(phoneNumber)}
               enableLocationDetection={true}
               askForPermission={true}
-              defaultCountry="US"
-              onChangeText={setPhoneNumber}
+              defaultCountry="IN"
+              onChangeText={handlePhoneNumberChange}
               onCountryChange={setSelectedCountry}
               theme={theme}
               containerStyle={styles.phoneInputContainerStyle}
@@ -42,8 +84,8 @@ const PhoneNumberScreen = () => {
               inputStyle={styles.phoneInputStyle}
               placeholder="Enter your phone number"
               placeholderTextColor={theme.colors.textDisabled}
-              defaultCountry="IN"
               autoFocus={true}
+              keyboardType="phone-pad"
             />
           </View>
           <View>
@@ -54,6 +96,9 @@ const PhoneNumberScreen = () => {
               backgroundColor={theme.colors.primaryDark}
               loadingColor={theme.colors.textOnPrimary}
               disabledBackgroundColor={theme.colors.border}
+              disabled={
+                !phoneNumber || phoneNumber.replace(/\D/g, '').length < 10
+              }
             />
             <View style={styles.agreementTextContainer}>
               <Text style={styles.agreementText}>

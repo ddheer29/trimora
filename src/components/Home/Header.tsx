@@ -1,22 +1,25 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import theme from '../../utils/Theme';
+import { useUserStore } from '@/store/userStore';
 
-const Header = () => (
-  <View style={styles.headerWrapper}>
-    <View>
-      <Text style={styles.greeting}>Hello Anamika</Text>
-      <Text style={styles.subtitle}>Welcome to Timora</Text>
+const Header = () => {
+  const { user } = useUserStore();
+  return (
+    <View style={styles.headerWrapper}>
+      <View>
+        <Text style={styles.greeting}>{user?.name}</Text>
+        <Text style={styles.subtitle}>Welcome to Timora</Text>
+      </View>
+      <Image
+        source={{
+          uri: user?.userImage,
+        }}
+        style={styles.avatar}
+      />
     </View>
-    <Image
-      source={{
-        uri: 'https://img.freepik.com/free-photo/lifestyle-people-emotions-casual-concept-confident-nice-smiling-asian-woman-cross-arms-chest-confident-ready-help-listening-coworkers-taking-part-conversation_1258-59335.jpg',
-      }}
-      style={styles.avatar}
-    />
-  </View>
-);
-
+  );
+};
 const styles = StyleSheet.create({
   headerWrapper: {
     flexDirection: 'row',

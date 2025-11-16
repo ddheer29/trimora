@@ -7,19 +7,19 @@ import {
   Alert,
 } from 'react-native';
 import React from 'react';
-import CommonContainer from '../../components/CommonContainer';
 import theme from '../../utils/Theme';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
-import { navigate, resetAndNavigate } from '../../utils/NavigationUtil';
-import { useUserStore } from '../../store/userStore';
+import { useUserStore } from '@/store/userStore';
+import { navigate, resetAndNavigate } from '@utils/NavigationUtil';
+import CommonContainer from '@components/CommonContainer';
 
 const SettingScreen = () => {
-  const { user, isLoggedIn, logout } = useUserStore();
+  const { user, logout } = useUserStore();
 
   const userProfile = {
     name: user?.name || 'Guest User',
     photo:
-      user?.photo ||
+      user?.userImage ||
       'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   };
 
@@ -44,7 +44,9 @@ const SettingScreen = () => {
     {
       title: 'Notifications',
       icon: 'notifications-outline',
-      onPress: () => {},
+      onPress: () => {
+        navigate('NotificationsScreen');
+      },
     },
     {
       title: 'My Appointments',
@@ -54,7 +56,6 @@ const SettingScreen = () => {
       },
     },
     { title: 'Saved Salons', icon: 'heart-outline', onPress: () => {} },
-    { title: 'Language', icon: 'globe-outline', onPress: () => {} },
     {
       title: 'Privacy Policy',
       icon: 'document-text-outline',

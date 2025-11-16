@@ -1,14 +1,93 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
-import CommonContainer from '../../components/CommonContainer';
+import { StyleSheet, Text, View, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
 import theme from '../../utils/Theme';
 import { useRoute } from '@react-navigation/native';
 import { OtpInput } from 'react-native-otp-entry';
-import { goBack, resetAndNavigate } from '../../utils/NavigationUtil';
 import { STRINGS } from '@screens/auth/string';
+import { authService } from '../../services/authService';
+import { useUserStore } from '../../store/userStore';
+import { goBack, resetAndNavigate } from '@utils/NavigationUtil';
+import CommonContainer from '@components/CommonContainer';
 
 const VerifyOtpScreen = () => {
   const route = useRoute();
+  const { phoneNumber } = (route as any)?.params || {};
+  const [resendCountdown, setResendCountdown] = useState(30);
+  const [isResendLoading, setIsResendLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const { login } = useUserStore();
+
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
+
+  const handleOtpFilled = async (otp: string) => {
+    if (!otp || otp.length !== 6) {
+      setOtpError('Please enter a valid 6-digit OTP');
+      return;
+    }
+
+    setOtpError('');
+
+    try {
+      const response = await authService.verifyOtp(phoneNumber, otp);
+
+      if (response.user && response.tokens) {
+        login(response.user, response.tokens);
+        Alert.alert('Success', 'Login successful!');
+        resetAndNavigate('MainTabs');
+      } else {
+        setOtpError('Invalid OTP. Please try again.');
+      }
+    } catch (error: any) {
+      console.log('OTP Verify Error:', error.response?.data);
+      const errorMessage =
+        error.response?.data?.message || 'Invalid OTP. Please try again.';
+      setOtpError(errorMessage);
+      Alert.alert('Error', errorMessage);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendCountdown > 0 || isResendLoading) return;
+
+    setIsResendLoading(true);
+
+    try {
+      const response = await authService.sendOtp(phoneNumber);
+
+      if (response.message === 'OTP sent successfully') {
+        Alert.alert('Success', 'OTP sent successfully');
+        setResendCountdown(30); // Reset countdown
+        setOtpError('');
+      } else {
+        Alert.alert('Error', response.message || 'Failed to resend OTP');
+      }
+    } catch (error: any) {
+      console.log('Resend OTP Error:', error.response?.data);
+      Alert.alert(
+        'Error',
+        error.response?.data?.message ||
+          'Failed to resend OTP. Please try again.',
+      );
+    } finally {
+      setIsResendLoading(false);
+    }
+  };
+
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return '';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return `+91 ${cleaned.substring(0, 5)} ${cleaned.substring(5)}`;
+    }
+    return phone;
+  };
 
   return (
     <CommonContainer
@@ -24,37 +103,31 @@ const VerifyOtpScreen = () => {
           <View style={styles.textContainer}>
             <Text style={styles.infoText}>{STRINGS.WE_HAVE_SENT_OTP}</Text>
             <Text style={styles.phoneNumber}>
-              {(route as any)?.params?.phoneNumber}
+              {formatPhoneNumber(phoneNumber)}
             </Text>
+            {otpError ? <Text style={styles.errorText}>{otpError}</Text> : null}
           </View>
 
           <View style={styles.otpContainer}>
             <OtpInput
               numberOfDigits={6}
-              autoFocus={false}
+              autoFocus={true}
               hideStick={true}
-              placeholder="******"
-              blurOnFilled={true}
+              placeholder="000000"
+              blurOnFilled={false}
               type="numeric"
               secureTextEntry={false}
               focusStickBlinkingDuration={500}
-              onFocus={() => console.log('Focused')}
-              onBlur={() => console.log('Blurred')}
-              onTextChange={text => console.log(text)}
-              onFilled={text => {
-                console.log(`OTP is ${text}`);
-                resetAndNavigate('MainTabs');
-              }}
+              onTextChange={() => setOtpError('')}
+              onFilled={handleOtpFilled}
               textInputProps={{
                 accessibilityLabel: 'One-Time Password',
               }}
-              textProps={{
-                accessibilityRole: 'text',
-                accessibilityLabel: 'OTP digit',
-                allowFontScaling: false,
-              }}
               theme={{
-                pinCodeContainerStyle: styles.pinCodeContainer,
+                pinCodeContainerStyle: [
+                  styles.pinCodeContainer,
+                  otpError && styles.pinCodeContainerError,
+                ],
                 pinCodeTextStyle: styles.pinCodeText,
                 focusStickStyle: styles.focusStick,
                 focusedPinCodeContainerStyle: styles.activePinCodeContainer,
@@ -64,28 +137,25 @@ const VerifyOtpScreen = () => {
               }}
             />
           </View>
-          <View>
-            <Text
-              style={{
-                marginTop: theme.spacing.lg,
-                textAlign: 'center',
-                color: theme.colors.textPrimary,
-                fontSize: theme.fontSizes.sm,
-                fontFamily: theme.fonts.body,
-              }}
-            >
+
+          <View style={styles.resendContainer}>
+            <Text style={styles.resendText}>
               {STRINGS.DID_NOT_GET_OTP}{' '}
-              <Text
-                style={{
-                  marginTop: theme.spacing.lg,
-                  textAlign: 'center',
-                  color: theme.colors.textSecondary,
-                  fontSize: theme.fontSizes.sm,
-                  fontFamily: theme.fonts.body,
-                }}
-              >
-                Resend SMS in 16s
-              </Text>
+              {resendCountdown > 0 ? (
+                <Text style={styles.countdownText}>
+                  Resend SMS in {resendCountdown}s
+                </Text>
+              ) : (
+                <Text
+                  style={[
+                    styles.resendButtonText,
+                    isResendLoading && styles.resendButtonDisabled,
+                  ]}
+                  onPress={handleResendOtp}
+                >
+                  {isResendLoading ? 'Sending...' : 'Resend OTP'}
+                </Text>
+              )}
             </Text>
           </View>
         </View>
@@ -131,6 +201,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: theme.spacing.sm,
     fontSize: theme.fontSizes.md,
+    fontWeight: '600',
+  },
+  errorText: {
+    color: theme.colors.error,
+    fontFamily: theme.fonts.body,
+    textAlign: 'center',
+    marginTop: theme.spacing.sm,
+    fontSize: theme.fontSizes.sm,
   },
   otpContainer: {
     marginTop: theme.spacing.lg,
@@ -145,6 +223,9 @@ const styles = StyleSheet.create({
     height: 50,
     marginHorizontal: theme.spacing.sm / 2,
   },
+  pinCodeContainerError: {
+    borderColor: theme.colors.error,
+  },
   pinCodeText: {
     color: theme.colors.textPrimary,
     fontSize: theme.fontSizes.lg,
@@ -152,25 +233,49 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   focusStick: {
-    backgroundColor: theme.colors.highlight,
+    backgroundColor: theme.colors.primaryDark,
     height: 2,
   },
   activePinCodeContainer: {
     borderColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.primaryLight,
   },
   placeholderText: {
     color: theme.colors.textDisabled,
   },
   filledPinCodeContainer: {
-    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.primaryLight,
   },
   disabledPinCodeContainer: {
     backgroundColor: theme.colors.border,
   },
+  resendContainer: {
+    marginTop: theme.spacing.lg,
+  },
+  resendText: {
+    textAlign: 'center',
+    color: theme.colors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.body,
+  },
+  countdownText: {
+    color: theme.colors.textSecondary,
+    fontWeight: '500',
+  },
+  resendButtonText: {
+    color: theme.colors.primaryDark,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  resendButtonDisabled: {
+    color: theme.colors.textDisabled,
+  },
   goBackText: {
-    color: theme.colors.highlight,
+    color: theme.colors.primaryDark,
     fontFamily: theme.fonts.italic,
     textAlign: 'center',
     fontSize: theme.fontSizes.md,
+    textDecorationLine: 'underline',
   },
 });
