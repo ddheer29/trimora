@@ -63,6 +63,13 @@ const SettingScreen = () => {
     },
     { title: 'Rate Us', icon: 'star-outline', onPress: () => {} },
     {
+      title: 'Create Salon',
+      icon: 'star-outline',
+      onPress: () => {
+        navigate('CreateSalonScreen');
+      },
+    },
+    {
       title: 'Logout',
       icon: 'log-out-outline',
       onPress: () => {

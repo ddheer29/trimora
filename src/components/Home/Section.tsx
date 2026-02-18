@@ -7,7 +7,7 @@ const Section = ({ title, data, renderItem, horizontal }) => (
     <Text style={styles.title}>{title}</Text>
     <FlatList
       data={data}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item._id}
       horizontal={horizontal}
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ paddingLeft: 16 }}

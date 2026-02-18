@@ -49,7 +49,9 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>We need access to your photo library to save images from the app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>This app needs access to your location to set your salon location.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to your location to set your salon location.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>

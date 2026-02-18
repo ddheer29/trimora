@@ -8,6 +8,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import SearchScreen from '../screens/SearchScreen';
 import BookingCalendarScreen from '../screens/Calendar/BookingCalendarScreen';
 import AuthNavigator from './AuthNavigator';
+import CreateSalonScreen from '@screens/CreateSalonScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -53,6 +54,8 @@ const MainNavigator: FC = () => {
         component={SearchScreen}
         options={{ animation: 'slide_from_bottom' }}
       />
+
+      <Stack.Screen name="CreateSalonScreen" component={CreateSalonScreen} />
     </Stack.Navigator>
   );
 };

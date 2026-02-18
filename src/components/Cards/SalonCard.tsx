@@ -4,13 +4,17 @@ import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-
 import theme from '../../utils/Theme';
 import { navigate } from '../../utils/NavigationUtil';
 
-const SalonCard = ({ image, name, location, rating }) => {
+const SalonCard = ({ _id, images, name, locationName, rating }) => {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigate('SalonDetailsScreen')}
+      onPress={() => navigate('SalonDetailsScreen', { salonId: _id })}
     >
-      <Image source={{ uri: '' }} style={styles.image} resizeMode="cover" />
+      <Image
+        source={{ uri: images?.[0] }}
+        style={styles.image}
+        resizeMode="cover"
+      />
       <View style={styles.infoWrapper}>
         <Text style={styles.name} numberOfLines={1}>
           {name}
@@ -22,7 +26,7 @@ const SalonCard = ({ image, name, location, rating }) => {
             color={theme.colors.primaryDark}
           />
           <Text style={styles.location} numberOfLines={1}>
-            {location}
+            {locationName}
           </Text>
         </View>
         <View style={styles.ratingRow}>
@@ -52,7 +56,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 110,
-    backgroundColor: 'red',
   },
   infoWrapper: {
     padding: theme.spacing.sm,

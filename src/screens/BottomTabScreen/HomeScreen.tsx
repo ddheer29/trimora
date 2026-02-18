@@ -6,7 +6,6 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import ForYouScreen from '@components/Home/ForYouScreen.';
 import NearbyScreen from '@components/Home/NearbyScreen';
 import CommonContainer from '@components/CommonContainer';
-import Header from '@components/Home/Header';
 import SearchBar from '@components/Home/SearchBar';
 import theme from '@utils/Theme';
 
@@ -16,8 +15,6 @@ const HomeScreen = () => {
   return (
     <CommonContainer>
       <View style={{ flex: 1 }}>
-        <Header />
-
         <SearchBar />
 
         <Tab.Navigator

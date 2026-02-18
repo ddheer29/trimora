@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -14,40 +14,21 @@ import {
 import CommonContainer from '../components/CommonContainer';
 import theme from '../utils/Theme';
 import MapView, { Marker } from 'react-native-maps';
+import { salonService } from '@/services/salonService';
+import { Salon, SalonDetailsScreenProps, ServicesData } from '@/types';
 
 const { width } = Dimensions.get('window');
 
-const sampleImages = [
-  'https://plus.unsplash.com/premium_photo-1664301489002-2fed4596c101?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?q=80&w=2036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  'https://plus.unsplash.com/premium_photo-1669675936121-6d3d42244ab5?q=80&w=988&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-];
-
-const serviceCategories = ['Hair', 'Skin', 'Makeup', 'Nails'];
-
-const servicesData = {
-  Hair: [
-    { id: '1', title: 'Haircut - Women', price: '₹499' },
-    { id: '2', title: 'Hair Spa', price: '₹799' },
-    { id: '3', title: 'Hair Color', price: '₹999' },
-    { id: '4', title: 'Hair Smoothening', price: '₹1999' },
-    { id: '5', title: 'Hair Wash', price: '₹299' },
-    { id: '6', title: 'Blow Dry', price: '₹499' },
-  ],
-  Skin: [
-    { id: '1', title: 'Facial', price: '₹699' },
-    { id: '2', title: 'Cleanup', price: '₹399' },
-  ],
-  Makeup: [{ id: '1', title: 'Party Makeup', price: '₹1499' }],
-  Nails: [{ id: '1', title: 'Nail Art', price: '₹799' }],
-};
-
-const SalonDetailsScreen = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Hair');
+const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [salonData, setSalonData] = useState<Salon | null>(null);
+  const [servicesData, setServicesData] = useState<ServicesData>({});
 
   const handleOpenMap = () => {
-    Linking.openURL('https://maps.google.com?q=28.6139,77.2090');
+    if (salonData?.location) {
+      const { latitude, longitude } = salonData.location;
+      Linking.openURL(`https://maps.google.com?q=${latitude},${longitude}`);
+    }
   };
 
   const renderAllProfilePics = ({ item, index }) => {
@@ -63,7 +44,7 @@ const SalonDetailsScreen = () => {
   };
 
   const scrollY = useRef(new Animated.Value(0)).current;
-  const [showBookButton, setShowBookButton] = useState(true);
+  const [showBookButton, setShowBookButton] = useState<boolean>(true);
 
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -71,10 +52,50 @@ const SalonDetailsScreen = () => {
       useNativeDriver: false,
       listener: event => {
         const offsetY = event.nativeEvent.contentOffset.y;
-        setShowBookButton(offsetY < 100); // 👈 Show when near top
+        setShowBookButton(offsetY < 100);
       },
     },
   );
+
+  const fetchSalon = async () => {
+    try {
+      const response = await salonService.getSalonById(route.params.salonId);
+      console.log(
+        '🚀 -> fetchSalon -> response:',
+        JSON.stringify(response, null, 2),
+      );
+
+      if (response.success && response.data) {
+        const salon = response.data;
+        setSalonData(salon);
+
+        // Set first category as selected by default
+        if (salon.serviceCategories && salon.serviceCategories.length > 0) {
+          setSelectedCategory(salon.serviceCategories[0].name);
+        }
+
+        // Transform service categories into servicesData format
+        const transformedServices = {};
+        salon.serviceCategories?.forEach(category => {
+          transformedServices[category.name] =
+            category.services?.map(service => ({
+              id: service.id || service._id,
+              title: service.title,
+              price: service.price,
+              duration: service.duration,
+              description: service.description,
+            })) || [];
+        });
+        setServicesData(transformedServices);
+      }
+    } catch (error) {
+      console.log('🚀 -> fetchSalon -> error:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSalon();
+  }, []);
 
   return (
     <CommonContainer
@@ -96,7 +117,7 @@ const SalonDetailsScreen = () => {
         >
           {/* 🖼️ Image Carousel */}
           <FlatList
-            data={sampleImages}
+            data={salonData?.images}
             horizontal
             bounces={false}
             overScrollMode="never"
@@ -112,10 +133,15 @@ const SalonDetailsScreen = () => {
 
           {/* 📋 Salon Details */}
           <View style={styles.detailsContainer}>
-            <Text style={styles.title}>Glamorous Salon</Text>
-            <Text style={styles.subtitle}>Connaught Place, New Delhi</Text>
-            <Text style={styles.rating}>⭐ 4.8 (280 reviews)</Text>
-            <Text style={styles.pricing}>Avg Price: ₹1200</Text>
+            <Text style={styles.title}>{salonData?.name}</Text>
+            <Text style={styles.subtitle}>{salonData?.locationName}</Text>
+            <Text style={styles.rating}>
+              ⭐ {salonData?.rating || 0} ({salonData?.numberOfReviews || 0}{' '}
+              reviews)
+            </Text>
+            <Text style={styles.pricing}>
+              Avg Price: {salonData?.averagePrice}
+            </Text>
           </View>
 
           {/* 🪄 Service Categories */}
@@ -124,23 +150,24 @@ const SalonDetailsScreen = () => {
             showsHorizontalScrollIndicator={false}
             style={styles.categoryTabContainer}
           >
-            {serviceCategories.map(category => (
+            {salonData?.serviceCategories?.map(category => (
               <TouchableOpacity
                 key={category}
                 onPress={() => setSelectedCategory(category)}
                 style={[
                   styles.categoryTab,
-                  selectedCategory === category && styles.selectedCategoryTab,
+                  selectedCategory === category.name &&
+                    styles.selectedCategoryTab,
                 ]}
               >
                 <Text
                   style={[
                     styles.categoryText,
-                    selectedCategory === category &&
+                    selectedCategory === category.name &&
                       styles.selectedCategoryText,
                   ]}
                 >
-                  {category}
+                  {category.name}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -149,80 +176,127 @@ const SalonDetailsScreen = () => {
           {/* 💆 Services List */}
           <View style={styles.servicesContainer}>
             <FlatList
-              data={servicesData[selectedCategory]}
+              data={servicesData[selectedCategory] || []}
               keyExtractor={item => item.id}
               renderItem={({ item }) => (
                 <View style={styles.serviceItem}>
-                  <View>
+                  <View style={styles.serviceInfo}>
                     <Text style={styles.serviceTitle}>{item.title}</Text>
                     <Text style={styles.servicePrice}>{item.price}</Text>
+                    {item.duration && (
+                      <Text style={styles.serviceDuration}>
+                        {item.duration} mins
+                      </Text>
+                    )}
+                    {item.description ? (
+                      <Text style={styles.serviceDescription}>
+                        {item.description}
+                      </Text>
+                    ) : null}
                   </View>
                   <TouchableOpacity style={styles.addButton}>
                     <Text style={styles.addButtonText}>Add</Text>
                   </TouchableOpacity>
                 </View>
               )}
-              scrollEnabled={servicesData[selectedCategory].length > 5}
+              scrollEnabled={(servicesData[selectedCategory]?.length || 0) > 5}
               style={{ maxHeight: theme.spacing.xl * 5 }}
             />
           </View>
 
           {/* 📝 Description */}
-          <ScrollView style={styles.descriptionContainer} nestedScrollEnabled>
-            <Text style={styles.descriptionText}>
-              Glamorous Salon is your ultimate destination for luxurious beauty
-              and wellness treatments. Enjoy world-class service in an ambiance
-              tailored for modern women who seek premium pampering.
-            </Text>
-          </ScrollView>
-
-          {/* 👩 Stylists */}
-          <Text style={styles.sectionHeading}>Our Stylists</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={{
-              marginBottom: theme.spacing.lg,
-            }}
-          >
-            {[1, 2, 3].map((_, index) => (
-              <View key={index} style={styles.stylistCard}>
-                <Image
-                  source={{ uri: 'https://source.unsplash.com/100x100/?woman' }}
-                  style={styles.stylistImage}
-                />
-                <Text style={styles.stylistName}>Stylist {index + 1}</Text>
-              </View>
-            ))}
-          </ScrollView>
+          {salonData?.stylists && salonData?.stylists.length > 0 && (
+            <>
+              <Text style={styles.sectionHeading}>Our Stylists</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{
+                  marginBottom: theme.spacing.lg,
+                }}
+              >
+                {salonData?.stylists.map((stylist, index) => (
+                  <View key={stylist._id} style={styles.stylistCard}>
+                    <Image
+                      source={{ uri: stylist.profilePhoto }}
+                      style={styles.stylistImage}
+                    />
+                    <Text style={styles.stylistName}>{stylist.name}</Text>
+                    <Text style={styles.stylistRating}>
+                      ⭐ {stylist.rating}
+                    </Text>
+                    {stylist.experience && (
+                      <Text style={styles.stylistExperience}>
+                        {stylist.experience} years exp
+                      </Text>
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
+            </>
+          )}
 
           {/* 🗺️ Map & Direction */}
-          <Text style={styles.sectionHeading}>Our Location</Text>
-          <View style={styles.mapContainer}>
-            <MapView
-              style={{ flex: 1, borderRadius: theme.borderRadius.md }}
-              initialRegion={{
-                latitude: 28.6139,
-                longitude: 77.209,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-            >
-              <Marker coordinate={{ latitude: 28.6139, longitude: 77.209 }} />
-            </MapView>
-            <TouchableOpacity style={styles.mapButton} onPress={handleOpenMap}>
-              <Text style={styles.mapButtonText}>Open in Maps</Text>
-            </TouchableOpacity>
-          </View>
+          {salonData?.location && (
+            <>
+              <Text style={styles.sectionHeading}>Our Location</Text>
+              <View style={styles.mapContainer}>
+                <MapView
+                  style={{ flex: 1, borderRadius: theme.borderRadius.md }}
+                  initialRegion={{
+                    latitude: salonData?.location.latitude,
+                    longitude: salonData?.location.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }}
+                >
+                  <Marker
+                    coordinate={{
+                      latitude: salonData?.location.latitude,
+                      longitude: salonData?.location.longitude,
+                    }}
+                  />
+                </MapView>
+                <TouchableOpacity
+                  style={styles.mapButton}
+                  onPress={handleOpenMap}
+                >
+                  <Text style={styles.mapButtonText}>Open in Maps</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
 
-          {/* 🌟 Ratings */}
+          {/* 🌟 Ratings & Reviews */}
           <Text style={styles.sectionHeading}>Ratings & Reviews</Text>
           <View style={styles.reviewBox}>
-            <Text style={styles.ratingValue}>4.8 ⭐</Text>
-            <Text style={styles.reviewText}>
-              "Amazing ambiance and expert staff!"
-            </Text>
+            <Text style={styles.ratingValue}>{salonData?.rating || 0} ⭐</Text>
+            {salonData?.reviews && salonData?.reviews.length > 0 ? (
+              salonData?.reviews.map(review => (
+                <Text key={review._id} style={styles.reviewText}>
+                  "{review.comment}"
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.reviewText}>
+                No reviews yet. Be the first to review!
+              </Text>
+            )}
           </View>
+
+          {/* 🛠️ Amenities */}
+          {salonData?.amenities && salonData?.amenities.length > 0 && (
+            <>
+              <Text style={styles.sectionHeading}>Amenities</Text>
+              <View style={styles.amenitiesContainer}>
+                {salonData?.amenities.map((amenity, index) => (
+                  <View key={index} style={styles.amenityItem}>
+                    <Text style={styles.amenityText}>{amenity}</Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          )}
         </Animated.ScrollView>
         {showBookButton && (
           <TouchableOpacity style={styles.bookNowButton}>
@@ -398,5 +472,45 @@ const styles = StyleSheet.create({
     color: theme.colors.textOnPrimary,
     fontSize: theme.fontSizes.md,
     fontFamily: theme.fonts.subheading,
+  },
+  stylistRating: {
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.highlight,
+    marginBottom: 2,
+  },
+  stylistExperience: {
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
+  },
+  amenitiesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: theme.spacing.lg,
+  },
+  amenityItem: {
+    backgroundColor: theme.colors.card,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.full,
+    marginRight: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
+  },
+  amenityText: {
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+  },
+
+  serviceDuration: {
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: 4,
+  },
+  serviceDescription: {
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    fontStyle: 'italic',
+  },
+  serviceInfo: {
+    flex: 1,
   },
 });
