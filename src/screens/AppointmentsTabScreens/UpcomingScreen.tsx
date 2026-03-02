@@ -6,37 +6,86 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import theme from '../../utils/Theme';
+import { bookingService } from '@/services/bookingService';
+import { Booking } from '@/types';
+import { ActivityIndicator, FlatList } from 'react-native';
+import moment from 'moment';
 
 const UpcomingScreen = () => {
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const response = await bookingService.getMyBookings();
+      if (response.status === 'success') {
+        setBookings(response.data || []);
+      }
+    } catch (error) {
+      console.log('Fetch bookings error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const renderBookingItem = ({ item }: { item: Booking }) => {
+    const salon = item.salonId as any;
+    const service = item.serviceId as any;
+
+    return (
       <View style={styles.card}>
         <Image
-          source={{ uri: 'https://i.imgur.com/GXoYrQy.jpg' }}
+          source={{ uri: salon?.images?.[0] || 'https://i.imgur.com/GXoYrQy.jpg' }}
           style={styles.image}
         />
         <View style={styles.details}>
-          <Text style={styles.serviceName}>Luxury Facial & Hair Spa</Text>
-          <Text style={styles.datetime}>23 July, 2:30 PM</Text>
-          <Text style={styles.inDays}>in 2 days</Text>
-          <Text style={styles.price}>₹1800</Text>
+          <Text style={styles.serviceName}>{service?.name || 'Service'}</Text>
+          <Text style={styles.datetime}>
+            {moment(item.bookingDate).format('DD MMM')}, {item.startTime}
+          </Text>
+          <Text style={styles.statusText}>Status: {item.status}</Text>
+          <Text style={styles.price}>₹{item.totalAmount}</Text>
 
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.viewButton}>
               <Text style={styles.viewButtonText}>View</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.editButton}>
-              <Text style={styles.editButtonText}>Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton}>
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
+            {item.status === 'pending' && (
+              <TouchableOpacity style={styles.cancelButton}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </View>
-    </ScrollView>
+    );
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.colors.primaryDark} />
+      </View>
+    );
+  }
+
+  return (
+    <FlatList
+      data={bookings}
+      keyExtractor={item => item._id}
+      renderItem={renderBookingItem}
+      contentContainerStyle={styles.container}
+      ListEmptyComponent={
+        <Text style={styles.emptyText}>No upcoming appointments found.</Text>
+      }
+    />
   );
 };
 
@@ -121,5 +170,17 @@ const styles = StyleSheet.create({
   editButtonText: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.body,
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: theme.spacing.xl,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+  },
+  statusText: {
+    fontFamily: theme.fonts.body,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginVertical: 2,
   },
 });

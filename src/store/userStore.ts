@@ -3,11 +3,16 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { mmkvStorage } from '../storage/mmkvStorage';
 
 export interface User {
-  id: string;
-  name?: string;
-  email?: string;
+  _id: string;
+  name: string;
+  email: string;
   phone: string;
-  userImage?: string;
+  dob?: string;
+  address?: string;
+  addressType?: string;
+  profilePhoto?: string;
+  role?: string;
+  isProfileCompleted?: boolean;
 }
 
 interface UserState {
@@ -18,11 +23,11 @@ interface UserState {
   isLoading: boolean;
   login: (
     user: User,
-    tokens: { access_token: string; refresh_token: string },
+    tokens: { accessToken: string; refreshToken: string },
   ) => void;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
-  setTokens: (tokens: { access_token: string; refresh_token: string }) => void;
+  setTokens: (tokens: { accessToken: string; refreshToken: string }) => void;
   setLoading: (loading: boolean) => void;
 }
 
@@ -36,13 +41,13 @@ export const useUserStore = create<UserState>()(
       isLoading: false,
       login: (
         user: User,
-        tokens: { access_token: string; refresh_token: string },
+        tokens: { accessToken: string; refreshToken: string },
       ) => {
         set({
           user,
           isLoggedIn: true,
-          token: tokens.access_token,
-          refreshToken: tokens.refresh_token,
+          token: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
         });
       },
       logout: () => {
@@ -59,10 +64,10 @@ export const useUserStore = create<UserState>()(
           set({ user: { ...currentUser, ...updatedUser } });
         }
       },
-      setTokens: (tokens: { access_token: string; refresh_token: string }) => {
+      setTokens: (tokens: { accessToken: string; refreshToken: string }) => {
         set({
-          token: tokens.access_token,
-          refreshToken: tokens.refresh_token,
+          token: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
         });
       },
       setLoading: (loading: boolean) => {

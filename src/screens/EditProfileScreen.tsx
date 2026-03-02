@@ -23,7 +23,7 @@ import { goBack } from '@utils/NavigationUtil';
 const dressTypes = ['Home', 'Work', 'Others'];
 
 const EditProfileScreen = () => {
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -37,7 +37,7 @@ const EditProfileScreen = () => {
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     message: '',
-    options: [],
+    options: [] as any[],
   });
 
   const { user, updateUser } = useUserStore();
@@ -52,8 +52,10 @@ const EditProfileScreen = () => {
     if (user) {
       setName(user.name || '');
       setEmail(user.email || '');
-      setPhone(user.phoneNumber || '');
-      setProfileImage(user.userImage || null);
+      setPhone(user.phone || '');
+      setProfileImage(user.profilePhoto || null);
+      setAddress1(user.address || '');
+      setDob(user.dob ? new Date(user.dob) : new Date());
     }
   }, [user]);
 
@@ -62,9 +64,8 @@ const EditProfileScreen = () => {
       setLoading(true);
       const response = await userService.getProfile();
 
-      if (response.user) {
-        const userData = response.user;
-        // Update the global user store
+      if (response.data) {
+        const userData = response.data;
         updateUser(userData);
       }
     } catch (error: any) {
@@ -75,7 +76,7 @@ const EditProfileScreen = () => {
     }
   };
 
-  const showCustomAlert = (title, message, options) => {
+  const showCustomAlert = (title: string, message: string, options: any[]) => {
     setAlertConfig({ title, message, options });
     setAlertVisible(true);
   };
@@ -90,9 +91,9 @@ const EditProfileScreen = () => {
         ]);
         return (
           granted['android.permission.CAMERA'] ===
-            PermissionsAndroid.RESULTS.GRANTED &&
+          PermissionsAndroid.RESULTS.GRANTED &&
           granted['android.permission.READ_EXTERNAL_STORAGE'] ===
-            PermissionsAndroid.RESULTS.GRANTED
+          PermissionsAndroid.RESULTS.GRANTED
         );
       } catch (err) {
         console.warn(err);
@@ -120,7 +121,7 @@ const EditProfileScreen = () => {
           launchCamera({ mediaType: 'photo', quality: 0.8 }, res => {
             if (!res.didCancel && !res.errorCode && res.assets?.[0]?.uri) {
               const imageUri = res.assets[0].uri;
-              setProfileImage(imageUri);
+              setProfileImage(imageUri || null);
             }
           });
         },
@@ -132,7 +133,7 @@ const EditProfileScreen = () => {
           launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
             if (!res.didCancel && !res.errorCode && res.assets?.[0]?.uri) {
               const imageUri = res.assets[0].uri;
-              setProfileImage(imageUri);
+              setProfileImage(imageUri || null);
             }
           });
         },
@@ -154,28 +155,27 @@ const EditProfileScreen = () => {
     try {
       setLoading(true);
 
-      const updateData = {
-        name: name.trim(),
-        email: email.trim(),
-        userImage: profileImage,
-        addressLine1: address1.trim(),
-        addressLine2: address2.trim(),
-        addressType: selectedDressType,
-        dateOfBirth: dob.toISOString(),
-      };
-      console.log(
-        '🚀 -> handleSaveProfile -> updateData:',
-        JSON.stringify(updateData, null, 2),
-      );
+      const formData = new FormData();
+      formData.append('name', name.trim());
+      formData.append('email', email.trim());
+      formData.append('address', address1.trim() + (address2 ? ', ' + address2.trim() : ''));
+      formData.append('dob', dob.toISOString());
 
-      const response = await userService.updateProfile(updateData);
-      console.log(
-        '🚀 -> handleSaveProfile -> response:',
-        JSON.stringify(response, null, 2),
-      );
+      if (profileImage && profileImage.startsWith('file://')) {
+        const uriParts = profileImage.split('.');
+        const fileType = uriParts[uriParts.length - 1];
 
-      if (response.success) {
-        updateUser(response.user);
+        formData.append('profilePhoto', {
+          uri: profileImage,
+          name: `profile.${fileType}`,
+          type: `image/${fileType}`,
+        } as any);
+      }
+
+      const response = await userService.updateProfile(formData);
+
+      if (response.status === 'success' && response.data) {
+        updateUser(response.data);
         Alert.alert('Success', 'Profile updated successfully');
         goBack();
       } else {
@@ -186,7 +186,7 @@ const EditProfileScreen = () => {
       Alert.alert(
         'Error',
         error.response?.data?.message ||
-          'Failed to update profile. Please try again.',
+        'Failed to update profile. Please try again.',
       );
     } finally {
       setLoading(false);
@@ -198,12 +198,10 @@ const EditProfileScreen = () => {
     if (user) {
       setName(user.name || '');
       setEmail(user.email || '');
-      setPhone(user.phoneNumber || '');
-      setProfileImage(user.userImage || null);
-      setAddress1(user.addressLine1 || '');
-      setAddress2(user.addressLine2 || '');
-      setSelectedDressType(user.addressType || '');
-      setDob(user.dateOfBirth ? new Date(user.dateOfBirth) : new Date());
+      setPhone(user.phone || '');
+      setProfileImage(user.profilePhoto || null);
+      setAddress1(user.address || '');
+      setDob(user.dob ? new Date(user.dob) : new Date());
     }
   }, [user]);
 
@@ -222,8 +220,8 @@ const EditProfileScreen = () => {
         >
           {profileImage ? (
             <Image source={{ uri: profileImage }} style={styles.image} />
-          ) : user?.userImage ? (
-            <Image source={{ uri: user.userImage }} style={styles.image} />
+          ) : user?.profilePhoto ? (
+            <Image source={{ uri: user.profilePhoto }} style={styles.image} />
           ) : (
             <View style={styles.imagePlaceholder}>
               <Text style={styles.imagePlaceholderText}>Add Photo</Text>
@@ -333,8 +331,6 @@ const EditProfileScreen = () => {
           }}
           onCancel={() => setOpenDatePicker(false)}
           theme="light"
-          textColor={theme.colors.textPrimary}
-          fadeToColor={theme.colors.background}
         />
 
         {/* Save Button */}

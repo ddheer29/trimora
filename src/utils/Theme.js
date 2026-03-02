@@ -3,6 +3,7 @@ const theme = {
     // 🎨 Primary Colors
     primary: '#F9D9D9', // Blush Pink
     primaryDark: '#B76E79', // Rose Gold
+    primaryLight: '#FFF1F3', // Light Pink/Rose
     accent: '#E6E6FA', // Lavender
     highlight: '#F08080', // Light Coral
 

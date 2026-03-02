@@ -1,49 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import { Salon, Location } from '@/types';
 import { FlatList, View } from 'react-native';
 import theme from '../../utils/Theme';
 import {
   bookAgainData,
-  topStylistsInDelhi,
+  recommendedServicesData,
+  trendingLooksData,
 } from '../../utils/data';
-import Section from './Section';
+import ServiceCard from '../../components/Cards/ServiceCard';
+import Section from '../../components/Home/Section';
 import SalonCard from '../Cards/SalonCard';
-import ServiceCard from '../Cards/ServiceCard';
-import StylistCard from '../Cards/StylistCard';
 import { salonService } from '@/services/salonService';
 import { locationService } from '@/services/locationService';
+import { Salon, Location } from '@/types';
 
-const NearbyScreen = () => {
-  const [nearbySalons, setNearbySalons] = useState<Salon[]>([]);
-  const [newSalons, setNewSalons] = useState<Salon[]>([]);
+const ForYouScreen = () => {
+  const [recommendedSalons, setRecommendedSalons] = useState<Salon[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchSalons = async () => {
+  const fetchRecommended = async () => {
     try {
       setLoading(true);
       // Hardcoding location for debugging crash
       const location = { latitude: 28.6139, longitude: 77.2090 };
 
-      // Fetch nearby salons
-      const nearbyResponse = await salonService.getNearBySalons(
+      const response = await salonService.getNearBySalons(
         location.latitude,
         location.longitude,
-        50000 // 50km
+        50000,
+        1,
+        10
       );
-
-      if (nearbyResponse.status === 'success') {
-        setNearbySalons(nearbyResponse.data || []);
-        setNewSalons(nearbyResponse.data?.slice(0, 5) || []);
+      if (response.status === 'success') {
+        setRecommendedSalons(response.data || []);
       }
     } catch (error) {
-      console.log("🚀 ~ fetchSalons ~ error:", error);
+      console.log('🚀 -> fetchRecommended -> error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSalons();
+    fetchRecommended();
   }, []);
 
   return (
@@ -54,28 +52,28 @@ const NearbyScreen = () => {
         ListHeaderComponent={
           <>
             <Section
-              title="New in Your Area"
-              horizontal
-              data={newSalons}
-              renderItem={SalonCard}
-            />
-            <Section
-              title="Salons Near You"
-              horizontal
-              data={nearbySalons}
-              renderItem={SalonCard}
-            />
-            <Section
-              title="Top Services"
+              title="Book Again"
               horizontal
               data={bookAgainData}
               renderItem={ServiceCard}
             />
             <Section
-              title="Top Stylists"
+              title="Recommended for You"
+              horizontal={false}
+              data={recommendedSalons}
+              renderItem={SalonCard}
+            />
+            <Section
+              title="Trending Looks"
               horizontal
-              data={topStylistsInDelhi}
-              renderItem={StylistCard}
+              data={trendingLooksData}
+              renderItem={ServiceCard}
+            />
+            <Section
+              title="Offers for You"
+              horizontal
+              data={recommendedServicesData}
+              renderItem={ServiceCard}
             />
           </>
         }
@@ -85,4 +83,4 @@ const NearbyScreen = () => {
   );
 };
 
-export default NearbyScreen;
+export default ForYouScreen;

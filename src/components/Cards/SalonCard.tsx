@@ -1,17 +1,32 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import theme from '../../utils/Theme';
 import { navigate } from '../../utils/NavigationUtil';
 
-const SalonCard = ({ _id, images, name, locationName, rating }) => {
+interface SalonCardProps {
+  _id?: string;
+  id?: string;
+  images?: string[];
+  image?: string;
+  name: string;
+  locationName?: string;
+  location?: string;
+  rating: string | number;
+}
+
+const SalonCard: React.FC<SalonCardProps> = ({ _id, id, images, image, name, locationName, location, rating }) => {
+  const salonId = _id || id;
+  const displayImage = (images && images.length > 0) ? images[0] : image;
+  const displayLocation = locationName || location;
+
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigate('SalonDetailsScreen', { salonId: _id })}
+      onPress={() => navigate('SalonDetailsScreen', { salonId })}
     >
       <Image
-        source={{ uri: images?.[0] }}
+        source={{ uri: displayImage || 'https://i.imgur.com/GXoYrQy.jpg' }}
         style={styles.image}
         resizeMode="cover"
       />
@@ -20,8 +35,8 @@ const SalonCard = ({ _id, images, name, locationName, rating }) => {
           {name}
         </Text>
         <View style={styles.locationRow}>
-          <MaterialDesignIcons
-            name="map-marker"
+          <Ionicons
+            name="location"
             size={14}
             color={theme.colors.primaryDark}
           />
@@ -30,7 +45,7 @@ const SalonCard = ({ _id, images, name, locationName, rating }) => {
           </Text>
         </View>
         <View style={styles.ratingRow}>
-          <MaterialDesignIcons
+          <Ionicons
             name="star"
             size={14}
             color={theme.colors.success}

@@ -14,16 +14,23 @@ import { Feather } from '@react-native-vector-icons/feather';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import CommonContainer from '../components/CommonContainer';
 import { navigate } from '../utils/NavigationUtil';
+import { salonService } from '@/services/salonService';
+import { Salon } from '@/types';
+import SalonCard from '../components/Cards/SalonCard';
+import { FlatList } from 'react-native-gesture-handler';
+import { ActivityIndicator } from 'react-native';
 
 const genderOptions = ['Unisex', 'Female', 'Male'];
 
 const SearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilter, setShowFilter] = useState(false);
-  const [selectedGender, setSelectedGender] = useState(null);
+  const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [distance, setDistance] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [results, setResults] = useState<Salon[]>([]);
+  const [loading, setLoading] = useState(false);
   const slideAnim = useRef(new Animated.Value(100)).current;
 
   const handleResetFilters = () => {
@@ -33,13 +40,36 @@ const SearchScreen = () => {
     setMaxPrice('');
   };
 
-  const renderSalonItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigate('SalonDetailScreen', { salon: item })}
-    >
-      {/* <SalonCard image={} name={} location={} rating={} /> */}
-    </TouchableOpacity>
+  const handleSearch = async () => {
+    try {
+      setLoading(true);
+      const filters: any = {};
+      if (selectedGender) filters.gender = selectedGender.toLowerCase();
+      if (minPrice) filters.minPrice = Number(minPrice);
+      if (maxPrice) filters.maxPrice = Number(maxPrice);
+      // distance is not directly supported by search API, usually handled by lat/lng if nearby
+
+      const response = await salonService.searchSalons(searchQuery, filters);
+      if (response.status === 'success') {
+        setResults(response.data || []);
+      }
+    } catch (error) {
+      console.log('Search error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderSalonItem = ({ item }: { item: Salon }) => (
+    <View style={{ marginBottom: theme.spacing.md }}>
+      <SalonCard
+        _id={item._id}
+        name={item.name}
+        images={item.images}
+        locationName={item.locationName}
+        rating={item.rating}
+      />
+    </View>
   );
 
   useEffect(() => {
@@ -71,10 +101,12 @@ const SearchScreen = () => {
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch}
             placeholder="Search for salon, service..."
             placeholderTextColor={theme.colors.textPrimary}
             style={styles.input}
             cursorColor={theme.colors.primaryDark}
+            returnKeyType="search"
           />
         </View>
         <TouchableOpacity
@@ -88,6 +120,24 @@ const SearchScreen = () => {
           />
         </TouchableOpacity>
       </Animated.View>
+
+      {loading ? (
+        <ActivityIndicator size="large" color={theme.colors.primaryDark} style={{ marginTop: 20 }} />
+      ) : (
+        <FlatList
+          data={results}
+          keyExtractor={item => (item._id || item.id || Math.random().toString()).toString()}
+          renderItem={renderSalonItem}
+          contentContainerStyle={{ padding: theme.spacing.md }}
+          ListEmptyComponent={
+            searchQuery ? (
+              <Text style={{ textAlign: 'center', marginTop: 20, color: theme.colors.textSecondary }}>
+                No salons found matching your search.
+              </Text>
+            ) : null
+          }
+        />
+      )}
 
       <Modal
         visible={showFilter}
@@ -167,7 +217,7 @@ const SearchScreen = () => {
                 style={[styles.button, styles.applyButton]}
                 onPress={() => {
                   setShowFilter(false);
-                  // You can pass filters to backend here
+                  handleSearch();
                 }}
               >
                 <Text style={styles.applyText}>Apply</Text>

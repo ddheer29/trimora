@@ -1,102 +1,101 @@
-export type Booking = {
-  id: string;
-  customer: { id: string; name: string; avatar?: string };
-  serviceName: string;
-  start: string; // ISO string
-  end: string; // ISO string
-  price?: number;
-  description?: string;
-  color?: string;
-};
-// types/salon.ts
+export interface Pagination {
+  total: number;
+  page: number;
+  pages: number;
+}
 
-// Location type
+export interface Booking {
+  _id: string;
+  id?: string;
+  salonId: string | Salon;
+  stylistId: string | Stylist;
+  serviceId: string | Service;
+  bookingDate: string;
+  startTime: string;
+  serviceLocation: 'salon' | 'home';
+  serviceAddress?: {
+    address: string;
+    latitude: number;
+    longitude: number;
+  };
+  paymentMethod: 'online' | 'cash';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  paymentStatus: 'pending' | 'paid' | 'failed';
+  forSelf: boolean;
+  guestName?: string;
+  guestPhone?: string;
+  totalAmount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Location {
   latitude: number;
   longitude: number;
 }
 
-// Contact type
-export interface Contact {
-  phone: string;
-  email: string;
-  website: string;
-}
-
-// Service type
 export interface Service {
-  id: string;
-  title: string;
-  price: string;
+  _id: string;
+  id?: string;
+  category: string;
+  subCategory: string;
+  name: string;
+  price: number;
   duration: number;
-  description: string;
-  _id: string;
+  gender: 'Male' | 'Female' | 'Unisex';
+  description?: string;
+  addons?: Array<{
+    name: string;
+    price: number;
+    duration: number;
+  }>;
 }
 
-// Service Category type
-export interface ServiceCategory {
-  name: string;
-  services: Service[];
-  icon: string;
-  isActive: boolean;
-  _id: string;
-}
-
-// Stylist type
 export interface Stylist {
-  profilePhoto: string;
+  _id: string;
+  id?: string;
   name: string;
-  rating: number;
-  specialization: string[];
-  experience: string;
+  yearsOfExperience: number;
+  profilePhoto?: string;
+  rating?: number;
   isActive: boolean;
-  _id: string;
 }
 
-// Review type (if you have reviews in the future)
-export interface Review {
-  _id: string;
-  userId: string;
-  userName: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Main Salon type
 export interface Salon {
   _id: string;
+  id?: string;
   name: string;
-  images: string[];
   locationName: string;
-  description: string;
+  location: Location;
+  averagePrice: number;
+  amenities: string[];
+  openingTime: string;
+  closingTime: string;
+  slotDuration: number;
+  images: string[];
   rating: number;
   numberOfReviews: number;
-  averagePrice: string;
-  location: Location;
-  contact: Contact;
-  serviceCategories: ServiceCategory[];
-  stylists: Stylist[];
-  amenities: string[];
-  reviews: Review[];
+  distance?: number; // Added for nearby search
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  __v: number;
 }
 
-// API Response type
 export interface SalonApiResponse {
-  success: boolean;
+  status: string;
   data: Salon;
 }
 
-// Transformed Service Data for UI
+export interface SalonsApiResponse {
+  status: string;
+  data: Salon[];
+  pagination: Pagination;
+}
+
 export interface TransformedService {
   id: string;
   title: string;
-  price: string;
+  price: number;
   duration?: number;
   description?: string;
 }
@@ -105,26 +104,11 @@ export interface ServicesData {
   [category: string]: TransformedService[];
 }
 
-// Props for the component
 export interface SalonDetailsScreenProps {
   route: {
     params: {
       salonId: string;
     };
   };
-  navigation?: any; // You can use proper navigation type from @react-navigation/native
-}
-
-// Props for render functions
-export interface ImageCarouselItem {
-  item: string;
-  index: number;
-}
-
-export interface ServiceItemProps {
-  item: TransformedService;
-}
-
-export interface StylistCardProps {
-  stylist: Stylist;
+  navigation?: any;
 }

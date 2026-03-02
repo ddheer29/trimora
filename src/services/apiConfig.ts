@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useUserStore } from '../store/userStore';
 
-const BASE_URL = 'http://localhost:3000/';
+const BASE_URL = 'http://192.168.1.11:5001/api';
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -28,12 +28,27 @@ api.interceptors.response.use(
   response => {
     return response;
   },
-  error => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid - try to refresh token
+  async error => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
       const refreshToken = useUserStore.getState().refreshToken;
       if (refreshToken) {
-        // Implement token refresh logic here if needed
+        try {
+          const response = await axios.post(`${BASE_URL}/auth/refresh`, {
+            refreshToken,
+          });
+          const { accessToken, refreshToken: newRefreshToken } = response.data;
+          useUserStore.getState().setTokens({
+            accessToken,
+            refreshToken: newRefreshToken
+          });
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          return api(originalRequest);
+        } catch (refreshError) {
+          useUserStore.getState().logout();
+          return Promise.reject(refreshError);
+        }
       } else {
         useUserStore.getState().logout();
       }

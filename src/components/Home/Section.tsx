@@ -2,12 +2,19 @@ import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import theme from '../../utils/Theme';
 
-const Section = ({ title, data, renderItem, horizontal }) => (
+interface SectionProps {
+  title: string;
+  data: any[];
+  renderItem: React.ComponentType<any>;
+  horizontal?: boolean;
+}
+
+const Section: React.FC<SectionProps> = ({ title, data, renderItem, horizontal }) => (
   <View style={{ marginTop: theme.spacing.lg }}>
     <Text style={styles.title}>{title}</Text>
     <FlatList
       data={data}
-      keyExtractor={item => item._id}
+      keyExtractor={(item, index) => (item?._id || item?.id || index).toString()}
       horizontal={horizontal}
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ paddingLeft: 16 }}

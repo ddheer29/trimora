@@ -37,8 +37,11 @@ const VerifyOtpScreen = () => {
     try {
       const response = await authService.verifyOtp(phoneNumber, otp);
 
-      if (response.user && response.tokens) {
-        login(response.user, response.tokens);
+      if (response.accessToken && response.refreshToken && response.data?.user) {
+        login(response.data.user, {
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken
+        });
         Alert.alert('Success', 'Login successful!');
         resetAndNavigate('MainTabs');
       } else {
@@ -61,7 +64,7 @@ const VerifyOtpScreen = () => {
     try {
       const response = await authService.sendOtp(phoneNumber);
 
-      if (response.message === 'OTP sent successfully') {
+      if (response.status === 'success') {
         Alert.alert('Success', 'OTP sent successfully');
         setResendCountdown(30); // Reset countdown
         setOtpError('');
@@ -73,7 +76,7 @@ const VerifyOtpScreen = () => {
       Alert.alert(
         'Error',
         error.response?.data?.message ||
-          'Failed to resend OTP. Please try again.',
+        'Failed to resend OTP. Please try again.',
       );
     } finally {
       setIsResendLoading(false);
@@ -126,8 +129,8 @@ const VerifyOtpScreen = () => {
               theme={{
                 pinCodeContainerStyle: [
                   styles.pinCodeContainer,
-                  otpError && styles.pinCodeContainerError,
-                ],
+                  otpError ? styles.pinCodeContainerError : {},
+                ] as any,
                 pinCodeTextStyle: styles.pinCodeText,
                 focusStickStyle: styles.focusStick,
                 focusedPinCodeContainerStyle: styles.activePinCodeContainer,

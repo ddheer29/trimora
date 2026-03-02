@@ -2,10 +2,19 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import theme from '../../utils/Theme';
 
-const StylistCard = ({ avatar, name, specialty }) => {
+interface StylistCardProps {
+  avatar?: string;
+  name: string;
+  specialty: string;
+}
+
+const StylistCard: React.FC<StylistCardProps> = ({ avatar, name, specialty }) => {
   return (
     <View style={styles.card}>
-      <Image source={avatar} style={styles.avatar} />
+      <Image
+        source={{ uri: avatar || 'https://i.imgur.com/GXoYrQy.jpg' }}
+        style={styles.avatar}
+      />
       <Text style={styles.name} numberOfLines={1}>
         {name}
       </Text>

@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/BottomTabScreen/HomeScreen';
 import SettingScreen from '../screens/BottomTabScreen/SettingScreen';
 import AppointmentsScreen from '../screens/BottomTabScreen/AppointmentsScreen';
 import TrendsScreen from '../screens/BottomTabScreen/TrendsScreen';
-import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import theme from '../utils/Theme';
 import { requestMissingPermissions } from '@utils/PermissionHandler';
 
@@ -13,7 +13,8 @@ const Tab = createBottomTabNavigator();
 
 const TabNavigation = () => {
   useEffect(() => {
-    requestMissingPermissions();
+    // Temporarily disabled for debugging crash
+    // requestMissingPermissions();
   }, []);
 
   return (
@@ -61,19 +62,19 @@ const TabNavigation = () => {
         ),
         // eslint-disable-next-line react/no-unstable-nested-components
         tabBarIcon: ({ focused, color }) => {
-          let iconName;
+          let iconName: any = 'help-circle';
           if (route.name === 'Home') {
-            iconName = focused ? 'home-variant' : 'home-variant-outline';
+            iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Trends') {
-            iconName = focused ? 'image-multiple' : 'image-multiple-outline';
+            iconName = focused ? 'images' : 'images-outline';
           } else if (route.name === 'Appointments') {
-            iconName = focused ? 'calendar-check' : 'calendar-outline';
+            iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'Settings') {
-            iconName = focused ? 'cog' : 'cog-outline';
+            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           return (
-            <MaterialDesignIcons name={iconName} size={26} color={color} />
+            <Ionicons name={iconName} size={24} color={color} />
           );
         },
       })}

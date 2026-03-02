@@ -1,9 +1,9 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-import ForYouScreen from '@components/Home/ForYouScreen.';
+import ForYouScreen from '@components/Home/ForYouScreen';
 import NearbyScreen from '@components/Home/NearbyScreen';
 import CommonContainer from '@components/CommonContainer';
 import SearchBar from '@components/Home/SearchBar';

@@ -11,17 +11,18 @@ export const requestMissingPermissions = async () => {
   const permissions =
     Platform.OS === 'ios'
       ? [
-          PERMISSIONS.IOS.CAMERA,
-          PERMISSIONS.IOS.PHOTO_LIBRARY,
-          // Notifications handled separately below
-        ]
+        PERMISSIONS.IOS.CAMERA,
+        PERMISSIONS.IOS.PHOTO_LIBRARY,
+        // Notifications handled separately below
+      ]
       : [
-          PERMISSIONS.ANDROID.CAMERA,
-          Number(Platform.Version) >= 33
-            ? PERMISSIONS.ANDROID.READ_MEDIA_IMAGES
-            : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
-          'android.permission.POST_NOTIFICATIONS' as any,
-        ];
+        PERMISSIONS.ANDROID.CAMERA,
+        Number(Platform.Version) >= 33
+          ? PERMISSIONS.ANDROID.READ_MEDIA_IMAGES
+          : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
+        // Use standard constant or raw string if missing from types
+        (PERMISSIONS.ANDROID as any).POST_NOTIFICATIONS || 'android.permission.POST_NOTIFICATIONS',
+      ].filter(Boolean);
 
   for (const permission of permissions) {
     try {

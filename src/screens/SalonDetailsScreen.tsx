@@ -15,7 +15,7 @@ import CommonContainer from '../components/CommonContainer';
 import theme from '../utils/Theme';
 import MapView, { Marker } from 'react-native-maps';
 import { salonService } from '@/services/salonService';
-import { Salon, SalonDetailsScreenProps, ServicesData } from '@/types';
+import { Salon, SalonDetailsScreenProps, ServicesData, Stylist, Service } from '@/types';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +23,9 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [salonData, setSalonData] = useState<Salon | null>(null);
   const [servicesData, setServicesData] = useState<ServicesData>({});
+  const [salonStylists, setSalonStylists] = useState<Stylist[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleOpenMap = () => {
     if (salonData?.location) {
@@ -31,10 +34,10 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
     }
   };
 
-  const renderAllProfilePics = ({ item, index }) => {
+  const renderAllProfilePics = ({ item, index }: { item: string; index: number }) => {
     const size = width / 1.48;
     return (
-      <View style={{ marginRight: 8 }}>
+      <View key={index} style={{ marginRight: 8 }}>
         <Image
           source={{ uri: item }}
           style={{ width: size, height: size, borderRadius: 12 }}
@@ -50,51 +53,63 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
     {
       useNativeDriver: false,
-      listener: event => {
+      listener: (event: any) => {
         const offsetY = event.nativeEvent.contentOffset.y;
         setShowBookButton(offsetY < 100);
       },
     },
   );
 
-  const fetchSalon = async () => {
+  const fetchSalonData = async () => {
     try {
-      const response = await salonService.getSalonById(route.params.salonId);
-      console.log(
-        '🚀 -> fetchSalon -> response:',
-        JSON.stringify(response, null, 2),
-      );
+      setLoading(true);
+      const salonId = route.params.salonId;
 
-      if (response.success && response.data) {
-        const salon = response.data;
-        setSalonData(salon);
+      // Fetch Salon Details
+      const salonRes = await salonService.getSalonById(salonId);
+      if (salonRes.status === 'success') {
+        setSalonData(salonRes.data);
+      }
 
-        // Set first category as selected by default
-        if (salon.serviceCategories && salon.serviceCategories.length > 0) {
-          setSelectedCategory(salon.serviceCategories[0].name);
+      // Fetch Services
+      const servicesRes = await salonService.getSalonServices(salonId, 1, 100);
+      if (servicesRes.status === 'success') {
+        const services = servicesRes.data || [];
+        const grouped = services.reduce((acc: ServicesData, service: Service) => {
+          const cat = service.category || 'Other';
+          if (!acc[cat]) acc[cat] = [];
+          acc[cat].push({
+            id: service._id,
+            title: service.name,
+            price: service.price,
+            duration: service.duration,
+            description: service.description,
+          });
+          return acc;
+        }, {} as ServicesData);
+
+        setServicesData(grouped);
+        const cats = Object.keys(grouped);
+        setCategories(cats);
+        if (cats.length > 0) {
+          setSelectedCategory(cats[0]);
         }
+      }
 
-        // Transform service categories into servicesData format
-        const transformedServices = {};
-        salon.serviceCategories?.forEach(category => {
-          transformedServices[category.name] =
-            category.services?.map(service => ({
-              id: service.id || service._id,
-              title: service.title,
-              price: service.price,
-              duration: service.duration,
-              description: service.description,
-            })) || [];
-        });
-        setServicesData(transformedServices);
+      // Fetch Stylists
+      const stylistsRes = await salonService.getSalonStylists(salonId);
+      if (stylistsRes.status === 'success') {
+        setSalonStylists(stylistsRes.data || []);
       }
     } catch (error) {
-      console.log('🚀 -> fetchSalon -> error:', error);
+      console.log('🚀 -> fetchSalonData -> error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSalon();
+    fetchSalonData();
   }, []);
 
   return (
@@ -150,24 +165,24 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
             showsHorizontalScrollIndicator={false}
             style={styles.categoryTabContainer}
           >
-            {salonData?.serviceCategories?.map(category => (
+            {categories.map(category => (
               <TouchableOpacity
                 key={category}
                 onPress={() => setSelectedCategory(category)}
                 style={[
                   styles.categoryTab,
-                  selectedCategory === category.name &&
-                    styles.selectedCategoryTab,
+                  selectedCategory === category &&
+                  styles.selectedCategoryTab,
                 ]}
               >
                 <Text
                   style={[
                     styles.categoryText,
-                    selectedCategory === category.name &&
-                      styles.selectedCategoryText,
+                    selectedCategory === category &&
+                    styles.selectedCategoryText,
                   ]}
                 >
-                  {category.name}
+                  {category}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -204,8 +219,8 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
             />
           </View>
 
-          {/* 📝 Description */}
-          {salonData?.stylists && salonData?.stylists.length > 0 && (
+          {/* 📝 Stylists */}
+          {salonStylists && salonStylists.length > 0 && (
             <>
               <Text style={styles.sectionHeading}>Our Stylists</Text>
               <ScrollView
@@ -215,7 +230,7 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
                   marginBottom: theme.spacing.lg,
                 }}
               >
-                {salonData?.stylists.map((stylist, index) => (
+                {salonStylists.map((stylist, index) => (
                   <View key={stylist._id} style={styles.stylistCard}>
                     <Image
                       source={{ uri: stylist.profilePhoto }}
@@ -223,11 +238,11 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
                     />
                     <Text style={styles.stylistName}>{stylist.name}</Text>
                     <Text style={styles.stylistRating}>
-                      ⭐ {stylist.rating}
+                      ⭐ {stylist.rating || 0}
                     </Text>
-                    {stylist.experience && (
+                    {stylist.yearsOfExperience && (
                       <Text style={styles.stylistExperience}>
-                        {stylist.experience} years exp
+                        {stylist.yearsOfExperience} years exp
                       </Text>
                     )}
                   </View>
@@ -267,21 +282,13 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
             </>
           )}
 
-          {/* 🌟 Ratings & Reviews */}
+          {/* 🌟 Ratings & Reviews (Mocked/Placeholder) */}
           <Text style={styles.sectionHeading}>Ratings & Reviews</Text>
           <View style={styles.reviewBox}>
             <Text style={styles.ratingValue}>{salonData?.rating || 0} ⭐</Text>
-            {salonData?.reviews && salonData?.reviews.length > 0 ? (
-              salonData?.reviews.map(review => (
-                <Text key={review._id} style={styles.reviewText}>
-                  "{review.comment}"
-                </Text>
-              ))
-            ) : (
-              <Text style={styles.reviewText}>
-                No reviews yet. Be the first to review!
-              </Text>
-            )}
+            <Text style={styles.reviewText}>
+              No reviews yet. Be the first to review!
+            </Text>
           </View>
 
           {/* 🛠️ Amenities */}

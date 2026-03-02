@@ -12,8 +12,8 @@ const PhoneNumberScreen = () => {
   const [loginLoading, setLoginLoading] = useState(false);
 
   const handleLogin = async () => {
-    const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
-    if (!cleanedPhoneNumber || cleanedPhoneNumber.length < 10) {
+    const numericPhone = phoneNumber.replace(/\D/g, '');
+    if (!numericPhone || numericPhone.length < 10) {
       Alert.alert('Error', 'Please enter a valid phone number');
       return;
     }
@@ -21,7 +21,7 @@ const PhoneNumberScreen = () => {
     try {
       const response = await authService.sendOtp(phoneNumber);
 
-      if (response.message === 'OTP sent successfully') {
+      if (response.status === 'success') {
         Alert.alert('Success', 'OTP sent successfully to ' + phoneNumber);
         navigate('VerifyOtpScreen', { phoneNumber: phoneNumber });
       } else {
@@ -32,7 +32,7 @@ const PhoneNumberScreen = () => {
       Alert.alert(
         'Error',
         error.response?.data?.message ||
-          'Failed to send OTP. Please try again.',
+        'Failed to send OTP. Please try again.',
       );
     } finally {
       setLoginLoading(false);
@@ -40,7 +40,7 @@ const PhoneNumberScreen = () => {
   };
 
   const handlePhoneNumberChange = (text: string) => {
-    const cleaned = text.replace(/\D/g, '');
+    const cleaned = text.replace(/[^\d+]/g, '');
     setPhoneNumber(cleaned);
   };
 
@@ -48,6 +48,10 @@ const PhoneNumberScreen = () => {
     if (!value) return '';
 
     const cleaned = value.replace(/\D/g, '');
+    // If it's a long number (including country code), just show it
+    if (cleaned.length > 10) {
+      return value.startsWith('+') ? value : '+' + value;
+    }
     const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
 
     if (match) {

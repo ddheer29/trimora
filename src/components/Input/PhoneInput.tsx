@@ -34,7 +34,25 @@ const COUNTRIES = [
   // Add more countries as needed
 ];
 
-const PhoneInput = ({
+interface PhoneInputProps {
+  value?: string;
+  onChangeText?: (text: string) => void;
+  onCountryChange?: (country: any) => void;
+  theme?: any;
+  containerStyle?: any;
+  countryCodeButtonStyle?: any;
+  inputStyle?: any;
+  modalStyle?: any;
+  countryItemStyle?: any;
+  placeholder?: string;
+  placeholderTextColor?: string;
+  defaultCountry?: string;
+  enableLocationDetection?: boolean;
+  askForPermission?: boolean;
+  [key: string]: any;
+}
+
+const PhoneInput: React.FC<PhoneInputProps> = ({
   // Value & handlers
   value = '',
   onChangeText,
@@ -192,7 +210,7 @@ const PhoneInput = ({
   };
 
   // Get country from coordinates using reverse geocoding
-  const getCountryFromCoordinates = (latitude, longitude) => {
+  const getCountryFromCoordinates = (latitude: number, longitude: number): Promise<string> => {
     return new Promise((resolve, reject) => {
       const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
 
@@ -212,10 +230,10 @@ const PhoneInput = ({
   };
 
   // Handle location-based country detection
-  const getLocationBasedCountry = () => {
+  const getLocationBasedCountry = (): Promise<string> => {
     return new Promise((resolve, reject) => {
       Geolocation.getCurrentPosition(
-        async position => {
+        async (position: any) => {
           try {
             const { latitude, longitude } = position.coords;
             const countryCode = await getCountryFromCoordinates(
@@ -227,7 +245,7 @@ const PhoneInput = ({
             reject(error);
           }
         },
-        error => {
+        (error: any) => {
           reject(error);
         },
         {
@@ -258,7 +276,7 @@ const PhoneInput = ({
       }
 
       // Get location and country
-      const countryCode = await getLocationBasedCountry();
+      const countryCode = (await getLocationBasedCountry()) as string;
 
       const detectedCountry = COUNTRIES.find(
         country => country.code === countryCode.toUpperCase(),
@@ -280,11 +298,11 @@ const PhoneInput = ({
         });
         setSortedCountries(sorted);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Location-based detection failed:', error);
 
       // Show appropriate error message
-      if (error.code === 1 || error.code === 2 || error.code === 3) {
+      if (error?.code === 1 || error?.code === 2 || error?.code === 3) {
         // Permission denied or location unavailable
         Alert.alert(
           'Location Unavailable',
@@ -344,7 +362,7 @@ const PhoneInput = ({
     }
   }, [enableLocationDetection]);
 
-  const handleCountrySelect = country => {
+  const handleCountrySelect = (country: any) => {
     setSelectedCountry(country);
     setModalVisible(false);
 
@@ -354,7 +372,7 @@ const PhoneInput = ({
     onCountryChange?.(country);
   };
 
-  const handlePhoneNumberChange = text => {
+  const handlePhoneNumberChange = (text: string) => {
     // Remove non-numeric characters except plus sign
     const cleanedText = text.replace(/[^\d]/g, '');
     setPhoneNumber(cleanedText);
@@ -388,7 +406,7 @@ const PhoneInput = ({
     );
   };
 
-  const renderCountryItem = ({ item }) => (
+  const renderCountryItem = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={[styles(currentTheme).countryItem, countryItemStyle]}
       onPress={() => handleCountrySelect(item)}
@@ -499,7 +517,7 @@ const PhoneInput = ({
                   style={[
                     styles(currentTheme).detectButton,
                     isDetectingLocation &&
-                      styles(currentTheme).detectButtonDisabled,
+                    styles(currentTheme).detectButtonDisabled,
                   ]}
                   onPress={manuallyDetectLocation}
                   disabled={isDetectingLocation}
@@ -531,7 +549,7 @@ const PhoneInput = ({
   );
 };
 
-const styles = theme =>
+const styles = (theme: any) =>
   StyleSheet.create({
     container: {
       flexDirection: 'row',

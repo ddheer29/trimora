@@ -10,7 +10,27 @@ import {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const CustomButton = ({
+interface CustomButtonProps {
+  title?: string;
+  titleStyle?: any;
+  loading?: boolean;
+  loadingColor?: string;
+  style?: any;
+  backgroundColor?: string;
+  disabledBackgroundColor?: string;
+  textColor?: string;
+  disabledTextColor?: string;
+  height?: number;
+  borderRadius?: number;
+  fullWidth?: boolean;
+  animated?: boolean;
+  onPress?: () => void;
+  testID?: string;
+  accessibilityLabel?: string;
+  disabled?: boolean;
+}
+
+const CustomButton: React.FC<CustomButtonProps> = ({
   // Content props
   title = 'Button',
   titleStyle = {},
@@ -33,11 +53,12 @@ const CustomButton = ({
   animated = false,
 
   // Function props
-  onPress = () => {},
+  onPress = () => { },
 
   // Other props
   testID = '',
   accessibilityLabel = '',
+  disabled = false,
 }) => {
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
@@ -68,7 +89,7 @@ const CustomButton = ({
   const buttonStyles = [
     styles.button,
     {
-      backgroundColor: loading ? disabledBackgroundColor : backgroundColor,
+      backgroundColor: (loading || disabled) ? disabledBackgroundColor : backgroundColor,
       height,
       borderRadius,
       width: fullWidth ? SCREEN_WIDTH - 32 : undefined,
@@ -93,17 +114,17 @@ const CustomButton = ({
       onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      disabled={loading}
+      disabled={loading || disabled}
       activeOpacity={0.8}
       testID={testID}
       accessibilityLabel={accessibilityLabel || title}
       accessibilityRole="button"
-      accessibilityState={{ disabled: loading }}
+      accessibilityState={{ disabled: loading || disabled }}
     >
       {loading ? (
         <ActivityIndicator size="small" color={loadingColor} />
       ) : (
-        <Text style={textStyles} numberOfLines={1}>
+        <Text style={[textStyles, (loading || disabled) && { color: disabledTextColor }]} numberOfLines={1}>
           {title}
         </Text>
       )}
