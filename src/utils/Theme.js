@@ -19,7 +19,7 @@ const theme = {
     textOnPrimary: '#FFFFFF',
 
     // 🟩 Status Colors
-    success: '#B4E1C6',
+    success: '#77c997ff',
     warning: '#FFF5BA',
     error: '#FFCCCC',
   },

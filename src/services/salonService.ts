@@ -168,6 +168,12 @@ export const salonService = {
     const response = await api.delete(`/partner/services/${serviceId}`);
     return response.data;
   },
+
+  // Create a new booking
+  bookService: async (bookingData: any): Promise<ApiResponse<any>> => {
+    const response = await api.post('/customers/bookings', bookingData);
+    return response.data;
+  },
 };
 
 export interface ApiResponse<T> {

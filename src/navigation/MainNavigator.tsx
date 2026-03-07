@@ -17,6 +17,10 @@ import AddEditStylistScreen from '@screens/PartnerSide/AddEditStylistScreen';
 import ManageServicesScreen from '@screens/PartnerSide/ManageServicesScreen';
 import AddEditServiceScreen from '@screens/PartnerSide/AddEditServiceScreen';
 import SalonsScreen from '@screens/SalonsScreen';
+import StylistAndTimeSlotScreen from '../screens/StylistAndTimeSlotScreen';
+import BookingForScreen from '../screens/BookingForScreen';
+import PaymentScreen from '../screens/PaymentScreen';
+import BookingSuccessScreen from '../screens/BookingSuccessScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -24,6 +28,10 @@ export type RootStackParamList = {
   NotificationsScreen: undefined;
   PartnerBottomTab: undefined;
   MainTabs: undefined;
+  StylistAndTimeSlotScreen: undefined;
+  BookingForScreen: undefined;
+  PaymentScreen: undefined;
+  BookingSuccessScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -99,6 +107,16 @@ const MainNavigator: FC = () => {
         component={AddEditServiceScreen}
       />
       <Stack.Screen name="SalonsScreen" component={SalonsScreen} />
+      <Stack.Screen
+        name="StylistAndTimeSlotScreen"
+        component={StylistAndTimeSlotScreen}
+      />
+      <Stack.Screen name="BookingForScreen" component={BookingForScreen} />
+      <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
+      <Stack.Screen
+        name="BookingSuccessScreen"
+        component={BookingSuccessScreen}
+      />
     </Stack.Navigator>
   );
 };

@@ -22,10 +22,14 @@ import {
   Stylist,
   Service,
 } from '@/types';
+import { useCartStore } from '@/store/cartStore';
 
 const { width } = Dimensions.get('window');
 
-const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
+const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
+  route,
+  navigation,
+}) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [salonData, setSalonData] = useState<Salon | null>(null);
   const [servicesData, setServicesData] = useState<ServicesData>({});
@@ -33,9 +37,17 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const {
+    services: cartServices,
+    addService,
+    removeService,
+    setSalon,
+    salonId: cartSalonId,
+  } = useCartStore();
+
   const handleOpenMap = () => {
     if (salonData?.location) {
-      const { latitude, longitude } = salonData.location;
+      const [longitude, latitude] = salonData.location.coordinates;
       Linking.openURL(`https://maps.google.com?q=${latitude},${longitude}`);
     }
   };
@@ -79,7 +91,11 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
       const salonRes = await salonService.getSalonById(salonId);
       console.log('🚀 -> fetchSalonData -> salonRes:', salonRes);
       if (salonRes.status === 'success') {
-        setSalonData(salonRes.data.salon);
+        const salon = salonRes.data.salon;
+        setSalonData(salon);
+        if (cartSalonId !== salon._id) {
+          setSalon(salon._id, salon.name);
+        }
       }
 
       const servicesRes = await salonService.getSalonServices(salonId, 1, 100);
@@ -164,7 +180,7 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
             <Text style={styles.title}>{salonData?.name}</Text>
             <Text style={styles.subtitle}>{salonData?.locationName}</Text>
             <Text style={styles.rating}>
-              ⭐ {salonData?.rating || 0} ({salonData?.numberOfReviews || 0}{' '}
+              ⭐ {salonData?.rating || 0} ({salonData?.totalReviews || 0}{' '}
               reviews)
             </Text>
             <Text style={styles.pricing}>
@@ -221,8 +237,35 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
                       </Text>
                     ) : null}
                   </View>
-                  <TouchableOpacity style={styles.addButton}>
-                    <Text style={styles.addButtonText}>Add</Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.addButton,
+                      cartServices.find(s => s._id === item.id) &&
+                        styles.removeButton,
+                    ]}
+                    onPress={() => {
+                      const isAdded = cartServices.find(s => s._id === item.id);
+                      if (isAdded) {
+                        removeService(item.id);
+                      } else {
+                        addService({
+                          _id: item.id,
+                          name: item.title,
+                          price: item.price,
+                          duration: item.duration || 0,
+                          category: selectedCategory,
+                          subCategory: '',
+                          gender: 'Unisex',
+                          description: item.description,
+                        });
+                      }
+                    }}
+                  >
+                    <Text style={styles.addButtonText}>
+                      {cartServices.find(s => s._id === item.id)
+                        ? 'Remove'
+                        : 'Add'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -316,8 +359,19 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
             </>
           )}
         </Animated.ScrollView>
-        {showBookButton && (
-          <TouchableOpacity style={styles.bookNowButton}>
+        {cartServices.length > 0 && (
+          <TouchableOpacity
+            style={styles.bookNowButton}
+            onPress={() => navigation?.navigate('StylistAndTimeSlotScreen')}
+          >
+            <View style={styles.cartInfo}>
+              <Text style={styles.cartCount}>
+                {cartServices.length} {cartServices.length === 1 ? 'Service' : 'Services'} Added
+              </Text>
+              <Text style={styles.cartTotal}>
+                Total: ₹{cartServices.reduce((sum, s) => sum + s.price, 0)}
+              </Text>
+            </View>
             <Text style={styles.bookNowButtonText}>Book Now</Text>
           </TouchableOpacity>
         )}
@@ -407,6 +461,9 @@ const styles = StyleSheet.create({
     color: theme.colors.textOnPrimary,
     fontFamily: theme.fonts.subheading,
   },
+  removeButton: {
+    backgroundColor: theme.colors.error || '#FF5252',
+  },
   descriptionContainer: {
     maxHeight: width,
     marginBottom: theme.spacing.lg,
@@ -480,15 +537,31 @@ const styles = StyleSheet.create({
     right: theme.spacing.lg,
     backgroundColor: theme.colors.primaryDark,
     paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.lg,
     borderRadius: theme.borderRadius.full,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     ...theme.shadows.medium,
     zIndex: 99,
   },
   bookNowButtonText: {
     color: theme.colors.textOnPrimary,
     fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.subheading,
+  },
+  cartInfo: {
+    flex: 1,
+    paddingLeft: theme.spacing.sm,
+  },
+  cartCount: {
+    color: theme.colors.textOnPrimary,
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.body,
+  },
+  cartTotal: {
+    color: theme.colors.textOnPrimary,
+    fontSize: theme.fontSizes.sm,
     fontFamily: theme.fonts.subheading,
   },
   stylistRating: {
