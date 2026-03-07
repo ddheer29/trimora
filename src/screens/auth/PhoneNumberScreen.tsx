@@ -134,8 +134,18 @@ const PhoneNumberScreen = () => {
               </Text>
             </View>
             <View style={styles.linksContainer}>
-              <Text style={styles.linkText}>Terms of Service</Text>
-              <Text style={styles.linkText}>Privacy Policy</Text>
+              <Text
+                style={styles.linkText}
+                onPress={() => navigate('TermsOfService')}
+              >
+                Terms of Service
+              </Text>
+              <Text
+                style={styles.linkText}
+                onPress={() => navigate('PrivacyPolicy')}
+              >
+                Privacy Policy
+              </Text>
             </View>
             {/* Toggle Button */}
             <View style={styles.toggleContainer}>

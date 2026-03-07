@@ -22,6 +22,8 @@ import BookingForScreen from '../screens/BookingForScreen';
 import PaymentScreen from '../screens/PaymentScreen';
 import BookingSuccessScreen from '../screens/BookingSuccessScreen';
 import BookingDetailsScreen from '../screens/PartnerSide/BookingDetailsScreen';
+import TermsOfService from '@screens/legal/TermsOfService';
+import PrivacyPolicy from '@screens/legal/PrivacyPolicy';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -123,6 +125,9 @@ const MainNavigator: FC = () => {
         name="BookingDetailsScreen"
         component={BookingDetailsScreen}
       />
+
+      <Stack.Screen name="TermsOfService" component={TermsOfService} />
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
     </Stack.Navigator>
   );
 };
