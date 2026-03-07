@@ -35,15 +35,38 @@ const VerifyOtpScreen = () => {
     setOtpError('');
 
     try {
-      const response = await authService.verifyOtp(phoneNumber, otp);
+      const params = route.params as { loginAs?: string } | undefined;
+      const response = await authService.verifyOtp(
+        phoneNumber,
+        otp,
+        params?.loginAs,
+      );
+      console.log('🚀 -> handleOtpFilled -> response:', response);
 
-      if (response.accessToken && response.refreshToken && response.data?.user) {
+      if (
+        response.accessToken &&
+        response.refreshToken &&
+        response.data?.user
+      ) {
         login(response.data.user, {
           accessToken: response.accessToken,
-          refreshToken: response.refreshToken
+          refreshToken: response.refreshToken,
         });
         Alert.alert('Success', 'Login successful!');
-        resetAndNavigate('MainTabs');
+        const actualUser = response.data.user;
+        if (actualUser.role === 'partner') {
+          if (actualUser.isProfileCompleted) {
+            resetAndNavigate('PartnerBottomTab');
+          } else {
+            resetAndNavigate('SalonSetupWelcomeScreen');
+          }
+        } else {
+          if (actualUser.isProfileCompleted) {
+            resetAndNavigate('MainTabs');
+          } else {
+            resetAndNavigate('EditProfileScreen');
+          }
+        }
       } else {
         setOtpError('Invalid OTP. Please try again.');
       }
@@ -76,7 +99,7 @@ const VerifyOtpScreen = () => {
       Alert.alert(
         'Error',
         error.response?.data?.message ||
-        'Failed to resend OTP. Please try again.',
+          'Failed to resend OTP. Please try again.',
       );
     } finally {
       setIsResendLoading(false);

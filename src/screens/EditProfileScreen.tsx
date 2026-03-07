@@ -18,9 +18,15 @@ import theme from '../utils/Theme';
 import CustomAlert from '../components/CustomAlert';
 import { useUserStore } from '@/store/userStore';
 import { userService } from '@/services/userService';
-import { goBack } from '@utils/NavigationUtil';
+import { goBack, resetAndNavigate } from '@utils/NavigationUtil';
 
 const dressTypes = ['Home', 'Work', 'Others'];
+
+interface AlertOption {
+  text: string;
+  onPress: () => void;
+  style?: 'cancel' | 'default' | 'destructive';
+}
 
 const EditProfileScreen = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -37,7 +43,7 @@ const EditProfileScreen = () => {
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     message: '',
-    options: [] as any[],
+    options: [] as AlertOption[],
   });
 
   const { user, updateUser } = useUserStore();
@@ -64,8 +70,8 @@ const EditProfileScreen = () => {
       setLoading(true);
       const response = await userService.getProfile();
 
-      if (response.data) {
-        const userData = response.data;
+      if (response.data?.user) {
+        const userData = response.data.user;
         updateUser(userData);
       }
     } catch (error: any) {
@@ -91,9 +97,9 @@ const EditProfileScreen = () => {
         ]);
         return (
           granted['android.permission.CAMERA'] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
+            PermissionsAndroid.RESULTS.GRANTED &&
           granted['android.permission.READ_EXTERNAL_STORAGE'] ===
-          PermissionsAndroid.RESULTS.GRANTED
+            PermissionsAndroid.RESULTS.GRANTED
         );
       } catch (err) {
         console.warn(err);
@@ -158,7 +164,11 @@ const EditProfileScreen = () => {
       const formData = new FormData();
       formData.append('name', name.trim());
       formData.append('email', email.trim());
-      formData.append('address', address1.trim() + (address2 ? ', ' + address2.trim() : ''));
+      formData.append('phone', phone.trim());
+      formData.append(
+        'address',
+        address1.trim() + (address2 ? ', ' + address2.trim() : ''),
+      );
       formData.append('dob', dob.toISOString());
 
       if (profileImage && profileImage.startsWith('file://')) {
@@ -172,12 +182,25 @@ const EditProfileScreen = () => {
         } as any);
       }
 
+      console.log('🚀 -> handleSaveProfile -> formData:', formData);
       const response = await userService.updateProfile(formData);
+      console.log('🚀 -> handleSaveProfile -> response:', response);
 
-      if (response.status === 'success' && response.data) {
-        updateUser(response.data);
+      if (response.status === 'success' && response.data?.user) {
+        const updatedUserData = response.data.user;
+        updateUser(updatedUserData);
         Alert.alert('Success', 'Profile updated successfully');
-        goBack();
+
+        // Navigate based on role and profile completion status using the latest data
+        if (updatedUserData.isProfileCompleted) {
+          if (updatedUserData.role === 'partner') {
+            resetAndNavigate('PartnerBottomTab');
+          } else {
+            resetAndNavigate('MainTabs');
+          }
+        } else {
+          goBack();
+        }
       } else {
         Alert.alert('Error', response.message || 'Failed to update profile');
       }
@@ -186,24 +209,12 @@ const EditProfileScreen = () => {
       Alert.alert(
         'Error',
         error.response?.data?.message ||
-        'Failed to update profile. Please try again.',
+          'Failed to update profile. Please try again.',
       );
     } finally {
       setLoading(false);
     }
   };
-
-  // Pre-fill form with existing user data
-  useEffect(() => {
-    if (user) {
-      setName(user.name || '');
-      setEmail(user.email || '');
-      setPhone(user.phone || '');
-      setProfileImage(user.profilePhoto || null);
-      setAddress1(user.address || '');
-      setDob(user.dob ? new Date(user.dob) : new Date());
-    }
-  }, [user]);
 
   return (
     <CommonContainer
@@ -348,7 +359,7 @@ const EditProfileScreen = () => {
           visible={alertVisible}
           title={alertConfig.title}
           message={alertConfig.message}
-          options={alertConfig.options}
+          options={alertConfig.options as any}
           onRequestClose={() => setAlertVisible(false)}
         />
       </ScrollView>

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useUserStore } from '../store/userStore';
 
-const BASE_URL = 'http://192.168.1.11:5001/api';
+const BASE_URL = 'http://172.16.2.112:5001/api';
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -41,7 +41,7 @@ api.interceptors.response.use(
           const { accessToken, refreshToken: newRefreshToken } = response.data;
           useUserStore.getState().setTokens({
             accessToken,
-            refreshToken: newRefreshToken
+            refreshToken: newRefreshToken,
           });
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return api(originalRequest);

@@ -57,6 +57,7 @@ export interface Stylist {
   name: string;
   yearsOfExperience: number;
   profilePhoto?: string;
+  stylistImage?: string; // API consistency
   rating?: number;
   isActive: boolean;
 }

@@ -10,6 +10,7 @@ const PhoneNumberScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [loginLoading, setLoginLoading] = useState(false);
+  const [loginAs, setLoginAs] = useState('partner');
 
   const handleLogin = async () => {
     const numericPhone = phoneNumber.replace(/\D/g, '');
@@ -19,11 +20,15 @@ const PhoneNumberScreen = () => {
     }
     setLoginLoading(true);
     try {
-      const response = await authService.sendOtp(phoneNumber);
+      const response = await authService.sendOtp(phoneNumber, loginAs);
+      console.log('🚀 -> handleLogin -> response:', response);
 
       if (response.status === 'success') {
         Alert.alert('Success', 'OTP sent successfully to ' + phoneNumber);
-        navigate('VerifyOtpScreen', { phoneNumber: phoneNumber });
+        navigate('VerifyOtpScreen', {
+          phoneNumber: phoneNumber,
+          loginAs: loginAs,
+        });
       } else {
         Alert.alert('Error', response.message || 'Failed to send OTP');
       }
@@ -32,7 +37,7 @@ const PhoneNumberScreen = () => {
       Alert.alert(
         'Error',
         error.response?.data?.message ||
-        'Failed to send OTP. Please try again.',
+          'Failed to send OTP. Please try again.',
       );
     } finally {
       setLoginLoading(false);
@@ -113,6 +118,30 @@ const PhoneNumberScreen = () => {
               <Text style={styles.linkText}>Terms of Service</Text>
               <Text style={styles.linkText}>Privacy Policy</Text>
             </View>
+            {/* Toggle Button */}
+            <View style={styles.toggleContainer}>
+              <View style={styles.toggleWrapper}>
+                <Text
+                  onPress={() => setLoginAs('customer')}
+                  style={[
+                    styles.toggleText,
+                    loginAs === 'customer' && styles.activeToggleText,
+                  ]}
+                >
+                  Customer
+                </Text>
+
+                <Text
+                  onPress={() => setLoginAs('partner')}
+                  style={[
+                    styles.toggleText,
+                    loginAs === 'partner' && styles.activeToggleText,
+                  ]}
+                >
+                  Partner
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
       </View>
@@ -181,5 +210,30 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.sm / 2,
     textDecorationLine: 'underline',
     fontSize: theme.fontSizes.xs,
+  },
+  toggleContainer: {
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.md,
+  },
+
+  toggleWrapper: {
+    flexDirection: 'row',
+    backgroundColor: theme.colors.border,
+    borderRadius: 30,
+    padding: 4,
+  },
+
+  toggleText: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+  },
+
+  activeToggleText: {
+    backgroundColor: theme.colors.primaryDark,
+    color: theme.colors.textOnPrimary,
   },
 });

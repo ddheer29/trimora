@@ -60,9 +60,11 @@ export const useUserStore = create<UserState>()(
       },
       updateUser: (updatedUser: Partial<User>) => {
         const currentUser = get().user;
-        if (currentUser) {
-          set({ user: { ...currentUser, ...updatedUser } });
-        }
+        set({
+          user: currentUser
+            ? { ...currentUser, ...updatedUser }
+            : (updatedUser as User),
+        });
       },
       setTokens: (tokens: { accessToken: string; refreshToken: string }) => {
         set({

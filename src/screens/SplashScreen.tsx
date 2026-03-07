@@ -3,23 +3,59 @@ import { Animated, StyleSheet, View } from 'react-native';
 import { resetAndNavigate } from '../utils/NavigationUtil';
 import theme from '../utils/Theme';
 import { useUserStore } from '../store/userStore';
+import { userService } from '../services/userService';
 
 const SplashScreen = () => {
   const [isStop, setIsStop] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
-  const { isLoggedIn } = useUserStore();
+  const { isLoggedIn, user, updateUser } = useUserStore();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    const checkUserStatus = async () => {
+      if (isLoggedIn) {
+        try {
+          const response = await userService.getProfile();
+          console.log('🚀 -> checkUserStatus -> response:', response);
+          if (response.data?.user) {
+            updateUser(response.data.user);
+          }
+        } catch (error) {
+          console.log('Error refreshing profile in splash:', error);
+        }
+      }
+      setIsReady(true);
+    };
+
+    checkUserStatus();
+  }, [isLoggedIn, updateUser]);
+
+  useEffect(() => {
+    if (!isReady) return;
+
     const timer = setTimeout(() => {
       if (isLoggedIn) {
-        resetAndNavigate('MainTabs');
+        if (!user?.isProfileCompleted) {
+          if (user?.role === 'partner') {
+            resetAndNavigate('SalonSetupWelcomeScreen');
+          } else {
+            resetAndNavigate('EditProfileScreen');
+          }
+          return;
+        }
+
+        if (user?.role === 'partner') {
+          resetAndNavigate('PartnerBottomTab');
+        } else {
+          resetAndNavigate('MainTabs');
+        }
       } else {
         resetAndNavigate('AuthNavigator');
       }
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [isLoggedIn]);
+  }, [isLoggedIn, user, isReady]);
 
   useEffect(() => {
     const breatingAnimation = Animated.loop(
