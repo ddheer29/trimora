@@ -222,3 +222,29 @@ export interface UpcomingBookingsApiResponse {
     upcomingBookings: UpcomingBooking[];
   };
 }
+
+export interface CustomerBooking {
+  bookingId: string;
+  salonId: string;
+  salonName: string;
+  salonImage: string;
+  serviceName: string;
+  serviceId: string;
+  stylistName: string;
+  stylistId: string;
+  bookingDate: string;
+  bookingTime: string;
+  bookingStatus: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  price: number;
+  duration: number;
+  salonAddress: string;
+  salonDistance?: string;
+}
+
+export interface CustomerBookingsApiResponse {
+  status: string;
+  data: {
+    bookings: CustomerBooking[];
+    pagination: Pagination;
+  };
+}

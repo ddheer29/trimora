@@ -1,61 +1,193 @@
 import {
-  Image,
-  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import theme from '../../utils/Theme';
+import { bookingService } from '@/services/bookingService';
+import { CustomerBooking } from '@/types';
+import BookingCard from '@/components/Booking/BookingCard';
+import RatingModal from '@/components/Booking/RatingModal';
+import Toast from 'react-native-toast-message';
 
-type Props = {
-  imageUrl: string;
-  name: string;
-  location: string;
-  rating: number;
-  onPress: () => void;
-};
+const CompletedScreen = ({ navigation }: any) => {
+  const [bookings, setBookings] = useState<CustomerBooking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-export const SalonCard = ({
-  imageUrl,
-  name,
-  location,
-  rating,
-  onPress,
-}: Props) => {
-  return (
-    <TouchableOpacity onPress={onPress} style={styles.card}>
-      <Image source={{ uri: imageUrl }} style={styles.image} />
-
-      <View style={styles.details}>
-        <Text style={styles.name} numberOfLines={1}>
-          {name}
-        </Text>
-        <Text style={styles.location} numberOfLines={1}>
-          📍 {location}
-        </Text>
-        <Text style={styles.rating}>⭐ {rating.toFixed(1)} / 5</Text>
-
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Book Now</Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
+  const [ratingVisible, setRatingVisible] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
+    null,
   );
-};
+  const [actionLoading, setActionLoading] = useState(false);
 
-const CompletedScreen = () => {
+  const fetchBookings = async (pageNum: number, isRefresh = false) => {
+    try {
+      if (pageNum === 1 && !isRefresh) setLoading(true);
+      const res = await bookingService.getAppointments('completed', pageNum);
+      console.log('🚀 -> fetchBookings -> res:', res);
+      if (res.status === 'success') {
+        const newBookings = res.data.bookings || [];
+        if (isRefresh) {
+          setBookings(newBookings);
+        } else {
+          setBookings(prev => {
+            const existingIds = new Set(prev.map(b => b.bookingId));
+            const uniqueNew = newBookings.filter(
+              b => !existingIds.has(b.bookingId),
+            );
+            return [...prev, ...uniqueNew];
+          });
+        }
+        setHasMore(newBookings.length === 10);
+      }
+    } catch (error) {
+      console.error('Error fetching completed bookings:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to load bookings',
+      });
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings(1);
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setPage(1);
+    fetchBookings(1, true);
+  }, []);
+
+  const loadMore = () => {
+    if (!loadingMore && hasMore && !loading) {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchBookings(nextPage);
+    }
+  };
+
+  const handleOpenRating = (bookingId: string) => {
+    setSelectedBookingId(bookingId);
+    setRatingVisible(true);
+  };
+
+  const handleRatingSubmit = async (rating: number, review: string) => {
+    if (!selectedBookingId) return;
+    try {
+      setActionLoading(true);
+      const res = await bookingService.reviewBooking(
+        selectedBookingId,
+        rating,
+        review,
+      );
+      if (res.status === 'success') {
+        setRatingVisible(false);
+        Toast.show({
+          type: 'success',
+          text1: 'Thank you!',
+          text2: 'Review submitted successfully',
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to submit review',
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleBookAgain = async (bookingId: string) => {
+    try {
+      const res = await bookingService.getRebookData(bookingId);
+      if (res.status === 'success') {
+        // Navigate to booking screen with pre-filled data
+        // Assuming there is a SalonDetails or similar screen that can handle this
+        // For now, let's navigate to SalonDetails with salonId if available in res
+        if (res.data?.salonId) {
+          navigation.navigate('SalonDetailsScreen', {
+            salonId: res.data.salonId,
+          });
+        }
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to fetch rebook data',
+      });
+    }
+  };
+
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator color={theme.colors.primaryDark} />
+      </View>
+    );
+  };
+
+  if (loading && bookings.length === 0) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={theme.colors.primaryDark} />
+      </View>
+    );
+  }
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <SalonCard
-        imageUrl="https://example.com/salon.jpg"
-        name="Blush & Bloom"
-        location="Connaught Place, Delhi"
-        rating={4.6}
-        onPress={() => {}}
+    <View style={styles.container}>
+      <FlatList
+        data={bookings}
+        keyExtractor={item => item.bookingId}
+        renderItem={({ item }) => (
+          <BookingCard
+            booking={item}
+            onRate={() => handleOpenRating(item.bookingId)}
+            onBookAgain={() => handleBookAgain(item.bookingId)}
+          />
+        )}
+        contentContainerStyle={styles.listContent}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              No completed appointments found
+            </Text>
+          </View>
+        }
       />
-    </ScrollView>
+
+      <RatingModal
+        visible={ratingVisible}
+        onClose={() => setRatingVisible(false)}
+        onSubmit={handleRatingSubmit}
+        loading={actionLoading}
+      />
+    </View>
   );
 };
 
@@ -63,53 +195,31 @@ export default CompletedScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    paddingVertical: theme.spacing.lg,
+    flex: 1,
     backgroundColor: theme.colors.background,
   },
-  card: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    marginVertical: theme.spacing.sm,
-    ...theme.shadows.soft,
-  },
-  image: {
-    width: '100%',
-    height: 160,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.md,
-  },
-  details: {
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  name: {
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.fontSizes.lg,
-    color: theme.colors.textPrimary,
-    marginBottom: 4,
+  listContent: {
+    paddingVertical: theme.spacing.md,
+    paddingBottom: 40,
   },
-  location: {
-    fontFamily: theme.fonts.body,
-    fontSize: theme.fontSizes.sm,
+  footerLoader: {
+    marginVertical: 20,
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    marginTop: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
     color: theme.colors.textSecondary,
-    marginBottom: 4,
-  },
-  rating: {
     fontFamily: theme.fonts.body,
-    fontSize: theme.fontSizes.sm,
-    color: theme.colors.primaryDark,
-    marginBottom: theme.spacing.md,
-  },
-  button: {
-    backgroundColor: theme.colors.primaryDark,
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: theme.borderRadius.full,
-  },
-  buttonText: {
-    fontFamily: theme.fonts.subheading,
-    fontSize: theme.fontSizes.md,
-    color: theme.colors.textOnPrimary,
   },
 });
