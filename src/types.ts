@@ -177,3 +177,48 @@ export interface BookingsApiResponse {
     bookings: Booking[];
   };
 }
+
+export interface DashboardData {
+  stats: {
+    todayBookings: number;
+    todayRevenue: number;
+    totalBookings: number;
+    totalRevenue: number;
+    pendingBookings: number;
+    cancelledBookings: number;
+    totalCustomers: number;
+    averageRating: number;
+  };
+  revenueTrend: Array<{ label: string; value: number }>;
+  bookingTrend: Array<{ label: string; value: number }>;
+  popularServices: Array<{ text: string; value: number; color: string }>;
+  topStylists: Array<{
+    stylistId: string;
+    stylistName: string;
+    totalBookings: number;
+    revenue: number;
+  }>;
+  cancellationStats: { completed: number; cancelled: number; pending: number };
+}
+
+export interface DashboardApiResponse {
+  status: string;
+  data: DashboardData;
+}
+
+export interface UpcomingBooking {
+  bookingId: string;
+  customerName: string;
+  serviceName: string;
+  stylistName: string;
+  bookingDate: string;
+  bookingTime: string;
+  bookingStatus: string;
+}
+
+export interface UpcomingBookingsApiResponse {
+  status: string;
+  data: {
+    upcomingBookings: UpcomingBooking[];
+  };
+}

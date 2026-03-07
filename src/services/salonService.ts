@@ -6,6 +6,8 @@ import {
   StylistsApiResponse,
   BookingApiResponse,
   BookingsApiResponse,
+  DashboardApiResponse,
+  UpcomingBookingsApiResponse,
 } from '../types';
 
 export const salonService = {
@@ -205,6 +207,19 @@ export const salonService = {
     const response = await api.patch(`/partner/bookings/${bookingId}/status`, {
       status,
     });
+    return response.data;
+  },
+
+  // Dashboard APIs (Partner)
+  getDashboardData: async (range = '7d'): Promise<DashboardApiResponse> => {
+    const response = await api.get('/partner/dashboard', {
+      params: { range },
+    });
+    return response.data;
+  },
+
+  getUpcomingBookings: async (): Promise<UpcomingBookingsApiResponse> => {
+    const response = await api.get('/partner/bookings/upcoming');
     return response.data;
   },
 };
