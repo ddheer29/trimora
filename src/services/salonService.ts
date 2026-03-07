@@ -1,5 +1,12 @@
 import api from './apiConfig';
-import { SalonsApiResponse, SalonApiResponse, ServicesApiResponse, StylistsApiResponse } from '../types';
+import {
+  SalonsApiResponse,
+  SalonApiResponse,
+  ServicesApiResponse,
+  StylistsApiResponse,
+  BookingApiResponse,
+  BookingsApiResponse,
+} from '../types';
 
 export const salonService = {
   // Get nearby salons
@@ -172,6 +179,32 @@ export const salonService = {
   // Create a new booking
   bookService: async (bookingData: any): Promise<ApiResponse<any>> => {
     const response = await api.post('/customers/bookings', bookingData);
+    return response.data;
+  },
+
+  // Partner Booking APIs
+  getPartnerBookings: async (
+    page = 1,
+    limit = 10,
+  ): Promise<BookingsApiResponse> => {
+    const response = await api.get('/partner/bookings', {
+      params: { page, limit },
+    });
+    return response.data;
+  },
+
+  getBookingDetail: async (bookingId: string): Promise<BookingApiResponse> => {
+    const response = await api.get(`/partner/bookings/${bookingId}`);
+    return response.data;
+  },
+
+  updateBookingStatus: async (
+    bookingId: string,
+    status: 'confirmed' | 'cancelled' | 'completed',
+  ): Promise<BookingApiResponse> => {
+    const response = await api.patch(`/partner/bookings/${bookingId}/status`, {
+      status,
+    });
     return response.data;
   },
 };

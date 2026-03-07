@@ -6,12 +6,36 @@ export interface Pagination {
 
 export interface Booking {
   _id: string;
-  id?: string;
+  customerId: {
+    _id: string;
+    phone: string;
+    name: string;
+    profilePhoto?: string;
+    address?: string;
+  };
   salonId: string | Salon;
-  stylistId: string | Stylist;
-  serviceId: string | Service;
+  stylistId: {
+    _id: string;
+    name: string;
+    stylistImage?: string;
+    rating?: number;
+  };
+  serviceId: {
+    _id: string;
+    category: string;
+    subCategory?: string;
+    name: string;
+    price: number;
+    duration: number;
+    description?: string;
+    addons?: any[];
+  };
   bookingDate: string;
   startTime: string;
+  endTime: string;
+  forSelf: boolean;
+  guestName?: string;
+  guestPhone?: string;
   serviceLocation: 'salon' | 'home';
   serviceAddress?: {
     address: string;
@@ -20,13 +44,13 @@ export interface Booking {
   };
   paymentMethod: 'online' | 'cash';
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  forSelf: boolean;
-  guestName?: string;
-  guestPhone?: string;
-  totalAmount: number;
+  totalPrice: number;
+  paymentStatus: 'pending' | 'paid';
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
   createdAt: string;
   updatedAt: string;
+  __v?: number;
 }
 
 export interface Location {
@@ -137,4 +161,19 @@ export interface SalonDetailsScreenProps {
     };
   };
   navigation?: any;
+}
+export interface BookingApiResponse {
+  status: string;
+  data: {
+    booking: Booking;
+  };
+}
+
+export interface BookingsApiResponse {
+  status: string;
+  results: number;
+  pagination: Pagination;
+  data: {
+    bookings: Booking[];
+  };
 }

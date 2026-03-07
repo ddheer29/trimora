@@ -21,6 +21,7 @@ import StylistAndTimeSlotScreen from '../screens/StylistAndTimeSlotScreen';
 import BookingForScreen from '../screens/BookingForScreen';
 import PaymentScreen from '../screens/PaymentScreen';
 import BookingSuccessScreen from '../screens/BookingSuccessScreen';
+import BookingDetailsScreen from '../screens/PartnerSide/BookingDetailsScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -32,6 +33,7 @@ export type RootStackParamList = {
   BookingForScreen: undefined;
   PaymentScreen: undefined;
   BookingSuccessScreen: undefined;
+  BookingDetailsScreen: { bookingId: string };
 };
 
 const Stack = createNativeStackNavigator();
@@ -116,6 +118,10 @@ const MainNavigator: FC = () => {
       <Stack.Screen
         name="BookingSuccessScreen"
         component={BookingSuccessScreen}
+      />
+      <Stack.Screen
+        name="BookingDetailsScreen"
+        component={BookingDetailsScreen}
       />
     </Stack.Navigator>
   );

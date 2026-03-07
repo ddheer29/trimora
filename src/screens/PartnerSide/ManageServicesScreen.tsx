@@ -163,7 +163,7 @@ export default ManageServicesScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: theme.spacing.md,
+    paddingTop: theme.spacing.md,
   },
   listContent: {
     paddingBottom: 80,

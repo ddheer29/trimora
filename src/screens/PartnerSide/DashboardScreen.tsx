@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
+import CommonContainer from '@components/CommonContainer';
 
 const DashboardScreen = () => {
   return (
-    <View>
+    <CommonContainer>
       <Text>DashboardScreen</Text>
-    </View>
+    </CommonContainer>
   );
 };
 
