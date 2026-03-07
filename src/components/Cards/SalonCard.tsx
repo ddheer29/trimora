@@ -1,57 +1,39 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
-import theme from '../../utils/Theme';
-import { navigate } from '../../utils/NavigationUtil';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
+import { Salon } from '@/types';
 
+const { width } = Dimensions.get('window');
 interface SalonCardProps {
-  _id?: string;
-  id?: string;
-  images?: string[];
-  image?: string;
-  name: string;
-  locationName?: string;
-  location?: string;
-  rating: string | number;
+  salon: Salon;
+  onPress: () => void;
+  salonCardStyle?: StyleProp<ViewStyle>;
 }
 
-const SalonCard: React.FC<SalonCardProps> = ({ _id, id, images, image, name, locationName, location, rating }) => {
-  const salonId = _id || id;
-  const displayImage = (images && images.length > 0) ? images[0] : image;
-  const displayLocation = locationName || location;
-
+const SalonCard = ({ salon, onPress, salonCardStyle }: SalonCardProps) => {
   return (
     <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigate('SalonDetailsScreen', { salonId })}
+      key={salon._id}
+      style={[styles.card, salonCardStyle]}
+      onPress={onPress}
     >
-      <Image
-        source={{ uri: displayImage || 'https://i.imgur.com/GXoYrQy.jpg' }}
-        style={styles.image}
-        resizeMode="cover"
-      />
-      <View style={styles.infoWrapper}>
-        <Text style={styles.name} numberOfLines={1}>
-          {name}
-        </Text>
-        <View style={styles.locationRow}>
-          <Ionicons
-            name="location"
-            size={14}
-            color={theme.colors.primaryDark}
-          />
-          <Text style={styles.location} numberOfLines={1}>
-            {locationName}
-          </Text>
+      <Image source={{ uri: salon.images[0] }} style={styles.image} />
+      <View style={styles.content}>
+        <Text style={styles.name}>{salon.name}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={styles.rating}>{salon.rating}</Text>
+          <Text style={styles.review}>{salon.totalReviews}</Text>
         </View>
-        <View style={styles.ratingRow}>
-          <Ionicons
-            name="star"
-            size={14}
-            color={theme.colors.success}
-          />
-          <Text style={styles.rating}>{rating}</Text>
-        </View>
+        <Text style={styles.distance}>📍 {salon.distance} away</Text>
+        <Text style={styles.price}>Starting: ₹{salon.averagePrice}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -61,47 +43,51 @@ export default SalonCard;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
-    width: 180,
-    marginRight: theme.spacing.md,
+    width: width * 0.9,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    marginRight: 14,
     overflow: 'hidden',
-    ...theme.shadows.soft,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
+
   image: {
     width: '100%',
-    height: 110,
+    height: 150,
   },
-  infoWrapper: {
-    padding: theme.spacing.sm,
+
+  content: {
+    padding: 12,
   },
+
   name: {
-    fontSize: theme.fontSizes.md,
-    fontFamily: theme.fonts.subheading,
-    color: theme.colors.textPrimary,
+    fontSize: 16,
+    fontWeight: '600',
     marginBottom: 4,
   },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  location: {
-    fontSize: theme.fontSizes.xs,
-    color: theme.colors.textSecondary,
-    marginLeft: 4,
-    fontFamily: theme.fonts.body,
-    flexShrink: 1,
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 2,
-  },
+
   rating: {
-    fontSize: theme.fontSizes.sm,
-    color: theme.colors.primaryDark,
-    marginLeft: 4,
-    fontFamily: theme.fonts.body,
+    fontSize: 14,
+    marginBottom: 4,
+  },
+
+  review: {
+    color: '#777',
+  },
+
+  distance: {
+    fontSize: 13,
+    color: '#555',
+    marginBottom: 4,
+  },
+
+  price: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#111',
   },
 });

@@ -1,5 +1,5 @@
 import api from './apiConfig';
-import { SalonsApiResponse, SalonApiResponse } from '../types';
+import { SalonsApiResponse, SalonApiResponse, ServicesApiResponse, StylistsApiResponse } from '../types';
 
 export const salonService = {
   // Get nearby salons
@@ -49,7 +49,11 @@ export const salonService = {
   },
 
   // Get salon services
-  getSalonServices: async (salonId: string, page = 1, limit = 20) => {
+  getSalonServices: async (
+    salonId: string,
+    page = 1,
+    limit = 20,
+  ): Promise<ServicesApiResponse> => {
     const response = await api.get(`/customers/salons/${salonId}/services`, {
       params: { page, limit },
     });
@@ -57,7 +61,7 @@ export const salonService = {
   },
 
   // Get salon stylists
-  getSalonStylists: async (salonId: string) => {
+  getSalonStylists: async (salonId: string): Promise<StylistsApiResponse> => {
     const response = await api.get(`/customers/salons/${salonId}/stylists`);
     return response.data;
   },

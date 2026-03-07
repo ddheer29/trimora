@@ -15,7 +15,13 @@ import CommonContainer from '../components/CommonContainer';
 import theme from '../utils/Theme';
 import MapView, { Marker } from 'react-native-maps';
 import { salonService } from '@/services/salonService';
-import { Salon, SalonDetailsScreenProps, ServicesData, Stylist, Service } from '@/types';
+import {
+  Salon,
+  SalonDetailsScreenProps,
+  ServicesData,
+  Stylist,
+  Service,
+} from '@/types';
 
 const { width } = Dimensions.get('window');
 
@@ -34,7 +40,13 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
     }
   };
 
-  const renderAllProfilePics = ({ item, index }: { item: string; index: number }) => {
+  const renderAllProfilePics = ({
+    item,
+    index,
+  }: {
+    item: string;
+    index: number;
+  }) => {
     const size = width / 1.48;
     return (
       <View key={index} style={{ marginRight: 8 }}>
@@ -64,29 +76,30 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
     try {
       setLoading(true);
       const salonId = route.params.salonId;
-
-      // Fetch Salon Details
       const salonRes = await salonService.getSalonById(salonId);
+      console.log('🚀 -> fetchSalonData -> salonRes:', salonRes);
       if (salonRes.status === 'success') {
-        setSalonData(salonRes.data);
+        setSalonData(salonRes.data.salon);
       }
 
-      // Fetch Services
       const servicesRes = await salonService.getSalonServices(salonId, 1, 100);
       if (servicesRes.status === 'success') {
-        const services = servicesRes.data || [];
-        const grouped = services.reduce((acc: ServicesData, service: Service) => {
-          const cat = service.category || 'Other';
-          if (!acc[cat]) acc[cat] = [];
-          acc[cat].push({
-            id: service._id,
-            title: service.name,
-            price: service.price,
-            duration: service.duration,
-            description: service.description,
-          });
-          return acc;
-        }, {} as ServicesData);
+        const services = servicesRes.data.services || [];
+        const grouped = services.reduce(
+          (acc: ServicesData, service: Service) => {
+            const cat = service.category || 'Other';
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push({
+              id: service._id,
+              title: service.name,
+              price: service.price,
+              duration: service.duration,
+              description: service.description,
+            });
+            return acc;
+          },
+          {} as ServicesData,
+        );
 
         setServicesData(grouped);
         const cats = Object.keys(grouped);
@@ -99,7 +112,7 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
       // Fetch Stylists
       const stylistsRes = await salonService.getSalonStylists(salonId);
       if (stylistsRes.status === 'success') {
-        setSalonStylists(stylistsRes.data || []);
+        setSalonStylists(stylistsRes.data.stylists || []);
       }
     } catch (error) {
       console.log('🚀 -> fetchSalonData -> error:', error);
@@ -171,15 +184,14 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
                 onPress={() => setSelectedCategory(category)}
                 style={[
                   styles.categoryTab,
-                  selectedCategory === category &&
-                  styles.selectedCategoryTab,
+                  selectedCategory === category && styles.selectedCategoryTab,
                 ]}
               >
                 <Text
                   style={[
                     styles.categoryText,
                     selectedCategory === category &&
-                    styles.selectedCategoryText,
+                      styles.selectedCategoryText,
                   ]}
                 >
                   {category}
@@ -214,7 +226,6 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
                   </TouchableOpacity>
                 </View>
               )}
-              scrollEnabled={(servicesData[selectedCategory]?.length || 0) > 5}
               style={{ maxHeight: theme.spacing.xl * 5 }}
             />
           </View>
@@ -259,16 +270,16 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({ route }) => {
                 <MapView
                   style={{ flex: 1, borderRadius: theme.borderRadius.md }}
                   initialRegion={{
-                    latitude: salonData?.location.latitude,
-                    longitude: salonData?.location.longitude,
+                    latitude: salonData?.location?.coordinates?.[1],
+                    longitude: salonData?.location?.coordinates?.[0],
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                   }}
                 >
                   <Marker
                     coordinate={{
-                      latitude: salonData?.location.latitude,
-                      longitude: salonData?.location.longitude,
+                      latitude: salonData?.location?.coordinates?.[1],
+                      longitude: salonData?.location?.coordinates?.[0],
                     }}
                   />
                 </MapView>

@@ -34,6 +34,11 @@ export interface Location {
   longitude: number;
 }
 
+export interface GeoJSONPoint {
+  type: 'Point';
+  coordinates: [number, number]; // [longitude, latitude]
+}
+
 export interface Service {
   _id: string;
   id?: string;
@@ -64,33 +69,53 @@ export interface Stylist {
 
 export interface Salon {
   _id: string;
-  id?: string;
+  partnerId: string;
   name: string;
+  images: string[];
   locationName: string;
-  location: Location;
+  location: GeoJSONPoint;
+  rating: number;
+  totalReviews: number;
   averagePrice: number;
   amenities: string[];
   openingTime: string;
   closingTime: string;
   slotDuration: number;
-  images: string[];
-  rating: number;
-  numberOfReviews: number;
-  distance?: number; // Added for nearby search
-  isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  distance?: number;
+  __v?: number;
+  id?: string;
 }
 
 export interface SalonApiResponse {
   status: string;
-  data: Salon;
+  data: {
+    salon: Salon;
+  };
 }
 
 export interface SalonsApiResponse {
   status: string;
-  data: Salon[];
+  results: number;
   pagination: Pagination;
+  data: {
+    salons: Salon[];
+  };
+}
+
+export interface ServicesApiResponse {
+  status: string;
+  data: {
+    services: Service[];
+  };
+}
+
+export interface StylistsApiResponse {
+  status: string;
+  data: {
+    stylists: Stylist[];
+  };
 }
 
 export interface TransformedService {

@@ -16,6 +16,7 @@ import ManageStylistsScreen from '@screens/PartnerSide/ManageStylistsScreen';
 import AddEditStylistScreen from '@screens/PartnerSide/AddEditStylistScreen';
 import ManageServicesScreen from '@screens/PartnerSide/ManageServicesScreen';
 import AddEditServiceScreen from '@screens/PartnerSide/AddEditServiceScreen';
+import SalonsScreen from '@screens/SalonsScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -97,6 +98,7 @@ const MainNavigator: FC = () => {
         name="AddEditServiceScreen"
         component={AddEditServiceScreen}
       />
+      <Stack.Screen name="SalonsScreen" component={SalonsScreen} />
     </Stack.Navigator>
   );
 };
