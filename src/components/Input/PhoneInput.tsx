@@ -210,7 +210,10 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   };
 
   // Get country from coordinates using reverse geocoding
-  const getCountryFromCoordinates = (latitude: number, longitude: number): Promise<string> => {
+  const getCountryFromCoordinates = (
+    latitude: number,
+    longitude: number,
+  ): Promise<string> => {
     return new Promise((resolve, reject) => {
       const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
 
@@ -269,7 +272,8 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
 
       // Request permission if needed
       if (!hasPermission && askForPermission) {
-        const permissionGranted = await requestLocationPermission();
+        // const permissionGranted = await requestLocationPermission();
+        const permissionGranted = true;
         if (!permissionGranted) {
           throw new Error('Location permission denied');
         }
@@ -517,7 +521,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
                   style={[
                     styles(currentTheme).detectButton,
                     isDetectingLocation &&
-                    styles(currentTheme).detectButtonDisabled,
+                      styles(currentTheme).detectButtonDisabled,
                   ]}
                   onPress={manuallyDetectLocation}
                   disabled={isDetectingLocation}

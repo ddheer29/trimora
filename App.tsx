@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './src/navigation/Navigation';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Platform, StatusBar } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 GoogleSignin.configure({
   webClientId:
@@ -23,6 +24,7 @@ function App() {
           backgroundColor="transparent"
         />
         <Navigation />
+        <Toast />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

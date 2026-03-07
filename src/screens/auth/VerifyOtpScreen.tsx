@@ -8,6 +8,7 @@ import { authService } from '../../services/authService';
 import { useUserStore } from '../../store/userStore';
 import { goBack, resetAndNavigate } from '@utils/NavigationUtil';
 import CommonContainer from '@components/CommonContainer';
+import Toast from 'react-native-toast-message';
 
 const VerifyOtpScreen = () => {
   const route = useRoute();
@@ -52,7 +53,12 @@ const VerifyOtpScreen = () => {
           accessToken: response.accessToken,
           refreshToken: response.refreshToken,
         });
-        Alert.alert('Success', 'Login successful!');
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Login Successfull!',
+          swipeable: true,
+        });
         const actualUser = response.data.user;
         if (actualUser.role === 'partner') {
           if (actualUser.isProfileCompleted) {

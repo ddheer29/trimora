@@ -5,6 +5,7 @@ import CustomButton from '@components/Buttons/CustomButton';
 import PhoneInput from '@components/Input/PhoneInput';
 import { navigate } from '@utils/NavigationUtil';
 import { authService } from '@/services/authService';
+import Toast from 'react-native-toast-message';
 
 const PhoneNumberScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -15,7 +16,12 @@ const PhoneNumberScreen = () => {
   const handleLogin = async () => {
     const numericPhone = phoneNumber.replace(/\D/g, '');
     if (!numericPhone || numericPhone.length < 10) {
-      Alert.alert('Error', 'Please enter a valid phone number');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please enter a valid phone number',
+        swipeable: true,
+      });
       return;
     }
     setLoginLoading(true);
@@ -24,21 +30,34 @@ const PhoneNumberScreen = () => {
       console.log('🚀 -> handleLogin -> response:', response);
 
       if (response.status === 'success') {
-        Alert.alert('Success', 'OTP sent successfully to ' + phoneNumber);
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: `OTP sent successfully to ${phoneNumber}`,
+          swipeable: true,
+        });
         navigate('VerifyOtpScreen', {
           phoneNumber: phoneNumber,
           loginAs: loginAs,
         });
       } else {
-        Alert.alert('Error', response.message || 'Failed to send OTP');
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: response.message || 'Failed to send OTP',
+          swipeable: true,
+        });
       }
     } catch (error: any) {
       console.log('OTP Send Error:', error.response?.data);
-      Alert.alert(
-        'Error',
-        error.response?.data?.message ||
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2:
+          error.response?.data?.message ||
           'Failed to send OTP. Please try again.',
-      );
+        swipeable: true,
+      });
     } finally {
       setLoginLoading(false);
     }
