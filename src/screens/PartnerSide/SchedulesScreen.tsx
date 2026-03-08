@@ -7,6 +7,7 @@ import {
   CalendarProvider,
   TimelineProps,
 } from 'react-native-calendars';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 // @ts-ignore
 import groupBy from 'lodash/groupBy';
 import { useNavigation } from '@react-navigation/native';
@@ -110,7 +111,7 @@ const SchedulesScreen = () => {
   }
 
   return (
-    <CommonContainer>
+    <CommonContainer noPadding={true}>
       <View style={styles.container}>
         <CalendarProvider
           date={currentDate}
@@ -121,6 +122,13 @@ const SchedulesScreen = () => {
           <ExpandableCalendar
             firstDay={1}
             markedDates={marked}
+            renderArrow={(direction: any) => (
+              <Ionicons
+                name={direction === 'left' ? 'chevron-back' : 'chevron-forward'}
+                size={24}
+                color="#007AFF"
+              />
+            )}
             theme={{
               selectedDayBackgroundColor: '#007AFF',
               todayTextColor: '#007AFF',
@@ -128,8 +136,9 @@ const SchedulesScreen = () => {
             }}
           />
           <TimelineList
+            key="timeline"
             events={eventsByDate}
-            timelineProps={{ ...timelineProps, key: 'timeline' } as any}
+            timelineProps={timelineProps as any}
             showNowIndicator
             scrollToFirst
             initialTime={INITIAL_TIME}
