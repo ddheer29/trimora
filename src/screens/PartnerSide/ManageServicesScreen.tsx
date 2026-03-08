@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   SectionList,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Feather } from '@react-native-vector-icons/feather';
 import { useFocusEffect } from '@react-navigation/native';
 import CommonContainer from '@components/CommonContainer';
@@ -44,7 +45,11 @@ const ManageServicesScreen = () => {
       }
     } catch (error) {
       console.log('Error fetching services:', error);
-      Alert.alert('Error', 'Failed to load services');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to load services',
+      });
     } finally {
       setLoading(false);
     }
@@ -69,12 +74,25 @@ const ManageServicesScreen = () => {
             try {
               const response = await salonService.deleteService(id);
               if (response.success || (response as any).status === 'success') {
+                Toast.show({
+                  type: 'success',
+                  text1: 'Success',
+                  text2: 'Service deleted successfully',
+                });
                 fetchServices(); // Refresh to update grouping and average price awareness
               } else {
-                Alert.alert('Error', response.message || 'Failed to delete');
+                Toast.show({
+                  type: 'error',
+                  text1: 'Error',
+                  text2: response.message || 'Failed to delete',
+                });
               }
             } catch (error) {
-              Alert.alert('Error', 'Something went wrong');
+              Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Something went wrong',
+              });
             }
           },
         },

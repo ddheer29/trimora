@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Feather } from '@react-native-vector-icons/feather';
 import { useFocusEffect } from '@react-navigation/native';
 import CommonContainer from '@components/CommonContainer';
@@ -29,7 +30,11 @@ const ManageStylistsScreen = () => {
       }
     } catch (error) {
       console.log('Error fetching stylists:', error);
-      Alert.alert('Error', 'Failed to load stylists');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to load stylists',
+      });
     } finally {
       setLoading(false);
     }
@@ -54,12 +59,25 @@ const ManageStylistsScreen = () => {
             try {
               const response = await salonService.deleteStylist(id);
               if (response.success || (response as any).status === 'success') {
+                Toast.show({
+                  type: 'success',
+                  text1: 'Success',
+                  text2: 'Stylist deleted successfully',
+                });
                 setStylists(prev => prev.filter(s => s._id !== id));
               } else {
-                Alert.alert('Error', response.message || 'Failed to delete');
+                Toast.show({
+                  type: 'error',
+                  text1: 'Error',
+                  text2: response.message || 'Failed to delete',
+                });
               }
             } catch (error) {
-              Alert.alert('Error', 'Something went wrong');
+              Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Something went wrong',
+              });
             }
           },
         },

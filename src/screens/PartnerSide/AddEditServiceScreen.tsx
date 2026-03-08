@@ -10,11 +10,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Feather } from '@react-native-vector-icons/feather';
 import CommonContainer from '@components/CommonContainer';
 import theme from '@utils/Theme';
 import { salonService } from '@/services/salonService';
 import { goBack } from '@utils/NavigationUtil';
+import Toast from 'react-native-toast-message';
 import { Service } from '@/types';
 
 interface RouteParams {
@@ -42,7 +42,11 @@ const AddEditServiceScreen = ({ route }: RouteParams) => {
 
   const handleSave = async () => {
     if (!name.trim() || !category.trim() || !price.trim() || !duration.trim()) {
-      Alert.alert('Error', 'Please fill all required fields');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please fill all required fields',
+      });
       return;
     }
 
@@ -66,19 +70,25 @@ const AddEditServiceScreen = ({ route }: RouteParams) => {
       }
 
       if (response.success || (response as any).status === 'success') {
-        Alert.alert(
-          'Success',
-          `Service ${isEditing ? 'updated' : 'added'} successfully`,
-          [{ text: 'OK', onPress: () => goBack() }],
-        );
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: `Service ${isEditing ? 'updated' : 'added'} successfully`,
+        });
+        goBack();
       } else {
-        Alert.alert('Error', response.message || 'Failed to save service');
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: response.message || 'Failed to save service',
+        });
       }
     } catch (error: any) {
-      Alert.alert(
-        'Error',
-        error.response?.data?.message || 'Something went wrong',
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Something went wrong',
+      });
     } finally {
       setLoading(false);
     }

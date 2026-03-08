@@ -19,6 +19,7 @@ import CustomAlert from '../components/CustomAlert';
 import { useUserStore } from '@/store/userStore';
 import { userService } from '@/services/userService';
 import { goBack, resetAndNavigate } from '@utils/NavigationUtil';
+import Toast from 'react-native-toast-message';
 
 const dressTypes = ['Home', 'Work', 'Others'];
 
@@ -76,7 +77,11 @@ const EditProfileScreen = () => {
       }
     } catch (error: any) {
       console.log('Fetch profile error:', error);
-      Alert.alert('Error', 'Failed to load profile data');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to load profile data',
+      });
     } finally {
       setLoading(false);
     }
@@ -154,7 +159,11 @@ const EditProfileScreen = () => {
 
   const handleSaveProfile = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter your name');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please enter your name',
+      });
       return;
     }
 
@@ -189,8 +198,12 @@ const EditProfileScreen = () => {
       if (response.status === 'success' && response.data?.user) {
         const updatedUserData = response.data.user;
         updateUser(updatedUserData);
-        Alert.alert('Success', 'Profile updated successfully');
-
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Profile updated successfully',
+        });
+ 
         // Navigate based on role and profile completion status using the latest data
         if (updatedUserData.isProfileCompleted) {
           if (updatedUserData.role === 'partner') {
@@ -202,15 +215,21 @@ const EditProfileScreen = () => {
           goBack();
         }
       } else {
-        Alert.alert('Error', response.message || 'Failed to update profile');
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: response.message || 'Failed to update profile',
+        });
       }
     } catch (error: any) {
       console.log('Update profile error:', error);
-      Alert.alert(
-        'Error',
-        error.response?.data?.message ||
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2:
+          error.response?.data?.message ||
           'Failed to update profile. Please try again.',
-      );
+      });
     } finally {
       setLoading(false);
     }

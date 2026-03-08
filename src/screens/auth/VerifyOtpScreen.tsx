@@ -81,7 +81,11 @@ const VerifyOtpScreen = () => {
       const errorMessage =
         error.response?.data?.message || 'Invalid OTP. Please try again.';
       setOtpError(errorMessage);
-      Alert.alert('Error', errorMessage);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: errorMessage,
+      });
     }
   };
 
@@ -94,19 +98,29 @@ const VerifyOtpScreen = () => {
       const response = await authService.sendOtp(phoneNumber);
 
       if (response.status === 'success') {
-        Alert.alert('Success', 'OTP sent successfully');
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'OTP sent successfully',
+        });
         setResendCountdown(30); // Reset countdown
         setOtpError('');
       } else {
-        Alert.alert('Error', response.message || 'Failed to resend OTP');
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: response.message || 'Failed to resend OTP',
+        });
       }
     } catch (error: any) {
       console.log('Resend OTP Error:', error.response?.data);
-      Alert.alert(
-        'Error',
-        error.response?.data?.message ||
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2:
+          error.response?.data?.message ||
           'Failed to resend OTP. Please try again.',
-      );
+      });
     } finally {
       setIsResendLoading(false);
     }

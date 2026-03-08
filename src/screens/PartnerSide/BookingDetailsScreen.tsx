@@ -8,6 +8,7 @@ import {
   Alert,
   Linking,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import React, { useEffect, useState } from 'react';
 import CommonContainer from '@components/CommonContainer';
 import theme from '../../utils/Theme';
@@ -32,7 +33,11 @@ const BookingDetailsScreen = ({ route }: any) => {
       }
     } catch (error) {
       console.error('Error fetching booking detail:', error);
-      Alert.alert('Error', 'Could not fetch booking details');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Could not fetch booking details',
+      });
     } finally {
       setLoading(false);
     }
@@ -49,12 +54,20 @@ const BookingDetailsScreen = ({ route }: any) => {
       setUpdating(true);
       const res = await salonService.updateBookingStatus(bookingId, status);
       if (res.status === 'success') {
-        Alert.alert('Success', `Booking ${status} successfully`);
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: `Booking ${status} successfully`,
+        });
         fetchDetail();
       }
     } catch (error) {
       console.error('Error updating status:', error);
-      Alert.alert('Error', 'Failed to update booking status');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to update booking status',
+      });
     } finally {
       setUpdating(false);
     }

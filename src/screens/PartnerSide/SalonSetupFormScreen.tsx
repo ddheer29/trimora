@@ -12,6 +12,7 @@ import {
   Platform,
   PermissionsAndroid,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import MapView, { Marker } from 'react-native-maps';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Feather } from '@react-native-vector-icons/feather';
@@ -44,15 +45,27 @@ const SalonSetupFormScreen = () => {
 
   const nextStep = () => {
     if (currentStep === 1 && !formData.name.trim()) {
-      Alert.alert('Error', 'Please enter salon name');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please enter salon name',
+      });
       return;
     }
     if (currentStep === 2 && formData.images.length === 0) {
-      Alert.alert('Error', 'Please upload at least one image');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please upload at least one image',
+      });
       return;
     }
     if (currentStep === 3 && !formData.locationName.trim()) {
-      Alert.alert('Error', 'Please enter location area name');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please enter location area name',
+      });
       return;
     }
     if (currentStep < 5) {
@@ -70,7 +83,11 @@ const SalonSetupFormScreen = () => {
 
   const pickImage = async () => {
     if (formData.images.length >= 10) {
-      Alert.alert('Limit Reached', 'You can only upload up to 10 images.');
+      Toast.show({
+        type: 'info',
+        text1: 'Limit Reached',
+        text2: 'You can only upload up to 10 images.',
+      });
       return;
     }
 
@@ -153,18 +170,26 @@ const SalonSetupFormScreen = () => {
       console.log('🚀 -> handleSubmit -> response:', response);
       if (response.status === 'success' || response.success) {
         updateUser({ isProfileCompleted: true });
-        Alert.alert('Success', 'Salon setup complete!', [
-          { text: 'OK', onPress: () => resetAndNavigate('PartnerBottomTab') },
-        ]);
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Salon setup complete!',
+        });
+        resetAndNavigate('PartnerBottomTab');
       } else {
-        Alert.alert('Error', response.message || 'Failed to create salon');
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: response.message || 'Failed to create salon',
+        });
       }
     } catch (error: any) {
       console.log('Salon setup error:', error.response?.data?.message);
-      Alert.alert(
-        'Error',
-        error.response?.data?.message || 'Something went wrong',
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Something went wrong',
+      });
     } finally {
       setLoading(false);
     }

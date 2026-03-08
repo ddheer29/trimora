@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import CommonContainer from '../components/CommonContainer';
 import theme from '../utils/Theme';
 import { useCartStore } from '@/store/cartStore';
@@ -69,9 +70,13 @@ const PaymentScreen: FC<any> = ({ navigation }) => {
                     index: 0,
                     routes: [{ name: 'BookingSuccessScreen' }],
                   });
-                } else {
-                  Alert.alert('Booking Failed', res.message || 'Something went wrong');
-                }
+                  } else {
+                    Toast.show({
+                      type: 'error',
+                      text1: 'Booking Failed',
+                      text2: res.message || 'Something went wrong',
+                    });
+                  }
               },
             },
             {
@@ -90,13 +95,21 @@ const PaymentScreen: FC<any> = ({ navigation }) => {
             index: 0,
             routes: [{ name: 'BookingSuccessScreen' }],
           });
-        } else {
-          Alert.alert('Booking Failed', res.message || 'Something went wrong');
-        }
+          } else {
+            Toast.show({
+              type: 'error',
+              text1: 'Booking Failed',
+              text2: res.message || 'Something went wrong',
+            });
+          }
       }
     } catch (error) {
       console.error('Booking error:', error);
-      Alert.alert('Error', 'An error occurred while booking');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'An error occurred while booking',
+      });
     } finally {
       if (paymentMethod === 'cash') setLoading(false);
     }

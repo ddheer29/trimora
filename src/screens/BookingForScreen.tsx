@@ -8,8 +8,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import CommonContainer from '../components/CommonContainer';
 import theme from '../utils/Theme';
 import { useCartStore } from '@/store/cartStore';
@@ -31,11 +31,19 @@ const BookingForScreen: FC<any> = ({ navigation }) => {
 
   const handleNext = () => {
     if (!forSelf && (!guestName || !guestPhone)) {
-      Alert.alert('Error', 'Please enter guest details');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please enter guest details',
+      });
       return;
     }
     if (serviceLocation === 'home' && !address) {
-      Alert.alert('Error', 'Please enter service address');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please enter service address',
+      });
       return;
     }
 

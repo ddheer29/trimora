@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
 import theme from '@utils/Theme';
 import CustomButton from '@components/Buttons/CustomButton';

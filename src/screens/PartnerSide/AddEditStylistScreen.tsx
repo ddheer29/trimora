@@ -15,6 +15,7 @@ import CommonContainer from '@components/CommonContainer';
 import theme from '@utils/Theme';
 import { salonService } from '@/services/salonService';
 import { goBack } from '@utils/NavigationUtil';
+import Toast from 'react-native-toast-message';
 import { Stylist } from '@/types';
 
 interface RouteParams {
@@ -53,7 +54,11 @@ const AddEditStylistScreen = ({ route }: RouteParams) => {
 
   const handleSave = async () => {
     if (!name.trim() || !experience.trim()) {
-      Alert.alert('Error', 'Please fill all required fields');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please fill all required fields',
+      });
       return;
     }
 
@@ -81,19 +86,25 @@ const AddEditStylistScreen = ({ route }: RouteParams) => {
       }
 
       if (response.success || (response as any).status === 'success') {
-        Alert.alert(
-          'Success',
-          `Stylist ${isEditing ? 'updated' : 'added'} successfully`,
-          [{ text: 'OK', onPress: () => goBack() }],
-        );
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: `Stylist ${isEditing ? 'updated' : 'added'} successfully`,
+        });
+        goBack();
       } else {
-        Alert.alert('Error', response.message || 'Failed to save stylist');
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: response.message || 'Failed to save stylist',
+        });
       }
     } catch (error: any) {
-      Alert.alert(
-        'Error',
-        error.response?.data?.message || 'Something went wrong',
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Something went wrong',
+      });
     } finally {
       setLoading(false);
     }
