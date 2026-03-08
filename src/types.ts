@@ -248,3 +248,17 @@ export interface CustomerBookingsApiResponse {
     pagination: Pagination;
   };
 }
+
+export interface TimelineBookingEvent {
+  start: string;
+  end: string;
+  title: string;
+  summary: string;
+  color: string;
+  bookingId: string;
+}
+
+export interface TimelineBookingsApiResponse {
+  status: string;
+  data: TimelineBookingEvent[];
+}

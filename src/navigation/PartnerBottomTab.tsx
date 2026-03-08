@@ -6,6 +6,7 @@ import theme from '../utils/Theme';
 import DashboardScreen from '@screens/PartnerSide/DashboardScreen';
 import BookingScreen from '@screens/PartnerSide/BookingScreen';
 import SettingScreen from '@screens/PartnerSide/SettingScreen';
+import SchedulesScreen from '@screens/PartnerSide/SchedulesScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -63,8 +64,10 @@ const TabNavigation = () => {
           let iconName: any = 'help-circle';
           if (route.name === 'Dashboard') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Booking') {
+          } else if (route.name === 'Schedules') {
             iconName = focused ? 'calendar' : 'calendar-outline';
+          } else if (route.name === 'Booking') {
+            iconName = focused ? 'book' : 'book-outline';
           } else if (route.name === 'Setting') {
             iconName = focused ? 'settings' : 'settings-outline';
           }
@@ -77,6 +80,11 @@ const TabNavigation = () => {
         name="Dashboard"
         component={DashboardScreen}
         options={{ tabBarLabel: 'Dashboard' }}
+      />
+      <Tab.Screen
+        name="Schedules"
+        component={SchedulesScreen}
+        options={{ tabBarLabel: 'Schedules' }}
       />
       <Tab.Screen
         name="Booking"

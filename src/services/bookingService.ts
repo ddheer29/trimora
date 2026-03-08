@@ -1,5 +1,5 @@
 import api from './apiConfig';
-import { Booking, CustomerBooking, CustomerBookingsApiResponse, Pagination } from '../types';
+import { Booking, CustomerBooking, CustomerBookingsApiResponse, Pagination, TimelineBookingsApiResponse } from '../types';
 
 export interface BookingsApiResponse {
     status: string;
@@ -68,6 +68,12 @@ export const bookingService = {
     // Get rebook data
     getRebookData: async (bookingId: string): Promise<any> => {
         const response = await api.get(`/customers/bookings/${bookingId}/rebook-data`);
+        return response.data;
+    },
+
+    // Get bookings formatted for timeline calendar (Partner Side)
+    getBookingTimeline: async (): Promise<TimelineBookingsApiResponse> => {
+        const response = await api.get('/partner/bookings/timeline');
         return response.data;
     },
 };
