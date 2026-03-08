@@ -48,13 +48,6 @@ const SettingScreen = () => {
         navigate('NotificationsScreen');
       },
     },
-    {
-      title: 'My Appointments',
-      icon: 'calendar-outline',
-      onPress: () => {
-        navigate('BookingCalendarScreen');
-      },
-    },
     { title: 'Saved Salons', icon: 'heart-outline', onPress: () => {} },
     {
       title: 'Privacy Policy',
@@ -62,13 +55,6 @@ const SettingScreen = () => {
       onPress: () => {},
     },
     { title: 'Rate Us', icon: 'star-outline', onPress: () => {} },
-    {
-      title: 'Create Salon',
-      icon: 'star-outline',
-      onPress: () => {
-        navigate('CreateSalonScreen');
-      },
-    },
     {
       title: 'Logout',
       icon: 'log-out-outline',

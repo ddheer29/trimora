@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   container: {
-    padding: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
     gap: 20,
   },
   statusSection: {
