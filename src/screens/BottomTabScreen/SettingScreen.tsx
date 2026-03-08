@@ -49,11 +49,6 @@ const SettingScreen = () => {
       },
     },
     { title: 'Saved Salons', icon: 'heart-outline', onPress: () => {} },
-    {
-      title: 'Privacy Policy',
-      icon: 'document-text-outline',
-      onPress: () => {},
-    },
     { title: 'Rate Us', icon: 'star-outline', onPress: () => {} },
     {
       title: 'Logout',
