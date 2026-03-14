@@ -11,25 +11,20 @@ import {
   Linking,
   Animated,
 } from 'react-native';
-import CommonContainer from '../components/CommonContainer';
-import theme from '../utils/Theme';
+import CommonContainer from '../../components/CommonContainer';
+import theme from '../../utils/Theme';
 import MapView, { Marker } from 'react-native-maps';
 import { salonService } from '@/services/salonService';
 import {
   Salon,
-  SalonDetailsScreenProps,
   ServicesData,
   Stylist,
   Service,
 } from '@/types';
-import { useCartStore } from '@/store/cartStore';
 
 const { width } = Dimensions.get('window');
 
-const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
-  route,
-  navigation,
-}) => {
+const SalonPreviewScreen: FC<any> = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [salonData, setSalonData] = useState<Salon | null>(null);
   const [servicesData, setServicesData] = useState<ServicesData>({});
@@ -37,13 +32,7 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const {
-    services: cartServices,
-    addService,
-    removeService,
-    setSalon,
-    salonId: cartSalonId,
-  } = useCartStore();
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const handleOpenMap = () => {
     if (salonData?.location) {
@@ -70,37 +59,16 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
     );
   };
 
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const [showBookButton, setShowBookButton] = useState<boolean>(true);
-
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    {
-      useNativeDriver: false,
-      listener: (event: any) => {
-        const offsetY = event.nativeEvent.contentOffset.y;
-        setShowBookButton(offsetY < 100);
-      },
-    },
-  );
-
   const fetchSalonData = async () => {
     try {
       setLoading(true);
-      const salonId = route.params.salonId;
-      const salonRes = await salonService.getSalonById(salonId);
-      console.log('🚀 -> fetchSalonData -> salonRes:', salonRes);
-      if (salonRes.status === 'success') {
-        const salon = salonRes.data.salon;
-        setSalonData(salon);
-        if (cartSalonId !== salon._id) {
-          setSalon(salon._id, salon.name);
-        }
-      }
+      const res = await salonService.getSalonPreview();
+      if (res.status === 'success' || res.success) {
+        const data = res.data;
+        setSalonData(data);
 
-      const servicesRes = await salonService.getSalonServices(salonId, 1, 100);
-      if (servicesRes.status === 'success') {
-        const services = servicesRes.data.services || [];
+        // Process Services
+        const services = data.services || [];
         const grouped = services.reduce(
           (acc: ServicesData, service: Service) => {
             const cat = service.category || 'Other';
@@ -123,15 +91,12 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
         if (cats.length > 0) {
           setSelectedCategory(cats[0]);
         }
-      }
 
-      // Fetch Stylists
-      const stylistsRes = await salonService.getSalonStylists(salonId);
-      if (stylistsRes.status === 'success') {
-        setSalonStylists(stylistsRes.data.stylists || []);
+        // Process Stylists
+        setSalonStylists(data.stylists || []);
       }
     } catch (error) {
-      console.log('🚀 -> fetchSalonData -> error:', error);
+      console.log('Error fetching salon preview:', error);
     } finally {
       setLoading(false);
     }
@@ -145,7 +110,7 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
     <CommonContainer
       showBackButton
       hideHeader={false}
-      title="Salon Details"
+      title="Salon Preview"
       headerStyle={{ borderBottomWidth: 0 }}
       titleStyle={{
         color: theme.colors.primaryDark,
@@ -155,7 +120,6 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
     >
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
-          onScroll={handleScroll}
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
@@ -189,89 +153,63 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
           </View>
 
           {/* 🪄 Service Categories */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.categoryTabContainer}
-          >
-            {categories.map(category => (
-              <TouchableOpacity
-                key={category}
-                onPress={() => setSelectedCategory(category)}
-                style={[
-                  styles.categoryTab,
-                  selectedCategory === category && styles.selectedCategoryTab,
-                ]}
-              >
-                <Text
+          {categories.length > 0 && (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.categoryTabContainer}
+            >
+              {categories.map(category => (
+                <TouchableOpacity
+                  key={category}
+                  onPress={() => setSelectedCategory(category)}
                   style={[
-                    styles.categoryText,
-                    selectedCategory === category &&
-                      styles.selectedCategoryText,
+                    styles.categoryTab,
+                    selectedCategory === category && styles.selectedCategoryTab,
                   ]}
                 >
-                  {category}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+                  <Text
+                    style={[
+                      styles.categoryText,
+                      selectedCategory === category &&
+                        styles.selectedCategoryText,
+                    ]}
+                  >
+                    {category}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
 
           {/* 💆 Services List */}
-          <View style={styles.servicesContainer}>
-            <FlatList
-              data={servicesData[selectedCategory] || []}
-              keyExtractor={item => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.serviceItem}>
-                  <View style={styles.serviceInfo}>
-                    <Text style={styles.serviceTitle}>{item.title}</Text>
-                    <Text style={styles.servicePrice}>{item.price}</Text>
-                    {item.duration && (
-                      <Text style={styles.serviceDuration}>
-                        {item.duration} mins
-                      </Text>
-                    )}
-                    {item.description ? (
-                      <Text style={styles.serviceDescription}>
-                        {item.description}
-                      </Text>
-                    ) : null}
+          {categories.length > 0 && (
+            <View style={styles.servicesContainer}>
+              <FlatList
+                data={servicesData[selectedCategory] || []}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                  <View style={styles.serviceItem}>
+                    <View style={styles.serviceInfo}>
+                      <Text style={styles.serviceTitle}>{item.title}</Text>
+                      <Text style={styles.servicePrice}>{item.price}</Text>
+                      {item.duration && (
+                        <Text style={styles.serviceDuration}>
+                          {item.duration} mins
+                        </Text>
+                      )}
+                      {item.description ? (
+                        <Text style={styles.serviceDescription}>
+                          {item.description}
+                        </Text>
+                      ) : null}
+                    </View>
                   </View>
-                  <TouchableOpacity
-                    style={[
-                      styles.addButton,
-                      cartServices.find(s => s._id === item.id) &&
-                        styles.removeButton,
-                    ]}
-                    onPress={() => {
-                      const isAdded = cartServices.find(s => s._id === item.id);
-                      if (isAdded) {
-                        removeService(item.id);
-                      } else {
-                        addService({
-                          _id: item.id,
-                          name: item.title,
-                          price: item.price,
-                          duration: item.duration || 0,
-                          category: selectedCategory,
-                          subCategory: '',
-                          gender: 'Unisex',
-                          description: item.description,
-                        });
-                      }
-                    }}
-                  >
-                    <Text style={styles.addButtonText}>
-                      {cartServices.find(s => s._id === item.id)
-                        ? 'Remove'
-                        : 'Add'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-              style={{ maxHeight: theme.spacing.xl * 5 }}
-            />
-          </View>
+                )}
+                style={{ maxHeight: theme.spacing.xl * 5 }}
+              />
+            </View>
+          )}
 
           {/* 📝 Stylists */}
           {salonStylists && salonStylists.length > 0 && (
@@ -359,29 +297,12 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
             </>
           )}
         </Animated.ScrollView>
-        {cartServices.length > 0 && (
-          <TouchableOpacity
-            style={styles.bookNowButton}
-            onPress={() => navigation?.navigate('StylistAndTimeSlotScreen')}
-          >
-            <View style={styles.cartInfo}>
-              <Text style={styles.cartCount}>
-                {cartServices.length}{' '}
-                {cartServices.length === 1 ? 'Service' : 'Services'} Added
-              </Text>
-              <Text style={styles.cartTotal}>
-                Total: ₹{cartServices.reduce((sum, s) => sum + s.price, 0)}
-              </Text>
-            </View>
-            <Text style={styles.bookNowButtonText}>Book Now</Text>
-          </TouchableOpacity>
-        )}
       </View>
     </CommonContainer>
   );
 };
 
-export default SalonDetailsScreen;
+export default SalonPreviewScreen;
 
 const styles = StyleSheet.create({
   image: {
@@ -452,27 +373,6 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textSecondary,
   },
-  addButton: {
-    backgroundColor: theme.colors.primaryDark,
-    borderRadius: theme.borderRadius.full,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-  },
-  addButtonText: {
-    color: theme.colors.textOnPrimary,
-    fontFamily: theme.fonts.subheading,
-  },
-  removeButton: {
-    backgroundColor: theme.colors.error || '#FF5252',
-  },
-  descriptionContainer: {
-    maxHeight: width,
-    marginBottom: theme.spacing.lg,
-  },
-  descriptionText: {
-    fontFamily: theme.fonts.body,
-    color: theme.colors.textSecondary,
-  },
   sectionHeading: {
     fontSize: theme.fontSizes.lg,
     fontFamily: theme.fonts.subheading,
@@ -531,40 +431,6 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
   },
-  bookNowButton: {
-    position: 'absolute',
-    bottom: theme.spacing.lg,
-    left: theme.spacing.lg,
-    right: theme.spacing.lg,
-    backgroundColor: theme.colors.primaryDark,
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    borderRadius: theme.borderRadius.full,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    ...theme.shadows.medium,
-    zIndex: 99,
-  },
-  bookNowButtonText: {
-    color: theme.colors.textOnPrimary,
-    fontSize: theme.fontSizes.md,
-    fontFamily: theme.fonts.subheading,
-  },
-  cartInfo: {
-    flex: 1,
-    paddingLeft: theme.spacing.sm,
-  },
-  cartCount: {
-    color: theme.colors.textOnPrimary,
-    fontSize: theme.fontSizes.xs,
-    fontFamily: theme.fonts.body,
-  },
-  cartTotal: {
-    color: theme.colors.textOnPrimary,
-    fontSize: theme.fontSizes.sm,
-    fontFamily: theme.fonts.subheading,
-  },
   stylistRating: {
     fontSize: theme.fontSizes.xs,
     color: theme.colors.highlight,
@@ -591,7 +457,6 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textSecondary,
   },
-
   serviceDuration: {
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textSecondary,

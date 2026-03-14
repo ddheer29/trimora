@@ -24,6 +24,7 @@ import BookingSuccessScreen from '../screens/BookingSuccessScreen';
 import BookingDetailsScreen from '../screens/PartnerSide/BookingDetailsScreen';
 import TermsOfService from '@screens/legal/TermsOfService';
 import PrivacyPolicy from '@screens/legal/PrivacyPolicy';
+import SalonPreviewScreen from '@screens/PartnerSide/SalonPreviewScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -94,6 +95,7 @@ const MainNavigator: FC = () => {
         name="SalonSetupFormScreen"
         component={SalonSetupFormScreen}
       />
+      <Stack.Screen name="SalonPreviewScreen" component={SalonPreviewScreen} />
       <Stack.Screen
         name="ManageStylistsScreen"
         component={ManageStylistsScreen}

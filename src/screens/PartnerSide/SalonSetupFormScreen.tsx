@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,10 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Alert,
   FlatList,
-  Platform,
-  PermissionsAndroid,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import MapView, { Marker } from 'react-native-maps';
@@ -22,7 +19,8 @@ import { salonService } from '@/services/salonService';
 import { resetAndNavigate } from '@utils/NavigationUtil';
 import { useUserStore } from '@/store/userStore';
 
-const SalonSetupFormScreen = () => {
+const SalonSetupFormScreen = ({ route }: any) => {
+  const isEdit = route?.params?.isEdit || false;
   const [currentStep, setCurrentStep] = useState(1);
   const { updateUser } = useUserStore();
   const [loading, setLoading] = useState(false);
@@ -42,6 +40,48 @@ const SalonSetupFormScreen = () => {
   });
 
   const [newAmenity, setNewAmenity] = useState('');
+
+  useEffect(() => {
+    if (isEdit) {
+      fetchSalonData();
+    }
+  }, [isEdit]);
+
+  const fetchSalonData = async () => {
+    setLoading(true);
+    try {
+      const response = await salonService.getPartnerSalon();
+      if (response.status === 'success' || response.success) {
+        const salon = response.data;
+        if (salon) {
+          setFormData({
+            name: salon.name || '',
+            images: salon.images || [],
+            locationName: salon.locationName || '',
+            location: {
+              latitude: salon.location?.coordinates?.[1] || 28.6139,
+              longitude: salon.location?.coordinates?.[0] || 77.209,
+            },
+            amenities: salon.amenities || [],
+            openingTime: salon.openingTime || '09:00',
+            closingTime: salon.closingTime || '20:00',
+            slotDuration: salon.slotDuration
+              ? String(salon.slotDuration)
+              : '30',
+          });
+        }
+      }
+    } catch (error) {
+      console.log('Error fetching salon data:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to load existing salon details',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const nextStep = () => {
     if (currentStep === 1 && !formData.name.trim()) {
@@ -157,23 +197,32 @@ const SalonSetupFormScreen = () => {
 
       // Append images
       formData.images.forEach((uri, index) => {
-        const uriParts = uri.split('.');
-        const fileType = uriParts[uriParts.length - 1];
-        formDataToSend.append('images', {
-          uri,
-          name: `salon_image_${index}.${fileType}`,
-          type: `image/${fileType}`,
-        } as any);
+        if (!uri.startsWith('http')) {
+          const uriParts = uri.split('.');
+          const fileType = uriParts[uriParts.length - 1] || 'jpg';
+          formDataToSend.append('images', {
+            uri,
+            name: `salon_image_${Date.now()}_${index}.${fileType}`,
+            type: `image/${fileType}`,
+          } as any);
+        }
       });
 
-      const response = await salonService.createSalon(formDataToSend);
+      let response;
+      if (isEdit) {
+        response = await salonService.updateSalon(formDataToSend);
+      } else {
+        response = await salonService.createSalon(formDataToSend);
+      }
       console.log('🚀 -> handleSubmit -> response:', response);
       if (response.status === 'success' || response.success) {
-        updateUser({ isProfileCompleted: true });
+        if (!isEdit) {
+          updateUser({ isProfileCompleted: true });
+        }
         Toast.show({
           type: 'success',
           text1: 'Success',
-          text2: 'Salon setup complete!',
+          text2: isEdit ? 'Salon details updated!' : 'Salon setup complete!',
         });
         resetAndNavigate('PartnerBottomTab');
       } else {
@@ -354,7 +403,12 @@ const SalonSetupFormScreen = () => {
   };
 
   return (
-    <CommonContainer showBackButton>
+    <CommonContainer
+      showBackButton={isEdit}
+      hideHeader={false}
+      title={isEdit ? 'Edit Salon Details' : 'Salon Setup'}
+      isTitleCentered={true}
+    >
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.stepIndicator}>Step {currentStep} of 5</Text>
@@ -387,7 +441,9 @@ const SalonSetupFormScreen = () => {
               {loading
                 ? 'Submitting...'
                 : currentStep === 5
-                ? 'Complete Setup'
+                ? isEdit
+                  ? 'Update Salon'
+                  : 'Complete Setup'
                 : 'Next'}
             </Text>
           </TouchableOpacity>

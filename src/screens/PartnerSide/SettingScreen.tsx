@@ -18,9 +18,9 @@ const SettingScreen = () => {
 
   const menuItems = [
     {
-      title: 'Salon Profile',
+      title: 'Edit Salon Details',
       icon: 'home',
-      onPress: () => navigate('SalonSetupFormScreen', { salonId: 'me' }), // Can refactor form to handle edit
+      onPress: () => navigate('SalonSetupFormScreen', { isEdit: true }),
     },
     {
       title: 'Manage Stylists',
@@ -42,7 +42,11 @@ const SettingScreen = () => {
   return (
     <CommonContainer title="Settings" hideHeader={false}>
       <ScrollView style={styles.container}>
-        <View style={styles.profileSection}>
+        <TouchableOpacity
+          style={styles.profileSection}
+          activeOpacity={0.7}
+          onPress={() => navigate('SalonPreviewScreen')}
+        >
           <Image
             source={{
               uri: user?.profilePhoto || 'https://via.placeholder.com/150',
@@ -53,7 +57,7 @@ const SettingScreen = () => {
             <Text style={styles.userName}>{user?.name || 'Partner'}</Text>
             <Text style={styles.userRole}>Salon Partner</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.menuSection}>
           {menuItems.map((item, index) => (

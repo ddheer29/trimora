@@ -66,6 +66,9 @@ const HomeScreen = () => {
       <View style={{ flex: 1 }}>
         <SearchBar />
 
+        {/* Offers banner */}
+        <OfferCarousel />
+
         <View
           style={{
             alignItems: 'center',
@@ -105,9 +108,6 @@ const HomeScreen = () => {
             )}
           />
         </View>
-
-        {/* Offers banner */}
-        <OfferCarousel />
 
         {/* Near by Salons */}
         <View style={{ marginVertical: 10 }}>

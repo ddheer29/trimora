@@ -97,15 +97,19 @@ export const salonService = {
     return response.data;
   },
 
+  // Get preview of partner's salon (Partner)
+  getSalonPreview: async (): Promise<ApiResponse<any>> => {
+    const response = await api.get('/partner/salon/preview');
+    return response.data;
+  },
+
   // Create salon (Partner)
   createSalon: async (formData: FormData): Promise<ApiResponse<any>> => {
-    console.log('🚀 -> formData:', formData);
     const response = await api.post('/partner/salon', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    console.log('🚀 -> response:', response);
     return response.data;
   },
 
