@@ -8,37 +8,27 @@ import { navigate } from '../../utils/NavigationUtil';
 const SearchBar = () => (
   <TouchableOpacity
     style={styles.container}
-    activeOpacity={1}
+    activeOpacity={0.9}
     onPress={() => navigate('SearchScreen')}
   >
     <View style={styles.inputWrapper}>
       <Feather
         name="search"
         size={20}
-        color={theme.colors.primaryDark}
+        color={theme.colors.textSecondary}
         style={styles.icon}
       />
-      {/* <TextInput
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder="Search for salon, service..."
-        placeholderTextColor={theme.colors.textPrimary}
-        style={styles.input}
-        cursorColor={theme.colors.primaryDark}
-      /> */}
-      <Text
-        style={{
-          color: theme.colors.textSecondary,
-        }}
-      >
-        Search for salon, service...
-      </Text>
+      <View>
+        <Text style={styles.searchTitle}>Where to?</Text>
+        <Text style={styles.searchSubtitle}>Search salons, services...</Text>
+      </View>
     </View>
+
     <TouchableOpacity style={styles.filterIconWrapper}>
       <Ionicons
-        name="filter-outline"
-        size={22}
-        color={theme.colors.primaryDark}
+        name="options-outline" // More premium looking filter icon
+        size={20}
+        color={theme.colors.textOnPrimary}
       />
     </TouchableOpacity>
   </TouchableOpacity>
@@ -49,12 +39,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.full,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-    marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.md,
+    paddingLeft: theme.spacing.lg,
+    paddingRight: theme.spacing.sm,
+    paddingVertical: 10,
+    marginTop: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
     alignItems: 'center',
-    ...theme.shadows.soft,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    ...theme.shadows.medium, // Stronger elevation
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -62,16 +55,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   icon: {
-    marginRight: theme.spacing.sm,
+    marginRight: theme.spacing.md,
   },
-  input: {
-    flex: 1,
-    fontSize: 16,
+  searchTitle: {
     color: theme.colors.textPrimary,
-    paddingVertical: 2,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  searchSubtitle: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSizes.xs,
   },
   filterIconWrapper: {
-    marginLeft: theme.spacing.md,
+    backgroundColor: theme.colors.primaryDark,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

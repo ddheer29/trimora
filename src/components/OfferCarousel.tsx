@@ -11,6 +11,7 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import Animated, {
+  SharedValue,
   useSharedValue,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -19,8 +20,9 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
-const ITEM_WIDTH = width - 20;
-const ITEM_SPACING = (width - ITEM_WIDTH) / 2;
+const SNAP_INTERVAL = width - 16; // Perfectly snaps taking parent paddings into account
+const ITEM_WIDTH = width - 32; // Ensures 16px total left/right padding relative to the device bounds
+const GAP = 16;
 
 interface Banner {
   id: string;
@@ -60,15 +62,15 @@ const banners: Banner[] = [
 interface BannerItemProps {
   item: Banner;
   index: number;
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
 }
 
 const BannerItem = ({ item, index, scrollX }: BannerItemProps) => {
   const animatedStyle = useAnimatedStyle(() => {
     const inputRange = [
-      (index - 1) * ITEM_WIDTH,
-      index * ITEM_WIDTH,
-      (index + 1) * ITEM_WIDTH,
+      (index - 1) * SNAP_INTERVAL,
+      index * SNAP_INTERVAL,
+      (index + 1) * SNAP_INTERVAL,
     ];
 
     const scale = interpolate(
@@ -152,7 +154,7 @@ const OfferCarousel = () => {
         data={banners}
         horizontal
         pagingEnabled={false}
-        snapToInterval={ITEM_WIDTH}
+        snapToInterval={SNAP_INTERVAL}
         decelerationRate="fast"
         showsHorizontalScrollIndicator={false}
         renderItem={renderItem}
@@ -160,19 +162,19 @@ const OfferCarousel = () => {
         onScroll={onScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{
-          paddingHorizontal: ITEM_SPACING - 10, // Adjust for scaling
+          paddingHorizontal: 8, // Set precise 8px padding to align with the rest of the layout
         }}
         initialScrollIndex={originalBanners.length}
         getItemLayout={(_, index) => ({
-          length: ITEM_WIDTH,
-          offset: ITEM_WIDTH * index,
+          length: SNAP_INTERVAL,
+          offset: SNAP_INTERVAL * index,
           index,
         })}
         onMomentumScrollEnd={(
           event: NativeSyntheticEvent<NativeScrollEvent>,
         ) => {
           const index = Math.round(
-            event.nativeEvent.contentOffset.x / ITEM_WIDTH,
+            event.nativeEvent.contentOffset.x / SNAP_INTERVAL,
           );
           setActiveIndex(index);
         }}
@@ -200,16 +202,17 @@ export default OfferCarousel;
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 20,
+    marginVertical: theme.spacing.lg,
   },
   bannerContainer: {
     width: ITEM_WIDTH,
     height: 160,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: GAP,
   },
   banner: {
-    width: ITEM_WIDTH - 20,
+    width: ITEM_WIDTH,
     height: 150,
     borderRadius: 20,
     padding: 24,

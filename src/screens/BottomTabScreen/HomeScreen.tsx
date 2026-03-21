@@ -12,25 +12,30 @@ import {
 import CommonContainer from '@components/CommonContainer';
 import SearchBar from '@components/Home/SearchBar';
 import theme from '@utils/Theme';
-import HairSVG from '@assets/svg/HairSVG';
-import BeardSVG from '@assets/svg/BeardSVG';
-import SkinSVG from '@assets/svg/SkinSVG';
-import WaxingSVG from '@assets/svg/WaxingSVG';
-import NailsSVG from '@assets/svg/NailsSVG';
-import MassageSVG from '@assets/svg/MassageSVG';
 import { salonService } from '@/services/salonService';
 import { Salon } from '@/types';
 import OfferCarousel from '@components/OfferCarousel';
 import { navigate } from '@utils/NavigationUtil';
 import SalonCard from '@components/Cards/SalonCard';
+import ViewAllCard from '@components/Cards/ViewAllCard';
+
+// 8 New UI Components
+import RecentlyBooked from '@components/Home/RecentlyBooked';
+import PopularServices from '@components/Home/PopularServices';
+import TrendingServices from '@components/Home/TrendingServices';
+import TopRatedSalons from '@components/Home/TopRatedSalons';
+import FeaturedSalons from '@components/Home/FeaturedSalons';
+import MapPreview from '@components/Home/MapPreview';
+import ComboPackages from '@components/Home/ComboPackages';
+import Testimonials from '@components/Home/Testimonials';
 
 const categories = [
-  { name: 'Hair', Icon: HairSVG, _id: '1' },
-  { name: 'Beard', Icon: BeardSVG, _id: '2' },
-  { name: 'Skin', Icon: SkinSVG, _id: '3' },
-  { name: 'Waxing', Icon: WaxingSVG, _id: '4' },
-  { name: 'Nails', Icon: NailsSVG, _id: '5' },
-  { name: 'Massage', Icon: MassageSVG, _id: '6' },
+  { name: 'Hair', icon: '✂️', _id: '1' },
+  { name: 'Beard', icon: '🧔🏻', _id: '2' },
+  { name: 'Skin', icon: '✨', _id: '3' },
+  { name: 'Waxing', icon: '🧴', _id: '4' },
+  { name: 'Nails', icon: '💅', _id: '5' },
+  { name: 'Massage', icon: '💆🏽‍♂️', _id: '6' },
 ];
 
 const { width } = Dimensions.get('window');
@@ -63,82 +68,80 @@ const HomeScreen = () => {
 
   return (
     <CommonContainer scrollable>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, paddingBottom: theme.spacing.xl * 2 }}>
         <SearchBar />
+
+        {/* Quick action for repeat customers */}
+        <RecentlyBooked />
 
         {/* Offers banner */}
         <OfferCarousel />
 
-        <View
-          style={{
-            alignItems: 'center',
-          }}
-        >
-          <FlatList
-            data={categories}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => (
+        {/* Categories Block */}
+        <View style={styles.categoriesContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesScroll}>
+            {categories.map((item) => (
               <TouchableOpacity
-                onPress={() =>
-                  navigate('SalonsScreen', { serviceCategory: item?.name })
-                }
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginHorizontal: 8,
-                  gap: 4,
-                  borderWidth: 0.5,
-                  borderColor: '#ece7e7ff',
-                  borderRadius: 10,
-                  padding: 10,
-                }}
+                key={item._id}
+                onPress={() => navigate('SalonsScreen', { serviceCategory: item.name })}
+                style={styles.categoryItem}
               >
-                <item.Icon width={40} height={40} />
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontWeight: '600',
-                    color: theme.colors.textPrimary,
-                  }}
-                >
-                  {item.name}
-                </Text>
+                <View style={styles.categoryIconContainer}>
+                  <Text style={styles.categoryIcon}>{item.icon}</Text>
+                </View>
+                <Text style={styles.categoryText}>{item.name}</Text>
               </TouchableOpacity>
-            )}
-          />
+            ))}
+          </ScrollView>
         </View>
 
-        {/* Near by Salons */}
-        <View style={{ marginVertical: 10 }}>
+        {/* Near by Salons (Existing functionality) */}
+        <View style={{ marginVertical: theme.spacing.lg }}>
           <Text
             style={{
-              fontSize: 16,
-              fontWeight: '600',
-              color: theme.colors.textPrimary,
-              marginHorizontal: 10,
-              marginBottom: 10,
+              fontSize: theme.fontSizes.xl,
+              fontWeight: '700',
+              color: theme.colors.primaryDark,
+              marginHorizontal: theme.spacing.sm,
+              marginBottom: theme.spacing.sm,
             }}
           >
             Salons Near You
           </Text>
+          <ScrollView
+            style={{ flexGrow: 1 }}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: theme.spacing.sm }}
+          >
+            <View style={{ flexDirection: 'row' }}>
+              {nearBySalons?.map((salon: Salon) => (
+                <View key={salon._id} style={{ marginRight: theme.spacing.md }}>
+                  <SalonCard
+                    salon={salon}
+                    onPress={() => onPressNearBySalonCard(salon._id)}
+                    salonCardStyle={styles.nearbySalonCard}
+                  />
+                </View>
+              ))}
+              <ViewAllCard 
+                onPress={() => navigate('SalonsScreen')} 
+                style={{ marginLeft: 4, height: 255 }} 
+              />
+            </View>
+          </ScrollView>
         </View>
 
-        <ScrollView
-          style={{ flexGrow: 1 }}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        >
-          <View style={{ flexDirection: 'row' }}>
-            {nearBySalons?.map((salon: Salon) => (
-              <SalonCard
-                salon={salon}
-                onPress={() => onPressNearBySalonCard(salon._id)}
-                salonCardStyle={styles.nearbySalonCard}
-              />
-            ))}
-          </View>
-        </ScrollView>
+        {/* 8 New UI Enhancements Flow */}
+        <PopularServices />
+        <FeaturedSalons />
+        <MapPreview />
+        <ComboPackages />
+        <TrendingServices />
+        <TopRatedSalons />
+
+        {/* Social Proof at exactly the end */}
+        <Testimonials />
       </View>
     </CommonContainer>
   );
@@ -148,6 +151,39 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   nearbySalonCard: {
-    width: width * 0.75,
+    width: width * 0.85,
+  },
+  categoriesContainer: {
+    marginVertical: theme.spacing.lg,
+  },
+  categoriesScroll: {
+    paddingHorizontal: theme.spacing.sm,
+    gap: theme.spacing.md,
+  },
+  categoryItem: {
+    alignItems: 'center',
+    width: 65,
+    marginRight: theme.spacing.sm,
+  },
+  categoryIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: theme.colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    ...theme.shadows.soft,
+  },
+  categoryIcon: {
+    fontSize: 26,
+  },
+  categoryText: {
+    fontSize: theme.fontSizes.xs,
+    fontWeight: '600',
+    color: theme.colors.textPrimary,
+    textAlign: 'center',
   },
 });
