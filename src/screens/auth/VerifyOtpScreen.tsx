@@ -158,8 +158,8 @@ const VerifyOtpScreen = () => {
             <OtpInput
               numberOfDigits={6}
               autoFocus={true}
-              hideStick={true}
-              placeholder="000000"
+              hideStick={false}
+              placeholder="******"
               blurOnFilled={false}
               type="numeric"
               secureTextEntry={false}
@@ -204,12 +204,6 @@ const VerifyOtpScreen = () => {
               )}
             </Text>
           </View>
-        </View>
-
-        <View>
-          <Text style={styles.goBackText} onPress={() => goBack()}>
-            {STRINGS.GO_BACK_TO_LOGIN}
-          </Text>
         </View>
       </View>
     </CommonContainer>
@@ -264,7 +258,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.card,
+    backgroundColor: '#FFFFFF',
     width: 50,
     height: 50,
     marginHorizontal: theme.spacing.sm / 2,
@@ -280,18 +274,19 @@ const styles = StyleSheet.create({
   },
   focusStick: {
     backgroundColor: theme.colors.primaryDark,
-    height: 2,
+    height: 24,
+    width: 2,
   },
   activePinCodeContainer: {
     borderColor: theme.colors.primaryDark,
-    backgroundColor: theme.colors.primaryLight,
+    backgroundColor: '#FFFFFF',
   },
   placeholderText: {
     color: theme.colors.textDisabled,
   },
   filledPinCodeContainer: {
     borderColor: theme.colors.primaryDark,
-    backgroundColor: theme.colors.primaryLight,
+    backgroundColor: '#FFFFFF',
   },
   disabledPinCodeContainer: {
     backgroundColor: theme.colors.border,

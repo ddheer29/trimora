@@ -11,7 +11,7 @@ const PhoneNumberScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const [loginAs, setLoginAs] = useState('partner');
+  const [loginAs, setLoginAs] = useState('customer');
 
   const handleLogin = async () => {
     const numericPhone = phoneNumber.replace(/\D/g, '');
@@ -94,29 +94,33 @@ const PhoneNumberScreen = () => {
       <View style={styles.contentContainer}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>
-            India's Leading Beauty & Wellness App
+            Welcome Back
+          </Text>
+          <Text style={styles.subtitle}>
+            Enter your phone number to continue.
           </Text>
         </View>
         <View style={styles.bottomContainer}>
-          <View style={styles.phoneInputContainer}>
-            <PhoneInput
-              value={formatPhoneNumber(phoneNumber)}
-              enableLocationDetection={true}
-              askForPermission={true}
-              defaultCountry="IN"
-              onChangeText={handlePhoneNumberChange}
-              onCountryChange={setSelectedCountry}
-              theme={theme}
-              containerStyle={styles.phoneInputContainerStyle}
-              countryCodeButtonStyle={styles.countryCodeButtonStyle}
-              inputStyle={styles.phoneInputStyle}
-              placeholder="Enter your phone number"
-              placeholderTextColor={theme.colors.textDisabled}
-              autoFocus={true}
-              keyboardType="phone-pad"
-            />
-          </View>
           <View>
+            <View style={styles.phoneInputContainer}>
+              <PhoneInput
+                value={formatPhoneNumber(phoneNumber)}
+                enableLocationDetection={false}
+                askForPermission={false}
+                defaultCountry="IN"
+                onChangeText={handlePhoneNumberChange}
+                onCountryChange={setSelectedCountry}
+                theme={theme}
+                containerStyle={styles.phoneInputContainerStyle}
+                countryCodeButtonStyle={styles.countryCodeButtonStyle}
+                inputStyle={styles.phoneInputStyle}
+                placeholder="Enter your phone number"
+                placeholderTextColor={theme.colors.textDisabled}
+                autoFocus={true}
+                keyboardType="phone-pad"
+              />
+            </View>
+
             <CustomButton
               title="Login"
               loading={loginLoading}
@@ -128,6 +132,32 @@ const PhoneNumberScreen = () => {
                 !phoneNumber || phoneNumber.replace(/\D/g, '').length < 10
               }
             />
+
+            {/* Divider or Space */}
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {/* Toggle Button / Switch Roles */}
+            <View style={styles.toggleContainer}>
+              <Text style={styles.rolePromptText}>
+                {loginAs === 'customer'
+                  ? 'Are you a Salon Partner?'
+                  : 'Looking to book a service?'}
+              </Text>
+              <Text
+                style={styles.switchRoleText}
+                onPress={() => setLoginAs(loginAs === 'customer' ? 'partner' : 'customer')}
+              >
+                {loginAs === 'customer' ? 'Login as Partner' : 'Login as Customer'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Footer with Agreements at absolute bottom */}
+          <View style={styles.footerContainer}>
             <View style={styles.agreementTextContainer}>
               <Text style={styles.agreementText}>
                 By continuing, you agree to our
@@ -147,30 +177,6 @@ const PhoneNumberScreen = () => {
                 Privacy Policy
               </Text>
             </View>
-            {/* Toggle Button */}
-            <View style={styles.toggleContainer}>
-              <View style={styles.toggleWrapper}>
-                <Text
-                  onPress={() => setLoginAs('customer')}
-                  style={[
-                    styles.toggleText,
-                    loginAs === 'customer' && styles.activeToggleText,
-                  ]}
-                >
-                  Customer
-                </Text>
-
-                <Text
-                  onPress={() => setLoginAs('partner')}
-                  style={[
-                    styles.toggleText,
-                    loginAs === 'partner' && styles.activeToggleText,
-                  ]}
-                >
-                  Partner
-                </Text>
-              </View>
-            </View>
           </View>
         </View>
       </View>
@@ -185,47 +191,65 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
     alignItems: 'center',
-    paddingTop: theme.spacing.lg * 4,
+    paddingTop: theme.spacing.xl * 3,
   },
   contentContainer: {
-    marginTop: theme.spacing.lg,
+    flex: 1,
+    width: '90%',
+    maxWidth: 400,
   },
   titleContainer: {
-    paddingHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.xs,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     color: theme.colors.primaryDark,
     fontFamily: theme.fonts.heading,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.xs,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: theme.fontSizes.md,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
   },
   bottomContainer: {
     flex: 1,
-    justifyContent: 'space-between',
-    paddingBottom: theme.spacing.lg * 2,
+    justifyContent: 'space-between', // Push footer to bottom
+    paddingBottom: theme.spacing.xl,
   },
   phoneInputContainer: {
-    marginVertical: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
   },
   phoneInputContainerStyle: {
-    backgroundColor: theme.colors.background,
-    borderColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.card, // Overrides any default
+    borderWidth: 1,
+    borderColor: theme.colors.border, // Subtle border
+    borderRadius: theme.borderRadius.md,
+    height: 60, // Taller, premium input
   },
   countryCodeButtonStyle: {
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.sm,
+    paddingRight: theme.spacing.sm,
+    borderRightWidth: 1,
+    borderRightColor: theme.colors.border,
   },
   phoneInputStyle: {
     color: theme.colors.textPrimary,
     fontSize: theme.fontSizes.lg,
+    paddingLeft: theme.spacing.sm,
+  },
+  footerContainer: {
+    marginTop: 'auto',
+    marginBottom: theme.spacing.lg,
   },
   agreementTextContainer: {
-    marginTop: theme.spacing.md,
     alignItems: 'center',
   },
   agreementText: {
-    color: theme.colors.textSecondary,
+    color: theme.colors.textDisabled,
     textAlign: 'center',
+    fontSize: theme.fontSizes.xs,
   },
   linksContainer: {
     alignItems: 'center',
@@ -242,27 +266,32 @@ const styles = StyleSheet.create({
   },
   toggleContainer: {
     alignItems: 'center',
-    marginBottom: theme.spacing.md,
-    marginTop: theme.spacing.md,
   },
-
-  toggleWrapper: {
-    flexDirection: 'row',
-    backgroundColor: theme.colors.border,
-    borderRadius: 30,
-    padding: 4,
-  },
-
-  toggleText: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 20,
+  rolePromptText: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
+    marginBottom: theme.spacing.xs,
   },
-
-  activeToggleText: {
-    backgroundColor: theme.colors.primaryDark,
-    color: theme.colors.textOnPrimary,
+  switchRoleText: {
+    color: theme.colors.accent,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.subheading,
+    textDecorationLine: 'underline',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.xl,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.colors.border,
+  },
+  dividerText: {
+    marginHorizontal: theme.spacing.sm,
+    color: theme.colors.textDisabled,
+    fontSize: theme.fontSizes.sm,
   },
 });

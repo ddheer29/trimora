@@ -96,19 +96,21 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   // Default theme fallback
   const currentTheme = theme || {
     colors: {
-      primary: '#F9D9D9',
-      primaryDark: '#B76E79',
-      accent: '#E6E6FA',
-      background: '#5a4646ff',
-      card: '#FFF1F3',
-      border: '#EAD7D7',
-      textPrimary: '#333333',
-      textSecondary: '#666666',
-      textDisabled: '#AAAAAA',
+      primary: '#1E293B', // Deep Midnight Slate
+      primaryDark: '#0F172A', // Ultra Dark Slate
+      primaryLight: '#475569', // Muted Slate
+      accent: '#D4AF37', // Luxury Gold
+      highlight: '#F59E0B', // Warm Amber
+      background: '#F8FAFC',
+      card: '#FFFFFF',
+      border: '#E2E8F0',
+      textPrimary: '#0F172A',
+      textSecondary: '#475569',
+      textDisabled: '#94A3B8',
       textOnPrimary: '#FFFFFF',
-      success: '#B4E1C6',
-      warning: '#FFF5BA',
-      error: '#FFCCCC',
+      success: '#10B981',
+      warning: '#F59E0B',
+      error: '#EF4444',
     },
     spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 },
     borderRadius: { sm: 8, md: 16, lg: 24, full: 999 },
@@ -446,11 +448,6 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         onPress={openCountryPicker}
         onLongPress={manuallyDetectLocation}
       >
-        {isDetectingLocation ? (
-          <Text style={styles(currentTheme).detectingText}>⌛</Text>
-        ) : (
-          <Text style={styles(currentTheme).flag}>{selectedCountry.flag}</Text>
-        )}
         <Text
           style={[
             styles(currentTheme).dialCodeText,
@@ -459,7 +456,6 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         >
           {selectedCountry.dialCode}
         </Text>
-        <Text style={styles(currentTheme).dropdownArrow}>▼</Text>
       </TouchableOpacity>
 
       {/* Phone Number Input */}
@@ -560,17 +556,19 @@ const styles = (theme: any) =>
       alignItems: 'center',
       borderRadius: theme.borderRadius.md,
       paddingHorizontal: theme.spacing.md,
-      height: 56,
-      ...theme.shadows.soft,
+      backgroundColor: theme.colors.card,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      height: 60,
     },
     countryCodeButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingRight: theme.spacing.md,
-      marginRight: theme.spacing.md,
+      paddingRight: theme.spacing.sm,
+      marginRight: theme.spacing.sm,
       borderRightWidth: 1,
       borderRightColor: theme.colors.border,
-      minWidth: 60,
+      minWidth: 40,
     },
     flag: {
       fontSize: 20,

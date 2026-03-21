@@ -1,27 +1,27 @@
 const theme = {
   colors: {
     // 🎨 Primary Colors
-    primary: '#F9D9D9', // Blush Pink
-    primaryDark: '#B76E79', // Rose Gold
-    primaryLight: '#FFF1F3', // Light Pink/Rose
-    accent: '#E6E6FA', // Lavender
-    highlight: '#F08080', // Light Coral
+    primary: '#1E293B', // Deep Midnight Slate
+    primaryDark: '#0F172A', // Ultra Dark Slate
+    primaryLight: '#475569', // Muted Slate
+    accent: '#D4AF37', // Luxury Gold
+    highlight: '#F59E0B', // Warm Amber
 
     // 🌫️ Backgrounds & Surfaces
-    background: '#FFF9F9', // App background
-    card: '#FFF1F3', // Card background
-    border: '#EAD7D7', // Divider/border
+    background: '#F8FAFC', // Slate 50 (App background)
+    card: '#FFFFFF', // Card background
+    border: '#E2E8F0', // Divider/border
 
     // 🖤 Text Colors
-    textPrimary: '#333333',
-    textSecondary: '#666666',
-    textDisabled: '#AAAAAA',
+    textPrimary: '#0F172A',
+    textSecondary: '#475569',
+    textDisabled: '#94A3B8',
     textOnPrimary: '#FFFFFF',
 
     // 🟩 Status Colors
-    success: '#77c997ff',
-    warning: '#FFF5BA',
-    error: '#FFCCCC',
+    success: '#10B981', // Emerald
+    warning: '#F59E0B', // Amber
+    error: '#EF4444', // Red 500
   },
 
   spacing: {
