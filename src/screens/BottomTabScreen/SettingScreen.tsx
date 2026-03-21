@@ -6,12 +6,13 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import theme from '../../utils/Theme';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { useUserStore } from '@/store/userStore';
 import { navigate, resetAndNavigate } from '@utils/NavigationUtil';
 import CommonContainer from '@components/CommonContainer';
+import CustomAlert from '@components/CustomAlert';
 
 const SettingScreen = () => {
   const { user, logout } = useUserStore();
@@ -23,21 +24,10 @@ const SettingScreen = () => {
       'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   };
 
+  const [isLogoutAlertVisible, setLogoutAlertVisible] = useState(false);
+
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: () => {
-          logout();
-          resetAndNavigate('AuthNavigator');
-        },
-      },
-    ]);
+    setLogoutAlertVisible(true);
   };
 
   const settingsOptions = [
@@ -61,6 +51,32 @@ const SettingScreen = () => {
 
   return (
     <CommonContainer scrollable>
+      <CustomAlert
+        visible={isLogoutAlertVisible}
+        title="Logout"
+        message="Are you sure you want to log out?"
+        iconName="log-out-outline"
+        iconBgColor="#F1F5F9"
+        iconColor={theme.colors.primaryDark}
+        options={[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setLogoutAlertVisible(false),
+          },
+          {
+            text: 'Logout',
+            style: 'default',
+            onPress: () => {
+              setLogoutAlertVisible(false);
+              logout();
+              resetAndNavigate('AuthNavigator');
+            },
+          },
+        ]}
+        onRequestClose={() => setLogoutAlertVisible(false)}
+      />
+
       <View style={{ alignItems: 'center', marginVertical: theme.spacing.xl }}>
         <Image
           source={{ uri: userProfile.photo }}
@@ -112,7 +128,7 @@ const SettingScreen = () => {
         >
           <View style={styles.row}>
             <Ionicons
-              name={item.icon}
+              name={item.icon as any}
               size={22}
               color={theme.colors.primaryDark}
             />

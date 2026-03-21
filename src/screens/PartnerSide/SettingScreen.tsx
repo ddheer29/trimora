@@ -7,14 +7,17 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import React, { useState } from 'react';
 import { Feather } from '@react-native-vector-icons/feather';
 import CommonContainer from '@components/CommonContainer';
 import theme from '@utils/Theme';
 import { navigate, resetAndNavigate } from '@utils/NavigationUtil';
 import { useUserStore } from '@/store/userStore';
+import CustomAlert from '@components/CustomAlert';
 
 const SettingScreen = () => {
   const { user } = useUserStore();
+  const [isLogoutAlertVisible, setLogoutAlertVisible] = useState(false);
 
   const menuItems = [
     {
@@ -41,6 +44,32 @@ const SettingScreen = () => {
 
   return (
     <CommonContainer title="Settings" hideHeader={false}>
+      <CustomAlert
+        visible={isLogoutAlertVisible}
+        title="Logout"
+        message="Are you sure you want to log out?"
+        iconName="log-out-outline"
+        iconBgColor="#F1F5F9"
+        iconColor={theme.colors.primaryDark}
+        options={[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setLogoutAlertVisible(false),
+          },
+          {
+            text: 'Logout',
+            style: 'default',
+            onPress: () => {
+              setLogoutAlertVisible(false);
+              useUserStore.getState().logout();
+              resetAndNavigate('AuthNavigator');
+            },
+          },
+        ]}
+        onRequestClose={() => setLogoutAlertVisible(false)}
+      />
+
       <ScrollView style={styles.container}>
         <TouchableOpacity
           style={styles.profileSection}
@@ -85,20 +114,7 @@ const SettingScreen = () => {
 
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={() => {
-            // Implement logout logic
-            Alert.alert('Logout', 'Are you sure you want to logout?', [
-              { text: 'Cancel', style: 'cancel' },
-              {
-                text: 'Logout',
-                style: 'destructive',
-                onPress: () => {
-                  useUserStore.getState().logout();
-                  resetAndNavigate('AuthNavigator');
-                },
-              },
-            ]);
-          }}
+          onPress={() => setLogoutAlertVisible(true)}
         >
           <Feather name="log-out" size={20} color="red" />
           <Text style={styles.logoutText}>Logout</Text>

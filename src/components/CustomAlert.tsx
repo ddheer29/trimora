@@ -7,15 +7,38 @@ import {
   TouchableOpacity,
   Pressable,
 } from 'react-native';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import theme from '../utils/Theme';
+
+export interface AlertOption {
+  text: string;
+  onPress: () => void;
+  style?: 'default' | 'cancel' | 'destructive';
+}
+
+export interface CustomAlertProps {
+  visible: boolean;
+  title?: string;
+  message: string;
+  iconName?: React.ComponentProps<typeof Ionicons>['name'];
+  iconColor?: string;
+  iconBgColor?: string;
+  options?: AlertOption[];
+  onRequestClose?: () => void;
+}
 
 const CustomAlert = ({
   visible,
   title,
   message,
+  iconName,
+  iconColor = theme.colors.primaryDark,
+  iconBgColor = '#F1F5F9', // faint outer ring
   options = [],
   onRequestClose,
-}) => {
+}: CustomAlertProps) => {
+  if (!visible) return null;
+
   return (
     <Modal
       transparent
@@ -24,32 +47,52 @@ const CustomAlert = ({
       onRequestClose={onRequestClose}
     >
       <Pressable style={styles.overlay} onPress={onRequestClose}>
-        <View style={styles.card}>
+        <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
+          
+          {iconName && (
+            <View style={[styles.haloRing, { backgroundColor: iconBgColor }]}>
+              <View style={[styles.iconWrapper, { backgroundColor: iconColor }]}>
+                <Ionicons name={iconName} size={28} color="#FFFFFF" />
+              </View>
+            </View>
+          )}
+
           {title ? <Text style={styles.title}>{title}</Text> : null}
           <Text style={styles.message}>{message}</Text>
 
           <View style={styles.buttonsContainer}>
-            {options.map((option, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.button,
-                  option.style === 'cancel' && styles.cancelButton,
-                ]}
-                onPress={option.onPress}
-              >
-                <Text
+            {options.map((option, index) => {
+              const isCancel = option.style === 'cancel';
+              const isDestructive = option.style === 'destructive';
+              const isDefault = !isCancel && !isDestructive;
+              
+              return (
+                <TouchableOpacity
+                  key={index}
                   style={[
-                    styles.buttonText,
-                    option.style === 'cancel' && styles.cancelButtonText,
+                    styles.button,
+                    isCancel && styles.cancelButton,
+                    isDestructive && styles.destructiveButton,
+                    isDefault && styles.defaultButton,
                   ]}
+                  onPress={option.onPress}
+                  activeOpacity={0.8}
                 >
-                  {option.text}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    style={[
+                      styles.buttonText,
+                      isCancel && styles.cancelButtonText,
+                      isDestructive && styles.destructiveButtonText,
+                      isDefault && styles.defaultButtonText,
+                    ]}
+                  >
+                    {option.text}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
-        </View>
+        </Pressable>
       </Pressable>
     </Modal>
   );
@@ -60,51 +103,88 @@ export default CustomAlert;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(51, 51, 51, 0.4)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   card: {
-    width: '85%',
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
+    width: 310,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    paddingTop: 32,
+    paddingBottom: 24,
+    paddingHorizontal: 24,
+    alignItems: 'center',
     ...theme.shadows.medium,
+  },
+  haloRing: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  iconWrapper: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...theme.shadows.soft,
   },
   title: {
     fontFamily: theme.fonts.heading,
-    fontSize: theme.fontSizes.lg,
-    color: theme.colors.primaryDark,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
     textAlign: 'center',
-    marginBottom: theme.spacing.sm,
+    marginBottom: 10,
   },
   message: {
     fontFamily: theme.fonts.body,
-    fontSize: theme.fontSizes.md,
-    color: theme.colors.textSecondary,
+    fontSize: 14,
+    color: '#6B7280',
     textAlign: 'center',
-    marginBottom: theme.spacing.lg,
+    marginBottom: 28,
+    lineHeight: 20,
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: theme.spacing.sm,
+    justifyContent: 'center',
+    gap: 12,
+    width: '100%',
   },
   button: {
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.primaryDark,
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: theme.colors.border,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB', // clean gray border
+  },
+  destructiveButton: {
+    backgroundColor: '#EF4444',
+  },
+  defaultButton: {
+    backgroundColor: theme.colors.primaryDark,
   },
   buttonText: {
     fontFamily: theme.fonts.subheading,
-    color: theme.colors.textOnPrimary,
-    fontSize: theme.fontSizes.md,
+    fontSize: 14,
+    fontWeight: '500',
   },
   cancelButtonText: {
-    color: theme.colors.textSecondary,
+    color: '#374151',
+  },
+  destructiveButtonText: {
+    color: '#FFFFFF',
+  },
+  defaultButtonText: {
+    color: '#FFFFFF',
   },
 });
