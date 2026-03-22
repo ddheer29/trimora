@@ -15,6 +15,7 @@ import CommonContainer from '../components/CommonContainer';
 import theme from '../utils/Theme';
 import MapView, { Marker } from 'react-native-maps';
 import { salonService } from '@/services/salonService';
+import ImageView from 'react-native-image-viewing';
 import {
   Salon,
   SalonDetailsScreenProps,
@@ -36,6 +37,8 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
   const [salonStylists, setSalonStylists] = useState<Stylist[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isImageViewVisible, setImageViewVisible] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const {
     services: cartServices,
@@ -61,12 +64,20 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
   }) => {
     const size = width / 1.48;
     return (
-      <View key={index} style={{ marginRight: 8 }}>
+      <TouchableOpacity
+        key={index}
+        style={{ marginRight: 8 }}
+        activeOpacity={0.9}
+        onPress={() => {
+          setCurrentImageIndex(index);
+          setImageViewVisible(true);
+        }}
+      >
         <Image
           source={{ uri: item }}
           style={{ width: size, height: size, borderRadius: 12 }}
         />
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -377,6 +388,13 @@ const SalonDetailsScreen: FC<SalonDetailsScreenProps> = ({
           </TouchableOpacity>
         )}
       </View>
+
+      <ImageView
+        images={salonData?.images?.map(img => ({ uri: img })) || []}
+        imageIndex={currentImageIndex}
+        visible={isImageViewVisible}
+        onRequestClose={() => setImageViewVisible(false)}
+      />
     </CommonContainer>
   );
 };
