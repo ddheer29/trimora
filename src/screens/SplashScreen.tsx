@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View, Text } from 'react-native';
 import { resetAndNavigate } from '../utils/NavigationUtil';
 import theme from '../utils/Theme';
 import { useUserStore } from '../store/userStore';
@@ -8,6 +8,7 @@ import { userService } from '../services/userService';
 const SplashScreen = () => {
   const [isStop, setIsStop] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
   const { isLoggedIn, user, updateUser } = useUserStore();
   const [isReady, setIsReady] = useState(false);
 
@@ -52,16 +53,24 @@ const SplashScreen = () => {
       } else {
         resetAndNavigate('AuthNavigator');
       }
-    }, 2000);
+    }, 3000); // Increased slightly for better feel
 
     return () => clearTimeout(timer);
   }, [isLoggedIn, user, isReady]);
 
   useEffect(() => {
+    // Entrance Fade In
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+
+    // Breathing Animation
     const breatingAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(scale, {
-          toValue: 1.1,
+          toValue: 1.05,
           duration: 2000,
           useNativeDriver: true,
         }),
@@ -72,6 +81,7 @@ const SplashScreen = () => {
         }),
       ]),
     );
+
     if (!isStop) {
       breatingAnimation.start();
     }
@@ -82,12 +92,10 @@ const SplashScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Animated.Text style={[styles.appName, { transform: [{ scale }] }]}>
-        Trimora
-      </Animated.Text>
-      <Animated.Text style={[styles.tagline, { transform: [{ scale }] }]}>
-        Your beauty, your time.
-      </Animated.Text>
+      <Animated.View style={{ opacity, transform: [{ scale }], alignItems: 'center' }}>
+        <Text style={styles.appName}>Trimora</Text>
+        <Text style={styles.tagline}>Your style, your time.</Text>
+      </Animated.View>
     </View>
   );
 };
@@ -97,20 +105,22 @@ export default SplashScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.primaryDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
   appName: {
-    fontSize: 42,
-    color: theme.colors.primaryDark,
+    fontSize: 48,
+    color: theme.colors.accent,
     fontFamily: theme.fonts.heading,
-    marginBottom: 8,
+    marginBottom: 4,
+    letterSpacing: 1,
   },
   tagline: {
     fontSize: 16,
-    color: theme.colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     fontFamily: theme.fonts.light,
-    letterSpacing: 1.2,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
 });
