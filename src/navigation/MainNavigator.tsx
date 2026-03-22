@@ -25,6 +25,9 @@ import BookingDetailsScreen from '../screens/PartnerSide/BookingDetailsScreen';
 import TermsOfService from '@screens/legal/TermsOfService';
 import PrivacyPolicy from '@screens/legal/PrivacyPolicy';
 import SalonPreviewScreen from '@screens/PartnerSide/SalonPreviewScreen';
+import ReelsFeedScreen from '@screens/BottomTabScreen/ReelsFeedScreen';
+import ManagePostsScreen from '@screens/PartnerSide/ManagePostsScreen';
+import CreatePostScreen from '@screens/PartnerSide/CreatePostScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -37,6 +40,9 @@ export type RootStackParamList = {
   PaymentScreen: undefined;
   BookingSuccessScreen: undefined;
   BookingDetailsScreen: { bookingId: string };
+  ReelsFeedScreen: { initialIndex: number; data: any[] };
+  ManagePostsScreen: undefined;
+  CreatePostScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -130,6 +136,9 @@ const MainNavigator: FC = () => {
 
       <Stack.Screen name="TermsOfService" component={TermsOfService} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
+      <Stack.Screen name="ReelsFeedScreen" component={ReelsFeedScreen} />
+      <Stack.Screen name="ManagePostsScreen" component={ManagePostsScreen} />
+      <Stack.Screen name="CreatePostScreen" component={CreatePostScreen} />
     </Stack.Navigator>
   );
 };

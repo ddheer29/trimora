@@ -1662,6 +1662,74 @@ PODS:
   - react-native-vector-icons-feather (12.4.2)
   - react-native-vector-icons-ionicons (12.4.2)
   - react-native-vector-icons-material-design-icons (12.4.2)
+  - react-native-video (6.19.1):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - react-native-video/Video (= 6.19.1)
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - react-native-video/Fabric (6.19.1):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - react-native-video/Video (6.19.1):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - react-native-video/Fabric
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - react-native-webview (13.16.1):
     - hermes-engine
     - RCTRequired
@@ -2471,6 +2539,7 @@ DEPENDENCIES:
   - "react-native-vector-icons-feather (from `../node_modules/@react-native-vector-icons/feather`)"
   - "react-native-vector-icons-ionicons (from `../node_modules/@react-native-vector-icons/ionicons`)"
   - "react-native-vector-icons-material-design-icons (from `../node_modules/@react-native-vector-icons/material-design-icons`)"
+  - react-native-video (from `../node_modules/react-native-video`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-networking (from `../node_modules/react-native/ReactCommon/react/networking`)
@@ -2629,6 +2698,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-vector-icons/ionicons"
   react-native-vector-icons-material-design-icons:
     :path: "../node_modules/@react-native-vector-icons/material-design-icons"
+  react-native-video:
+    :path: "../node_modules/react-native-video"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-NativeModulesApple:
@@ -2778,6 +2849,7 @@ SPEC CHECKSUMS:
   react-native-vector-icons-feather: e1fb94dbb68e5469194cc80311f27e6427c84aa3
   react-native-vector-icons-ionicons: 7cc4388958a60560aa6f5e257ad8197d555700ff
   react-native-vector-icons-material-design-icons: 12bc222b4cd6781a3cbbf4b537767d3d528011dd
+  react-native-video: 8cfc70ca7f8f99906233b1a65a8b3c937fb32c1a
   react-native-webview: 28592896970bf53d9864e8db084a0ad11fd81582
   React-NativeModulesApple: 14a8919451154ede904f2bca84b27703a09028ba
   React-networking: 46c0037f9202c1919493b78662a47cbe13022fdd

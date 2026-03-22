@@ -100,6 +100,7 @@ const StylistAndTimeSlotScreen: FC<any> = ({ navigation }) => {
       showBackButton
       hideHeader={false}
       title="Select Stylist & Time"
+      noPadding
     >
       <ScrollView contentContainerStyle={styles.container}>
         {/* Date Selection */}

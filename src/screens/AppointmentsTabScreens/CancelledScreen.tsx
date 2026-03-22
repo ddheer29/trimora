@@ -46,6 +46,7 @@ const CancelledScreen = ({ navigation }: any) => {
         type: 'error',
         text1: 'Error',
         text2: 'Failed to load bookings',
+        topOffset: 60,
       });
     } finally {
       setLoading(false);
@@ -88,6 +89,7 @@ const CancelledScreen = ({ navigation }: any) => {
         type: 'error',
         text1: 'Error',
         text2: 'Failed to fetch rebook data',
+        topOffset: 60,
       });
     }
   };

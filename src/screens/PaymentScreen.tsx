@@ -70,13 +70,14 @@ const PaymentScreen: FC<any> = ({ navigation }) => {
                     index: 0,
                     routes: [{ name: 'BookingSuccessScreen' }],
                   });
-                  } else {
-                    Toast.show({
-                      type: 'error',
-                      text1: 'Booking Failed',
-                      text2: res.message || 'Something went wrong',
-                    });
-                  }
+                } else {
+                  Toast.show({
+                    type: 'error',
+                    text1: 'Booking Failed',
+                    text2: res.message || 'Something went wrong',
+                    topOffset: 60,
+                  });
+                }
               },
             },
             {
@@ -84,7 +85,7 @@ const PaymentScreen: FC<any> = ({ navigation }) => {
               onPress: () => setLoading(false),
               style: 'cancel',
             },
-          ]
+          ],
         );
       } else {
         // Cash payment - direct booking
@@ -95,13 +96,14 @@ const PaymentScreen: FC<any> = ({ navigation }) => {
             index: 0,
             routes: [{ name: 'BookingSuccessScreen' }],
           });
-          } else {
-            Toast.show({
-              type: 'error',
-              text1: 'Booking Failed',
-              text2: res.message || 'Something went wrong',
-            });
-          }
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'Booking Failed',
+            text2: res.message || 'Something went wrong',
+            topOffset: 60,
+          });
+        }
       }
     } catch (error) {
       console.error('Booking error:', error);
@@ -109,6 +111,7 @@ const PaymentScreen: FC<any> = ({ navigation }) => {
         type: 'error',
         text1: 'Error',
         text2: 'An error occurred while booking',
+        topOffset: 60,
       });
     } finally {
       if (paymentMethod === 'cash') setLoading(false);
@@ -116,7 +119,12 @@ const PaymentScreen: FC<any> = ({ navigation }) => {
   };
 
   return (
-    <CommonContainer showBackButton title="Payment Options">
+    <CommonContainer
+      showBackButton
+      title="Payment Options"
+      hideHeader={false}
+      noPadding
+    >
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>Booking Summary</Text>
@@ -145,11 +153,18 @@ const PaymentScreen: FC<any> = ({ navigation }) => {
           onPress={() => setPaymentMethod('online')}
         >
           <View style={styles.radioContainer}>
-            <View style={[styles.radio, paymentMethod === 'online' && styles.radioActive]} />
+            <View
+              style={[
+                styles.radio,
+                paymentMethod === 'online' && styles.radioActive,
+              ]}
+            />
           </View>
           <View>
             <Text style={styles.methodTitle}>Online Payment</Text>
-            <Text style={styles.methodDesc}>Pay via Razorpay (UPI, Cards, Wallets)</Text>
+            <Text style={styles.methodDesc}>
+              Pay via Razorpay (UPI, Cards, Wallets)
+            </Text>
           </View>
         </TouchableOpacity>
 
@@ -161,7 +176,12 @@ const PaymentScreen: FC<any> = ({ navigation }) => {
           onPress={() => setPaymentMethod('cash')}
         >
           <View style={styles.radioContainer}>
-            <View style={[styles.radio, paymentMethod === 'cash' && styles.radioActive]} />
+            <View
+              style={[
+                styles.radio,
+                paymentMethod === 'cash' && styles.radioActive,
+              ]}
+            />
           </View>
           <View>
             <Text style={styles.methodTitle}>Pay at Salon (Cash)</Text>

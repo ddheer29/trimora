@@ -1,116 +1,152 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
   View,
-  ViewToken,
+  TextInput,
+  Text,
 } from 'react-native';
-import { debounce } from 'lodash';
 import CommonContainer from '../../components/CommonContainer';
-import PostItem from '@components/Posts/PostItem';
-import { screenHeight } from '../../utils/Scaling';
 import theme from '../../utils/Theme';
 import { trendService } from '@/services/trendService';
+import TrendGalleryItem from '@components/Posts/TrendGalleryItem';
+import Ionicons from '@react-native-vector-icons/ionicons';
 
 const TrendsScreen = () => {
+  const navigation = useNavigation<any>();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [currentVisibleIndex, setCurrentVisibleIndex] = useState<number>(0);
+  const [searchText, setSearchText] = useState('');
+  const searchTimeout = useRef<any>(null);
 
-  const fetchReels = async (pageNum: number) => {
+  const fetchTrends = async (pageNum: number, query: string = searchText) => {
     if (loading || (!hasMore && pageNum !== 1)) return;
 
     try {
       setLoading(true);
-      const response = await trendService.getReelsFeed(pageNum, 8);
+      const response = await trendService.getGalleryFeed(pageNum, 30, undefined, query);
 
       if (response.status === 'success') {
-        const newData = response.data || [];
+        const newPosts = response.data.posts || [];
         if (pageNum === 1) {
-          setData(newData);
+          setData(newPosts);
         } else {
-          setData(prev => [...prev, ...newData]);
+          setData(prev => [...prev, ...newPosts]);
         }
-
-        setHasMore(newData.length === 8);
+        setHasMore(response.pagination.page < response.pagination.pages);
         setPage(pageNum);
       }
     } catch (error) {
-      console.log('🚀 -> fetchReels -> error:', error);
+      console.log('🚀 -> fetchTrends -> error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchReels(1);
+    fetchTrends(1, '');
   }, []);
+
+  // Debounced search
+  useEffect(() => {
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
+
+    searchTimeout.current = setTimeout(() => {
+      setPage(1);
+      setHasMore(true);
+      fetchTrends(1, searchText);
+    }, 500);
+
+    return () => {
+      if (searchTimeout.current) {
+        clearTimeout(searchTimeout.current);
+      }
+    };
+  }, [searchText]);
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
-      fetchReels(page + 1);
+      fetchTrends(page + 1);
     }
   };
 
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 80,
-  }).current;
+  const openReel = (index: number) => {
+    navigation.navigate('ReelsFeedScreen', {
+      initialIndex: index,
+      data: data,
+    });
+  };
 
-  const onViewableItemsChanged = useRef(
-    debounce(({ viewableItems }: { viewableItems: Array<ViewToken> }) => {
-      if (viewableItems?.length > 0) {
-        setCurrentVisibleIndex(viewableItems[0]?.index || 0);
-      }
-    }, 100),
-  ).current;
-
-  const getItemLayout = useCallback(
-    (data: any, index: number) => ({
-      length: screenHeight,
-      offset: screenHeight * index,
-      index,
-    }),
+  const keyExtractor = useCallback(
+    (item: any) => (item?._id || Math.random().toString()).toString(),
     [],
   );
 
-  const keyExtractor = useCallback((item: any) => (item?._id || Math.random().toString()).toString(), []);
-
   return (
-    <CommonContainer>
+    <CommonContainer noPadding>
+      <View style={styles.header}>
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={20} color="#94A3B8" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search trends, tags..."
+            placeholderTextColor="#94A3B8"
+            value={searchText}
+            onChangeText={setSearchText}
+            autoCorrect={false}
+          />
+          {searchText.length > 0 && (
+            <Ionicons
+              name="close-circle"
+              size={18}
+              color="#94A3B8"
+              onPress={() => setSearchText('')}
+            />
+          )}
+        </View>
+      </View>
+
       <FlatList
-        data={data || []}
+        data={data}
         keyExtractor={keyExtractor}
+        numColumns={3}
         renderItem={({ item, index }) => (
-          <PostItem
-            item={item}
-            isVisible={index === currentVisibleIndex}
+          <TrendGalleryItem
+            item={{
+              _id: item._id,
+              mediaUrl:
+                item.type === 'video'
+                  ? item.thumbnailUrl || item.mediaUrl
+                  : item.mediaUrl,
+              type: item.type,
+            }}
+            onPress={() => openReel(index)}
           />
         )}
-        windowSize={2}
-        pagingEnabled
-        viewabilityConfig={viewabilityConfig}
-        disableIntervalMomentum={true}
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={2}
-        getItemLayout={getItemLayout}
-        onViewableItemsChanged={onViewableItemsChanged}
-        initialNumToRender={1}
-        onEndReachedThreshold={0.5}
         onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
         ListFooterComponent={() =>
           loading ? (
             <View style={styles.footer}>
-              <ActivityIndicator size="small" color={theme.colors.primary} />
+              <ActivityIndicator size="small" color={theme.colors.accent} />
             </View>
           ) : null
         }
-        decelerationRate={'normal'}
+        ListEmptyComponent={() =>
+          !loading ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No trends found.</Text>
+            </View>
+          ) : null
+        }
         showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
       />
     </CommonContainer>
   );
@@ -119,9 +155,43 @@ const TrendsScreen = () => {
 export default TrendsScreen;
 
 const styles = StyleSheet.create({
+  header: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: theme.colors.background,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F1F5F9', // Light Slate 100
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#E2E8F0', // Border color
+  },
+  searchInput: {
+    flex: 1,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.body,
+    fontSize: 14,
+    marginLeft: 8,
+    paddingVertical: 0,
+  },
   footer: {
     height: 80,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 100,
+  },
+  emptyText: {
+    color: '#94A3B8',
+    fontFamily: theme.fonts.body,
+    fontSize: 16,
   },
 });

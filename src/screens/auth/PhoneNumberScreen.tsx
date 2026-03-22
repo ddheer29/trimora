@@ -35,6 +35,7 @@ const PhoneNumberScreen = () => {
           text1: 'Success',
           text2: `OTP sent successfully to ${phoneNumber}`,
           swipeable: true,
+          topOffset: 60,
         });
         navigate('VerifyOtpScreen', {
           phoneNumber: phoneNumber,
@@ -46,6 +47,7 @@ const PhoneNumberScreen = () => {
           text1: 'Error',
           text2: response.message || 'Failed to send OTP',
           swipeable: true,
+          topOffset: 60,
         });
       }
     } catch (error: any) {
@@ -57,6 +59,7 @@ const PhoneNumberScreen = () => {
           error.response?.data?.message ||
           'Failed to send OTP. Please try again.',
         swipeable: true,
+        topOffset: 60,
       });
     } finally {
       setLoginLoading(false);
@@ -93,9 +96,7 @@ const PhoneNumberScreen = () => {
     <View style={styles.container}>
       <View style={styles.contentContainer}>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>
-            Welcome Back
-          </Text>
+          <Text style={styles.title}>Welcome Back</Text>
           <Text style={styles.subtitle}>
             Enter your phone number to continue.
           </Text>
@@ -149,9 +150,13 @@ const PhoneNumberScreen = () => {
               </Text>
               <Text
                 style={styles.switchRoleText}
-                onPress={() => setLoginAs(loginAs === 'customer' ? 'partner' : 'customer')}
+                onPress={() =>
+                  setLoginAs(loginAs === 'customer' ? 'partner' : 'customer')
+                }
               >
-                {loginAs === 'customer' ? 'Login as Partner' : 'Login as Customer'}
+                {loginAs === 'customer'
+                  ? 'Login as Partner'
+                  : 'Login as Customer'}
               </Text>
             </View>
           </View>

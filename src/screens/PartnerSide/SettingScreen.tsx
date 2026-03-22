@@ -36,6 +36,11 @@ const SettingScreen = () => {
       onPress: () => navigate('ManageServicesScreen'),
     },
     {
+      title: 'Portfolio & Posts',
+      icon: 'image',
+      onPress: () => navigate('ManagePostsScreen'),
+    },
+    {
       title: 'Notifications',
       icon: 'bell',
       onPress: () => navigate('NotificationsScreen'),
@@ -99,7 +104,7 @@ const SettingScreen = () => {
                 <Feather
                   name={item.icon as any}
                   size={20}
-                  color={theme.colors.primaryDark}
+                  color={theme.colors.textOnPrimary}
                 />
               </View>
               <Text style={styles.menuTitle}>{item.title}</Text>

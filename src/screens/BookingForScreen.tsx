@@ -35,6 +35,7 @@ const BookingForScreen: FC<any> = ({ navigation }) => {
         type: 'error',
         text1: 'Error',
         text2: 'Please enter guest details',
+        topOffset: 60,
       });
       return;
     }
@@ -43,6 +44,7 @@ const BookingForScreen: FC<any> = ({ navigation }) => {
         type: 'error',
         text1: 'Error',
         text2: 'Please enter service address',
+        topOffset: 60,
       });
       return;
     }
@@ -62,9 +64,15 @@ const BookingForScreen: FC<any> = ({ navigation }) => {
   };
 
   return (
-    <CommonContainer showBackButton title="Booking For">
+    <CommonContainer
+      showBackButton
+      title="Booking For"
+      hideHeader={false}
+      noPadding
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.container}>
@@ -75,7 +83,12 @@ const BookingForScreen: FC<any> = ({ navigation }) => {
               style={[styles.choiceButton, forSelf && styles.selectedChoice]}
               onPress={() => setBookingFor(true)}
             >
-              <Text style={[styles.choiceText, forSelf && styles.selectedChoiceText]}>
+              <Text
+                style={[
+                  styles.choiceText,
+                  forSelf && styles.selectedChoiceText,
+                ]}
+              >
                 Self
               </Text>
             </TouchableOpacity>
@@ -83,7 +96,12 @@ const BookingForScreen: FC<any> = ({ navigation }) => {
               style={[styles.choiceButton, !forSelf && styles.selectedChoice]}
               onPress={() => setBookingFor(false)}
             >
-              <Text style={[styles.choiceText, !forSelf && styles.selectedChoiceText]}>
+              <Text
+                style={[
+                  styles.choiceText,
+                  !forSelf && styles.selectedChoiceText,
+                ]}
+              >
                 Someone Else
               </Text>
             </TouchableOpacity>
@@ -103,6 +121,7 @@ const BookingForScreen: FC<any> = ({ navigation }) => {
                 style={styles.input}
                 placeholder="Enter guest phone number"
                 keyboardType="phone-pad"
+                maxLength={10}
                 value={guestPhone}
                 onChangeText={setGuestPhone}
               />
@@ -110,7 +129,9 @@ const BookingForScreen: FC<any> = ({ navigation }) => {
           )}
 
           {/* Service Location */}
-          <Text style={[styles.sectionTitle, { marginTop: 30 }]}>Service Location</Text>
+          <Text style={[styles.sectionTitle, { marginTop: 30 }]}>
+            Service Location
+          </Text>
           <View style={styles.row}>
             <TouchableOpacity
               style={[

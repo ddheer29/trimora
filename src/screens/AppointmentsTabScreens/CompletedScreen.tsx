@@ -54,6 +54,7 @@ const CompletedScreen = ({ navigation }: any) => {
         type: 'error',
         text1: 'Error',
         text2: 'Failed to load bookings',
+        topOffset: 60,
       });
     } finally {
       setLoading(false);
@@ -101,6 +102,7 @@ const CompletedScreen = ({ navigation }: any) => {
           type: 'success',
           text1: 'Thank you!',
           text2: 'Review submitted successfully',
+          topOffset: 60,
         });
       }
     } catch (error) {
@@ -108,6 +110,7 @@ const CompletedScreen = ({ navigation }: any) => {
         type: 'error',
         text1: 'Error',
         text2: 'Failed to submit review',
+        topOffset: 60,
       });
     } finally {
       setActionLoading(false);
@@ -132,6 +135,7 @@ const CompletedScreen = ({ navigation }: any) => {
         type: 'error',
         text1: 'Error',
         text2: 'Failed to fetch rebook data',
+        topOffset: 60,
       });
     }
   };

@@ -81,6 +81,7 @@ const EditProfileScreen = () => {
         type: 'error',
         text1: 'Error',
         text2: 'Failed to load profile data',
+        topOffset: 60,
       });
     } finally {
       setLoading(false);
@@ -163,6 +164,7 @@ const EditProfileScreen = () => {
         type: 'error',
         text1: 'Error',
         text2: 'Please enter your name',
+        topOffset: 60,
       });
       return;
     }
@@ -202,8 +204,9 @@ const EditProfileScreen = () => {
           type: 'success',
           text1: 'Success',
           text2: 'Profile updated successfully',
+          topOffset: 60,
         });
- 
+
         // Navigate based on role and profile completion status using the latest data
         if (updatedUserData.isProfileCompleted) {
           if (updatedUserData.role === 'partner') {
@@ -219,6 +222,7 @@ const EditProfileScreen = () => {
           type: 'error',
           text1: 'Error',
           text2: response.message || 'Failed to update profile',
+          topOffset: 60,
         });
       }
     } catch (error: any) {
@@ -229,6 +233,7 @@ const EditProfileScreen = () => {
         text2:
           error.response?.data?.message ||
           'Failed to update profile. Please try again.',
+        topOffset: 60,
       });
     } finally {
       setLoading(false);

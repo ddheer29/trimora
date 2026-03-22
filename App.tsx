@@ -15,17 +15,21 @@ GoogleSignin.configure({
     '274425122801-m3igrpiqufhqbl91fg46h4p460lqvp6r.apps.googleusercontent.com',
 });
 
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
 function App() {
   return (
     <GestureHandlerRootView>
-      <SafeAreaProvider>
-        <StatusBar
-          translucent={Platform.OS === 'ios'}
-          backgroundColor="transparent"
-        />
-        <Navigation />
-        <Toast />
-      </SafeAreaProvider>
+      <BottomSheetModalProvider>
+        <SafeAreaProvider>
+          <StatusBar
+            translucent={Platform.OS === 'ios'}
+            backgroundColor="transparent"
+          />
+          <Navigation />
+          <Toast />
+        </SafeAreaProvider>
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 }

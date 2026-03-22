@@ -7,6 +7,7 @@ import DashboardScreen from '@screens/PartnerSide/DashboardScreen';
 import BookingScreen from '@screens/PartnerSide/BookingScreen';
 import SettingScreen from '@screens/PartnerSide/SettingScreen';
 import SchedulesScreen from '@screens/PartnerSide/SchedulesScreen';
+import ManagePostsScreen from '@screens/PartnerSide/ManagePostsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -66,6 +67,8 @@ const TabNavigation = () => {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Schedules') {
             iconName = focused ? 'calendar' : 'calendar-outline';
+          } else if (route.name === 'Posts') {
+            iconName = focused ? 'images' : 'images-outline';
           } else if (route.name === 'Booking') {
             iconName = focused ? 'book' : 'book-outline';
           } else if (route.name === 'Setting') {
@@ -85,6 +88,11 @@ const TabNavigation = () => {
         name="Schedules"
         component={SchedulesScreen}
         options={{ tabBarLabel: 'Schedules' }}
+      />
+      <Tab.Screen
+        name="Posts"
+        component={ManagePostsScreen}
+        options={{ tabBarLabel: 'Portfolio' }}
       />
       <Tab.Screen
         name="Booking"
