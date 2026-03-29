@@ -21,6 +21,18 @@ export interface TrendPost {
   createdAt: string;
 }
 
+export interface Comment {
+  _id: string;
+  postId: string;
+  userId: {
+    _id: string;
+    name: string;
+    profilePhoto?: string;
+  };
+  text: string;
+  createdAt: string;
+}
+
 export interface TrendGalleryResponse {
   status: string;
   results: number;
@@ -88,7 +100,7 @@ export const trendService = {
   addComment: async (
     postId: string,
     text: string,
-  ): Promise<{ status: string; data: { comment: any } }> => {
+  ): Promise<{ status: string; data: { comment: Comment } }> => {
     const response = await api.post(`/customers/posts/${postId}/comments`, {
       text,
     });
@@ -102,7 +114,7 @@ export const trendService = {
     limit = 20,
   ): Promise<{
     status: string;
-    data: { comments: any[] };
+    data: { comments: Comment[] };
     pagination: Pagination;
   }> => {
     const response = await api.get(`/customers/posts/${postId}/comments`, {

@@ -17,7 +17,7 @@ import { trendService } from '@/services/trendService';
 import Video from 'react-native-video';
 import { navigate } from '@/utils/NavigationUtil';
 import CommentBottomSheet from './CommentBottomSheet';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { TrueSheet } from '@lodev09/react-native-true-sheet';
 
 interface PostItemProps {
   item: {
@@ -45,7 +45,7 @@ const PostItem = ({ item: initialItem, isVisible }: PostItemProps) => {
   const [likeLoading, setLikeLoading] = useState(false);
   const [videoLoading, setVideoLoading] = useState(true);
 
-  const sheetRef = useRef<BottomSheetModal>(null);
+  const sheetRef = useRef<TrueSheet>(null);
 
   const handleOpenComments = () => {
     sheetRef.current?.present();

@@ -1,32 +1,24 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  forwardRef,
-} from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
-  Image,
+  FlatList,
+  TextInput,
   TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
   Keyboard,
 } from 'react-native';
-import {
-  BottomSheetFlatList,
-  BottomSheetTextInput,
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetFooter,
-  BottomSheetFooterProps,
-} from '@gorhom/bottom-sheet';
-import theme from '../../utils/Theme';
-import { trendService } from '@/services/trendService';
-import Feather from '@react-native-vector-icons/feather';
+import { TrueSheet } from '@lodev09/react-native-true-sheet';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { trendService, Comment } from '@/services/trendService';
+import theme from '@/utils/Theme';
+import Ionicons from '@react-native-vector-icons/ionicons';
+import { screenHeight } from '@/utils/Scaling';
 
 dayjs.extend(relativeTime);
 
@@ -34,14 +26,12 @@ interface CommentBottomSheetProps {
   postId: string;
 }
 
-const CommentBottomSheet = forwardRef<BottomSheetModal, CommentBottomSheetProps>(
+const CommentBottomSheet = forwardRef<TrueSheet, CommentBottomSheetProps>(
   ({ postId }, ref) => {
-    const [comments, setComments] = useState<any[]>([]);
+    const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(false);
-    const [commentText, setCommentText] = useState('');
-    const [sending, setSending] = useState(false);
-
-    const snapPoints = useMemo(() => ['50%', '80%'], []);
+    const [text, setText] = useState('');
+    const [isPosting, setIsPosting] = useState(false);
 
     const fetchComments = async () => {
       try {
@@ -51,178 +41,172 @@ const CommentBottomSheet = forwardRef<BottomSheetModal, CommentBottomSheetProps>
           setComments(response.data.comments);
         }
       } catch (error) {
-        console.log('Error fetching comments:', error);
+        console.error('Fetch comments error:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    useEffect(() => {
-      if (postId) {
-        fetchComments();
-      }
-    }, [postId]);
-
-    const handleSend = async () => {
-      if (!commentText.trim() || sending) return;
+    const handlePostComment = async () => {
+      if (!text.trim() || isPosting) return;
 
       try {
-        setSending(true);
-        const response = await trendService.addComment(postId, commentText);
+        setIsPosting(true);
+        const response = await trendService.addComment(postId, text);
         if (response.status === 'success') {
-          // Optimistically add to list or re-fetch
-          const newComment = response.data.comment;
-          setComments(prev => [newComment, ...prev]);
-          setCommentText('');
+          setComments(prev => [response.data.comment, ...prev]);
+          setText('');
           Keyboard.dismiss();
         }
       } catch (error) {
-        console.log('Error adding comment:', error);
+        console.error('Post comment error:', error);
       } finally {
-        setSending(false);
+        setIsPosting(false);
       }
     };
 
-    const renderBackdrop = useCallback(
-      (props: any) => (
-        <BottomSheetBackdrop
-          {...props}
-          disappearsOnIndex={-1}
-          appearsOnIndex={0}
-          opacity={0.5}
+    const renderComment = ({ item }: { item: Comment }) => (
+      <View style={styles.commentContainer}>
+        <Image
+          source={{
+            uri: item.userId?.profilePhoto || 'https://via.placeholder.com/40',
+          }}
+          style={styles.avatar}
         />
-      ),
-      []
-    );
-
-    const renderFooter = useCallback(
-      (props: BottomSheetFooterProps) => (
-        <BottomSheetFooter {...props}>
-          <View style={styles.inputContainer}>
-            <BottomSheetTextInput
-              style={styles.input}
-              placeholder="Add a comment..."
-              placeholderTextColor="#999"
-              value={commentText}
-              onChangeText={setCommentText}
-              multiline
-            />
-            <TouchableOpacity
-              onPress={handleSend}
-              disabled={!commentText.trim() || sending}
-              style={[
-                styles.sendButton,
-                (!commentText.trim() || sending) && styles.sendButtonDisabled,
-              ]}
-            >
-              {sending ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Feather name="send" size={20} color="#fff" />
-              )}
-            </TouchableOpacity>
+        <View style={styles.commentContent}>
+          <View style={styles.commentHeader}>
+            <Text style={styles.username}>{item.userId?.name}</Text>
+            <Text style={styles.timestamp}>
+              {dayjs(item.createdAt).fromNow()}
+            </Text>
           </View>
-        </BottomSheetFooter>
-      ),
-      [commentText, sending, handleSend]
-    );
-
-    const renderComment = useCallback(({ item }: { item: any }) => {
-      const user = item.customerId || item.salonId || {};
-      const name = user.name || 'User';
-      const image = user.images?.[0] || 'https://via.placeholder.com/100';
-
-      return (
-        <View style={styles.commentItem}>
-          <Image source={{ uri: image }} style={styles.avatar} />
-          <View style={styles.commentContent}>
-            <View style={styles.commentHeader}>
-              <Text style={styles.userName}>{name}</Text>
-              <Text style={styles.timeText}>
-                {dayjs(item.createdAt).fromNow()}
-              </Text>
-            </View>
-            <Text style={styles.commentText}>{item.text}</Text>
-          </View>
+          <Text style={styles.commentText}>{item.text}</Text>
         </View>
-      );
-    }, []);
+      </View>
+    );
+
+    const renderFooter = () => (
+      <View style={styles.footerContainer}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Add a comment..."
+            placeholderTextColor={theme.colors.textSecondary}
+            value={text}
+            onChangeText={setText}
+            multiline
+          />
+          <TouchableOpacity
+            onPress={handlePostComment}
+            disabled={!text.trim() || isPosting}
+            style={styles.sendButton}
+          >
+            {isPosting ? (
+              <ActivityIndicator size="small" color={theme.colors.accent} />
+            ) : (
+              <Ionicons
+                name="send"
+                size={24}
+                color={
+                  text.trim()
+                    ? theme.colors.accent
+                    : theme.colors.textSecondary
+                }
+              />
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
 
     return (
-      <BottomSheetModal
+      <TrueSheet
         ref={ref}
-        index={0}
-        snapPoints={snapPoints}
-        enablePanDownToClose
-        backdropComponent={renderBackdrop}
-        footerComponent={renderFooter}
-        backgroundStyle={styles.sheetBackground}
-        handleIndicatorStyle={styles.indicator}
-        keyboardBehavior="interactive"
-        keyboardBlurBehavior="none"
+        detents={['auto', 0.5, 0.9]}
+        cornerRadius={24}
+        backgroundColor={theme.colors.primary}
+        onWillPresent={fetchComments}
+        scrollable={true}
+        footer={renderFooter()}
       >
-        <View style={styles.contentContainer}>
-          <Text style={styles.title}>Comments</Text>
-          {loading && comments.length === 0 ? (
+        <View style={styles.sheetContent}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Comments</Text>
+          </View>
+
+          {loading ? (
             <ActivityIndicator
+              size="large"
               color={theme.colors.accent}
               style={styles.loader}
             />
           ) : (
-            <BottomSheetFlatList
+            <FlatList
               data={comments}
-              keyExtractor={(item: any) => item._id}
+              keyExtractor={item => item._id}
               renderItem={renderComment}
+              style={styles.list}
               contentContainerStyle={styles.listContent}
+              nestedScrollEnabled={true}
               ListEmptyComponent={
-                <Text style={styles.emptyText}>No comments yet.</Text>
+                <View style={styles.emptyContainer}>
+                  <Ionicons
+                    name="chatbubble-outline"
+                    size={48}
+                    color={theme.colors.primaryLight}
+                  />
+                  <Text style={styles.emptyText}>
+                    No comments yet. Be the first to comment!
+                  </Text>
+                </View>
               }
             />
           )}
         </View>
-      </BottomSheetModal>
+      </TrueSheet>
     );
-  }
+  },
 );
 
-export default CommentBottomSheet;
-
 const styles = StyleSheet.create({
-  sheetBackground: {
-    backgroundColor: theme.colors.primaryDark,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+  sheetContent: {
+    flex: 1,
+    paddingBottom: 20,
+  },
+  header: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   indicator: {
-    backgroundColor: '#666',
     width: 40,
+    height: 4,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 2,
+    marginBottom: 8,
   },
-  contentContainer: {
-    flex: 1,
-    paddingTop: 10,
-  },
-  title: {
+  headerTitle: {
     color: '#fff',
-    fontSize: 18,
-    fontFamily: theme.fonts.heading,
-    textAlign: 'center',
-    marginBottom: 15,
+    fontFamily: theme.fonts.subheading,
+    fontSize: 16,
+    marginTop: 8,
   },
-  loader: {
-    marginTop: 50,
+  list: {
+    flex: 1,
   },
   listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 100,
+    padding: 16,
+    paddingBottom: 20,
   },
-  commentItem: {
+  commentContainer: {
     flexDirection: 'row',
-    marginBottom: 20,
+    padding: 12,
   },
   avatar: {
-    width: 35,
-    height: 35,
-    borderRadius: 17.5,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     marginRight: 12,
   },
   commentContent: {
@@ -230,62 +214,71 @@ const styles = StyleSheet.create({
   },
   commentHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 4,
   },
-  userName: {
+  username: {
     color: '#fff',
     fontFamily: theme.fonts.subheading,
     fontSize: 14,
+    marginRight: 8,
   },
-  timeText: {
-    color: '#999',
-    fontSize: 11,
+  timestamp: {
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
+    fontSize: 12,
   },
   commentText: {
-    color: '#ddd',
+    color: '#eee',
+    fontFamily: theme.fonts.body,
     fontSize: 14,
-    fontFamily: theme.fonts.body,
-    lineHeight: 18,
+    lineHeight: 20,
   },
-  emptyText: {
-    color: '#999',
-    textAlign: 'center',
-    marginTop: 50,
-    fontFamily: theme.fonts.body,
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  footerContainer: {
+    backgroundColor: theme.colors.primary,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#333',
+    padding: 12,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 12, // Adjusted for footer prop
     backgroundColor: theme.colors.primaryDark,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(255,255,255,0.1)',
   },
   input: {
     flex: 1,
-    backgroundColor: '#1E1E1E',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
     color: '#fff',
     fontFamily: theme.fonts.body,
     fontSize: 14,
     maxHeight: 100,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 20,
+    marginRight: 12,
   },
   sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.colors.accent,
+    padding: 4,
+  },
+  emptyContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 10,
+    minHeight: 300,
   },
-  sendButtonDisabled: {
-    backgroundColor: '#444',
+  emptyText: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: 14,
+    marginTop: 12,
+    textAlign: 'center',
+    paddingHorizontal: 40,
   },
 });
+
+export default CommentBottomSheet;
