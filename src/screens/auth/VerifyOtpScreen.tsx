@@ -9,6 +9,7 @@ import { useUserStore } from '../../store/userStore';
 import { goBack, resetAndNavigate } from '@utils/NavigationUtil';
 import CommonContainer from '@components/CommonContainer';
 import Toast from 'react-native-toast-message';
+import notificationService from '@/services/notificationService';
 
 const VerifyOtpScreen = () => {
   const route = useRoute();
@@ -53,6 +54,10 @@ const VerifyOtpScreen = () => {
           accessToken: response.accessToken,
           refreshToken: response.refreshToken,
         });
+
+        // Register for push notifications after login
+        notificationService.requestUserPermission();
+
         Toast.show({
           type: 'success',
           text1: 'Success',

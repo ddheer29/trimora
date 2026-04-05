@@ -13,6 +13,7 @@ import { useUserStore } from '@/store/userStore';
 import { navigate, resetAndNavigate } from '@utils/NavigationUtil';
 import CommonContainer from '@components/CommonContainer';
 import CustomAlert from '@components/CustomAlert';
+import notificationService from '@/services/notificationService';
 
 const SettingScreen = () => {
   const { user, logout } = useUserStore();
@@ -69,6 +70,7 @@ const SettingScreen = () => {
             style: 'default',
             onPress: () => {
               setLogoutAlertVisible(false);
+              notificationService.unregisterToken();
               logout();
               resetAndNavigate('AuthNavigator');
             },
