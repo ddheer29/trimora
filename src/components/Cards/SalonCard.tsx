@@ -10,6 +10,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { Salon } from '@/types';
+import theme from '@utils/Theme';
+
 
 const { width } = Dimensions.get('window');
 interface SalonCardProps {
@@ -66,7 +68,7 @@ const styles = StyleSheet.create({
 
   name: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     marginBottom: 4,
   },
 
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
 
   price: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: theme.fonts.medium,
     color: '#111',
   },
 });

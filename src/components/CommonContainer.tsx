@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
   },
   rightIcon: {

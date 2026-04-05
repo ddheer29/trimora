@@ -21,6 +21,8 @@ import Geolocation from 'react-native-geolocation-service';
 import CommonContainer from '@components/CommonContainer';
 import { salonService } from '@/services/salonService';
 import { launchImageLibrary } from 'react-native-image-picker';
+import theme from '@utils/Theme';
+
 
 const CreateSalonScreen = () => {
   const navigation = useNavigation();
@@ -1015,7 +1017,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
     textAlign: 'center',
     marginBottom: 20,
     color: '#1a1a1a',
@@ -1038,7 +1040,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
     marginLeft: 8,
     color: '#1a1a1a',
   },
@@ -1076,7 +1078,7 @@ const styles = StyleSheet.create({
   locationButtonText: {
     color: '#007AFF',
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     marginLeft: 6,
   },
   coordinatesContainer: {
@@ -1103,7 +1105,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     marginLeft: 6,
   },
   categoryItem: {
@@ -1127,7 +1129,7 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
     marginLeft: 6,
     color: '#2c3e50',
   },
@@ -1150,13 +1152,13 @@ const styles = StyleSheet.create({
   },
   serviceTitle: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     color: '#2c3e50',
   },
   servicePrice: {
     fontSize: 11,
     color: '#27ae60',
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
   },
   serviceDuration: {
     fontSize: 10,
@@ -1176,7 +1178,7 @@ const styles = StyleSheet.create({
   addServiceText: {
     color: '#007AFF',
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     marginLeft: 4,
   },
   addCategoryButton: {
@@ -1194,7 +1196,7 @@ const styles = StyleSheet.create({
   addCategoryText: {
     color: '#007AFF',
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     marginLeft: 6,
   },
   stylistForm: {
@@ -1214,7 +1216,7 @@ const styles = StyleSheet.create({
   },
   stylistName: {
     fontSize: 13,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
     color: '#2c3e50',
     marginBottom: 2,
   },
@@ -1260,7 +1262,7 @@ const styles = StyleSheet.create({
   amenityText: {
     color: '#1976d2',
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
   },
   removeAmenityButton: {
     backgroundColor: '#ff4444',
@@ -1296,7 +1298,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
     marginLeft: 6,
   },
   hintText: {
@@ -1322,7 +1324,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
     marginBottom: 16,
     textAlign: 'center',
     color: '#1a1a1a',
@@ -1349,11 +1351,11 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: '#666',
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
   },
   confirmButtonText: {
     color: '#fff',
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
   },
   priceInputContainer: {
     flexDirection: 'row',
@@ -1365,7 +1367,7 @@ const styles = StyleSheet.create({
     left: 12,
     zIndex: 1,
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
     color: '#666',
   },
   priceInput: {
@@ -1390,7 +1392,7 @@ const styles = StyleSheet.create({
   },
   mapTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
     color: '#1a1a1a',
   },
   mapConfirmButton: {
@@ -1401,7 +1403,7 @@ const styles = StyleSheet.create({
   },
   mapConfirmText: {
     color: '#fff',
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
   },
   map: {
     flex: 1,
@@ -1435,7 +1437,7 @@ const styles = StyleSheet.create({
   addImageText: {
     color: '#007AFF',
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     marginLeft: 8,
   },
   imagesList: {

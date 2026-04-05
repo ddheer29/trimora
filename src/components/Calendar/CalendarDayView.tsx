@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import dayjs from 'dayjs';
 import { Booking } from '../../types';
+import theme from '@utils/Theme';
+
 
 interface Props {
   dateYmd: string;
@@ -148,7 +150,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   bookingTitle: {
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     color: '#fff',
   },
   bookingTime: {

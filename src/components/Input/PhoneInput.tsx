@@ -13,6 +13,8 @@ import {
   Alert,
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import theme from '@utils/Theme';
+
 
 // Country data with dial codes and flags
 const COUNTRIES = [
@@ -577,7 +579,7 @@ const styles = (theme: any) =>
     dialCodeText: {
       fontSize: theme.fontSizes.md,
       color: theme.colors.textPrimary,
-      fontWeight: '500',
+      fontFamily: theme.fonts.medium,
     },
     dropdownArrow: {
       fontSize: 10,
@@ -640,7 +642,7 @@ const styles = (theme: any) =>
     },
     modalTitle: {
       fontSize: theme.fontSizes.lg,
-      fontWeight: '600',
+      fontFamily: theme.fonts.semiBold,
       color: theme.colors.textPrimary,
     },
     detectButton: {
@@ -664,7 +666,7 @@ const styles = (theme: any) =>
     closeButtonText: {
       fontSize: theme.fontSizes.lg,
       color: theme.colors.textSecondary,
-      fontWeight: 'bold',
+      fontFamily: theme.fonts.bold,
     },
     countryList: {
       paddingHorizontal: theme.spacing.lg,
@@ -690,7 +692,7 @@ const styles = (theme: any) =>
     selectedIndicator: {
       fontSize: theme.fontSizes.md,
       color: theme.colors.primaryDark,
-      fontWeight: 'bold',
+      fontFamily: theme.fonts.bold,
     },
   });
 

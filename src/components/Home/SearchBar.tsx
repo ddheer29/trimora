@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   searchTitle: {
     color: theme.colors.textPrimary,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     marginBottom: 2,
   },
   searchSubtitle: {

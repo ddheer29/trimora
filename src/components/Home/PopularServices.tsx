@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
   },
   listContainer: {
@@ -82,14 +82,14 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: theme.fontSizes.md,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
     marginBottom: 4,
   },
   price: {
     fontSize: theme.fontSizes.sm,
     color: theme.colors.accent,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     marginBottom: 2,
   },
   salons: {

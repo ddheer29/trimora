@@ -1,4 +1,6 @@
 import React from 'react';
+import theme from '@utils/Theme';
+
 import {
   TouchableOpacity,
   Text,
@@ -142,7 +144,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     textAlign: 'center',
   },
 });

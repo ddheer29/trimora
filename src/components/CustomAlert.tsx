@@ -134,9 +134,8 @@ const styles = StyleSheet.create({
     ...theme.shadows.soft,
   },
   title: {
-    fontFamily: theme.fonts.heading,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     color: '#111827',
     textAlign: 'center',
     marginBottom: 10,
@@ -174,9 +173,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primaryDark,
   },
   buttonText: {
-    fontFamily: theme.fonts.subheading,
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: theme.fonts.medium,
   },
   cancelButtonText: {
     color: '#374151',

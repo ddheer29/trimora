@@ -9,6 +9,8 @@ import {
 import dayjs from 'dayjs';
 import { HMMA } from '../../utils/dateUtils';
 import { Booking } from '../../types';
+import theme from '@utils/Theme';
+
 
 type Props = {
   booking: Booking;
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   serviceName: {
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     color: '#fff',
   },
   time: {

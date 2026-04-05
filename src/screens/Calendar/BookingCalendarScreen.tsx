@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   dateText: {
     paddingHorizontal: 12,
     paddingBottom: 8,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
   },
   saveButton: {
     position: 'absolute',
@@ -152,6 +152,6 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#fff',
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
   },
 });

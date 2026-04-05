@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '800',
+    fontFamily: theme.fonts.extraBold,
     color: '#fff',
     marginBottom: 4,
   },
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   salon: {
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.7)',
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
   },
   pagination: {
     flexDirection: 'row',

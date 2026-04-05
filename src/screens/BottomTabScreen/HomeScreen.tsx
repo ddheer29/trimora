@@ -100,7 +100,7 @@ const HomeScreen = () => {
           <Text
             style={{
               fontSize: theme.fontSizes.xl,
-              fontWeight: '700',
+              fontFamily: theme.fonts.bold,
               color: theme.colors.primaryDark,
               marginHorizontal: theme.spacing.sm,
               marginBottom: theme.spacing.sm,
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
     textAlign: 'center',
   },

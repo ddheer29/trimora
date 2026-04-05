@@ -219,7 +219,7 @@ export default VerifyOtpScreen;
 
 const styles = StyleSheet.create({
   headerTitle: {
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     fontSize: theme.fontSizes.lg,
     color: theme.colors.primaryDark,
   },
@@ -242,11 +242,10 @@ const styles = StyleSheet.create({
   },
   phoneNumber: {
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.subheading,
     textAlign: 'center',
     marginTop: theme.spacing.sm,
     fontSize: theme.fontSizes.md,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
   },
   errorText: {
     color: theme.colors.error,
@@ -307,11 +306,11 @@ const styles = StyleSheet.create({
   },
   countdownText: {
     color: theme.colors.textSecondary,
-    fontWeight: '500',
+    fontFamily: theme.fonts.medium,
   },
   resendButtonText: {
     color: theme.colors.primaryDark,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     textDecorationLine: 'underline',
   },
   resendButtonDisabled: {

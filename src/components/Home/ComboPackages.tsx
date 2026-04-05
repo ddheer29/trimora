@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
   },
   listContainer: {
@@ -82,11 +82,11 @@ const styles = StyleSheet.create({
   saveText: {
     color: '#03543F', // Dark green text
     fontSize: theme.fontSizes.xs,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
   },
   title: {
     fontSize: theme.fontSizes.md,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
     marginBottom: theme.spacing.sm,
     height: 40, // fixed height for alignment
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
     marginRight: 8,
   },
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: theme.colors.accent,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     fontSize: theme.fontSizes.sm,
   },
 });

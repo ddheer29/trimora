@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
     paddingHorizontal: theme.spacing.sm,
     marginBottom: theme.spacing.md,
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
   },
   name: {
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
     fontSize: theme.fontSizes.sm,
     marginRight: 4,

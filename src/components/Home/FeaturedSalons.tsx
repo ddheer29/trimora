@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     marginBottom: theme.spacing.sm,
   },
   featuredCard: {
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: theme.colors.accent,
     fontSize: theme.fontSizes.lg,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     fontStyle: 'italic',
   },
   cardDetails: {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   salonName: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
   },
   ratingBadge: {
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
   },
   subtitle: {
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   bookButtonText: {
     color: theme.colors.card,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     fontSize: theme.fontSizes.md,
   },
 });

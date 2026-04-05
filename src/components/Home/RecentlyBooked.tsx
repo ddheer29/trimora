@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   salonName: {
     fontSize: theme.fontSizes.lg,
     color: theme.colors.primaryDark,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     marginBottom: 4,
   },
   lastVisit: {
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   rebookText: {
     color: theme.colors.textOnPrimary,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     fontSize: theme.fontSizes.sm,
   },
 });

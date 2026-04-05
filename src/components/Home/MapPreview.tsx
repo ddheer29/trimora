@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: theme.colors.textOnPrimary,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     fontSize: theme.fontSizes.md,
   },
 });

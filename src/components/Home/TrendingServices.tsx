@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
     marginBottom: theme.spacing.md,
   },
@@ -55,13 +55,13 @@ const styles = StyleSheet.create({
   trendText: {
     fontSize: theme.fontSizes.xs,
     color: theme.colors.highlight, // Warm Amber
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     textTransform: 'uppercase',
     marginBottom: 4,
   },
   serviceTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: '600',
+    fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
   },
 });

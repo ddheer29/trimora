@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
   },
   listContainer: {
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   rating: {
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
     fontSize: theme.fontSizes.sm,
     marginRight: 4,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: theme.fontSizes.md,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
     marginBottom: 2,
   },

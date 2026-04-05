@@ -54,9 +54,9 @@ export default function CalendarMonthView({
         textMonthFontFamily: theme.fonts.heading,
         textDayHeaderFontFamily: theme.fonts.subheading,
 
-        textDayFontWeight: '400',
-        textMonthFontWeight: '700',
-        textDayHeaderFontWeight: '600',
+        textDayFontFamily: theme.fonts.regular,
+        textMonthFontFamily: theme.fonts.bold,
+        textDayHeaderFontFamily: theme.fonts.semiBold,
 
         textDayFontSize: theme.fontSizes.md,
         textMonthFontSize: theme.fontSizes.xl,

@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
