@@ -1,64 +1,92 @@
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Image,
-  Alert,
+  ScrollView,
 } from 'react-native';
-import React, { useState } from 'react';
-import theme from '../../utils/Theme';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
+import LinearGradient from 'react-native-linear-gradient';
+import {
+  User,
+  Bell,
+  MapPin,
+  CreditCard,
+  HelpCircle,
+  LogOut,
+  ChevronRight,
+} from 'lucide-react-native';
 import { useUserStore } from '@/store/userStore';
 import { navigate, resetAndNavigate } from '@utils/NavigationUtil';
 import CommonContainer from '@components/CommonContainer';
 import CustomAlert from '@components/CustomAlert';
+import theme from '../../utils/Theme';
 import notificationService from '@/services/notificationService';
 
 const SettingScreen = () => {
   const { user, logout } = useUserStore();
+  const [isLogoutAlertVisible, setLogoutAlertVisible] = useState(false);
 
   const userProfile = {
-    name: user?.name || 'Guest User',
-    photo:
-      user?.profilePhoto ||
-      'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    name: user?.name || 'Rahul Mehta',
+    email: user?.email || 'rahul.mehta@email.com',
+    initial: (user?.name || 'Rahul')[0].toUpperCase(),
   };
 
-  const [isLogoutAlertVisible, setLogoutAlertVisible] = useState(false);
+  const settingsOptions = [
+    {
+      title: 'Edit Profile',
+      subtitle: 'Update your personal information',
+      icon: User,
+      onPress: () => navigate('EditProfileScreen'),
+    },
+    {
+      title: 'Notifications',
+      subtitle: 'Manage notification preferences',
+      icon: Bell,
+      onPress: () => navigate('NotificationsScreen'),
+    },
+    {
+      title: 'Location',
+      subtitle: 'Set your default location',
+      icon: MapPin,
+      onPress: () => {},
+    },
+    {
+      title: 'Payment Methods',
+      subtitle: 'Manage your payment options',
+      icon: CreditCard,
+      onPress: () => {},
+    },
+    {
+      title: 'Help & Support',
+      subtitle: 'Get help or contact support',
+      icon: HelpCircle,
+      onPress: () => {},
+    },
+  ];
 
   const handleLogout = () => {
     setLogoutAlertVisible(true);
   };
 
-  const settingsOptions = [
-    {
-      title: 'Notifications',
-      icon: 'notifications-outline',
-      onPress: () => {
-        navigate('NotificationsScreen');
-      },
-    },
-    { title: 'Saved Salons', icon: 'heart-outline', onPress: () => {} },
-    { title: 'Rate Us', icon: 'star-outline', onPress: () => {} },
-    {
-      title: 'Logout',
-      icon: 'log-out-outline',
-      onPress: () => {
-        handleLogout();
-      },
-    },
-  ];
-
   return (
-    <CommonContainer scrollable>
+    <CommonContainer
+      scrollable
+      backgroundColor="#F9FAFB"
+      title="Settings"
+      hideHeader={false}
+      noPadding
+      headerStyle={styles.header}
+      titleStyle={styles.headerTitle}
+    >
       <CustomAlert
         visible={isLogoutAlertVisible}
         title="Logout"
         message="Are you sure you want to log out?"
         iconName="log-out-outline"
         iconBgColor="#F1F5F9"
-        iconColor={theme.colors.primaryDark}
+        iconColor={theme.colors.error}
         options={[
           {
             text: 'Cancel',
@@ -79,98 +107,178 @@ const SettingScreen = () => {
         onRequestClose={() => setLogoutAlertVisible(false)}
       />
 
-      <View style={{ alignItems: 'center', marginVertical: theme.spacing.xl }}>
-        <Image
-          source={{ uri: userProfile.photo }}
-          style={{
-            width: 100,
-            height: 100,
-            borderRadius: theme.borderRadius.full,
-            marginBottom: theme.spacing.md,
-            borderWidth: 2,
-            borderColor: theme.colors.primaryDark,
-          }}
-        />
-        <Text
-          style={{
-            fontFamily: theme.fonts.heading,
-            fontSize: theme.fontSizes.xl,
-            color: theme.colors.textPrimary,
-            marginBottom: theme.spacing.sm,
-          }}
-        >
-          {userProfile.name}
-        </Text>
+      <View style={styles.content}>
+        {/* Profile Card */}
         <TouchableOpacity
-          style={{
-            backgroundColor: theme.colors.primaryDark,
-            paddingVertical: theme.spacing.sm,
-            paddingHorizontal: theme.spacing.lg,
-            borderRadius: theme.borderRadius.full,
-          }}
+          style={styles.profileCard}
+          activeOpacity={0.9}
           onPress={() => navigate('EditProfileScreen')}
         >
-          <Text
-            style={{
-              fontFamily: theme.fonts.body,
-              color: theme.colors.textOnPrimary,
-              fontSize: theme.fontSizes.sm,
-            }}
+          <LinearGradient
+            colors={['#A855F7', '#EC4899']}
+            style={styles.avatarGradient}
           >
-            Edit Profile Settings
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {settingsOptions.map((item, index) => (
-        <TouchableOpacity
-          key={index}
-          style={styles.optionContainer}
-          activeOpacity={0.8}
-          onPress={item.onPress}
-        >
-          <View style={styles.row}>
-            <Ionicons
-              name={item.icon as any}
-              size={22}
-              color={theme.colors.primaryDark}
-            />
-            <Text style={styles.optionText}>{item.title}</Text>
+            <Text style={styles.avatarText}>{userProfile.initial}</Text>
+          </LinearGradient>
+          <View style={styles.profileInfo}>
+            <Text style={styles.profileName}>{userProfile.name}</Text>
+            <Text style={styles.profileEmail}>{userProfile.email}</Text>
           </View>
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={theme.colors.textSecondary}
-          />
+          <ChevronRight size={20} color="#94A3B8" />
         </TouchableOpacity>
-      ))}
+
+        {/* Settings Group */}
+        <View style={styles.settingsGroup}>
+          {settingsOptions.map((item, index) => (
+            <React.Fragment key={index}>
+              <TouchableOpacity
+                style={styles.settingItem}
+                activeOpacity={0.7}
+                onPress={item.onPress}
+              >
+                <View style={styles.iconContainer}>
+                  <item.icon size={22} color="#475569" />
+                </View>
+                <View style={styles.settingTextContainer}>
+                  <Text style={styles.settingTitle}>{item.title}</Text>
+                  <Text style={styles.settingSubtitle}>{item.subtitle}</Text>
+                </View>
+                <ChevronRight size={18} color="#CBD5E1" />
+              </TouchableOpacity>
+              {index < settingsOptions.length - 1 && (
+                <View style={styles.divider} />
+              )}
+            </React.Fragment>
+          ))}
+        </View>
+
+        {/* Logout Button */}
+        <TouchableOpacity
+          style={styles.logoutCard}
+          activeOpacity={0.8}
+          onPress={handleLogout}
+        >
+          <LogOut size={24} color={theme.colors.error} />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+
+        <View style={{ height: 40 }} />
+      </View>
     </CommonContainer>
   );
 };
 
-export default SettingScreen;
-
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: theme.colors.background,
+  header: {
+    height: 80,
+    borderBottomWidth: 0,
+    backgroundColor: '#F9FAFB',
+    paddingHorizontal: 20,
+    justifyContent: 'flex-end',
+    paddingBottom: 8,
   },
-  optionContainer: {
+  headerTitle: {
+    fontSize: 28,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
+  },
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+  },
+  profileCard: {
     backgroundColor: theme.colors.card,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: 24,
+    padding: 24,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 24,
     ...theme.shadows.soft,
   },
-  row: {
-    flexDirection: 'row',
+  avatarGradient: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  optionText: {
-    fontSize: theme.fontSizes.md,
+  avatarText: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontFamily: theme.fonts.bold,
+  },
+  profileInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  profileName: {
+    fontSize: 18,
+    fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.subheading,
-    marginLeft: theme.spacing.md,
+    marginBottom: 4,
+  },
+  profileEmail: {
+    fontSize: 14,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textSecondary,
+  },
+  settingsGroup: {
+    backgroundColor: theme.colors.card,
+    borderRadius: 24,
+    overflow: 'hidden',
+    marginBottom: 24,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  settingTextContainer: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  settingTitle: {
+    fontSize: 16,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
+    marginBottom: 2,
+  },
+  settingSubtitle: {
+    fontSize: 12,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textSecondary,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginLeft: 80, // Offset to align with text
+  },
+  logoutCard: {
+    backgroundColor: theme.colors.card,
+    borderRadius: 24,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+  },
+  logoutText: {
+    fontSize: 16,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.error,
   },
 });
+
+export default SettingScreen;

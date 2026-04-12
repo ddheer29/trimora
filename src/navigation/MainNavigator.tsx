@@ -87,11 +87,7 @@ const MainNavigator: FC = () => {
         name="BookingCalendarScreen"
         component={BookingCalendarScreen}
       />
-      <Stack.Screen
-        name="SearchScreen"
-        component={SearchScreen}
-        options={{ animation: 'slide_from_bottom' }}
-      />
+      <Stack.Screen name="SearchScreen" component={SearchScreen} />
 
       <Stack.Screen name="CreateSalonScreen" component={CreateSalonScreen} />
       <Stack.Screen

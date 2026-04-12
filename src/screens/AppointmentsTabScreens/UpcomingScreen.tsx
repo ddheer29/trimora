@@ -206,15 +206,17 @@ export default UpcomingScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#F9FAFB',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F9FAFB',
   },
   listContent: {
-    paddingVertical: theme.spacing.md,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     paddingBottom: 40,
   },
   footerLoader: {

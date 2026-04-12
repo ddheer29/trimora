@@ -5,14 +5,11 @@ import {
   View,
   Image,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
+import { Calendar, Clock } from 'lucide-react-native';
 import theme from '../../utils/Theme';
 import { CustomerBooking } from '@/types';
-import Icon from '@react-native-vector-icons/ionicons';
 import dayjs from 'dayjs';
-
-const { width } = Dimensions.get('window');
 
 interface BookingCardProps {
   booking: CustomerBooking;
@@ -33,22 +30,24 @@ const BookingCard: React.FC<BookingCardProps> = ({
   const isCompleted = booking.bookingStatus === 'completed';
   const isCancelled = booking.bookingStatus === 'cancelled';
 
-  const getStatusColor = () => {
+  const getStatusStyle = () => {
     switch (booking.bookingStatus) {
       case 'confirmed':
-        return theme.colors.success;
+        return { bg: '#E6F4EA', text: '#1E7E34', label: 'Confirmed' };
       case 'completed':
-        return theme.colors.primaryDark;
+        return { bg: '#E8F0FE', text: '#1967D2', label: 'Completed' };
       case 'cancelled':
-        return theme.colors.error;
+        return { bg: '#FCE8E6', text: '#C5221F', label: 'Cancelled' };
       default:
-        return theme.colors.warning;
+        return { bg: '#FFF4E5', text: '#B76E00', label: booking.bookingStatus.charAt(0).toUpperCase() + booking.bookingStatus.slice(1) };
     }
   };
 
+  const status = getStatusStyle();
+
   return (
     <View style={styles.card}>
-      <View style={styles.content}>
+      <View style={styles.topSection}>
         <Image
           source={{ uri: booking.salonImage || 'https://i.imgur.com/GXoYrQy.jpg' }}
           style={styles.image}
@@ -58,9 +57,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
             <Text style={styles.salonName} numberOfLines={1}>
               {booking.salonName}
             </Text>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor() + '20' }]}>
-              <Text style={[styles.statusText, { color: getStatusColor() }]}>
-                {booking.bookingStatus.charAt(0).toUpperCase() + booking.bookingStatus.slice(1)}
+            <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
+              <Text style={[styles.statusText, { color: status.text }]}>
+                {status.label}
               </Text>
             </View>
           </View>
@@ -68,11 +67,15 @@ const BookingCard: React.FC<BookingCardProps> = ({
           <Text style={styles.serviceName}>{booking.serviceName}</Text>
           <Text style={styles.stylistName}>Stylist: {booking.stylistName}</Text>
 
-          <View style={styles.timeRow}>
-            <Icon name="calendar-outline" size={14} color={theme.colors.textSecondary} />
-            <Text style={styles.timeText}>
-              {dayjs(booking.bookingDate).format('DD MMM')} • {booking.bookingTime}
-            </Text>
+          <View style={styles.infoRow}>
+            <View style={styles.infoItem}>
+              <Calendar size={14} color="#64748B" />
+              <Text style={styles.infoText}>{dayjs(booking.bookingDate).format('DD MMM')}</Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Clock size={14} color="#64748B" />
+              <Text style={styles.infoText}>{booking.bookingTime}</Text>
+            </View>
           </View>
           
           <Text style={styles.priceText}>₹{booking.price}</Text>
@@ -89,10 +92,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
               <Text style={styles.secondaryButtonText}>Reschedule</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionButton, styles.dangerButton]}
+              style={[styles.actionButton, styles.cancelButton]}
               onPress={() => onCancel?.(booking.bookingId)}
             >
-              <Text style={styles.dangerButtonText}>Cancel</Text>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
           </>
         )}
@@ -131,25 +134,25 @@ export default BookingCard;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.lg,
-    ...theme.shadows.soft,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: '#E2E8F0',
   },
-  content: {
+  topSection: {
     flexDirection: 'row',
-    gap: theme.spacing.md,
   },
   image: {
     width: 80,
     height: 80,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
   },
   details: {
     flex: 1,
+    marginLeft: 16,
   },
   headerRow: {
     flexDirection: 'row',
@@ -158,60 +161,66 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   salonName: {
-    fontSize: theme.fontSizes.md,
-    fontFamily: theme.fonts.heading,
+    fontSize: 16,
+    fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
     flex: 1,
     marginRight: 8,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   statusText: {
-    fontSize: 10,
-    fontFamily: theme.fonts.subheading,
+    fontSize: 11,
+    fontFamily: theme.fonts.bold,
   },
   serviceName: {
     fontSize: 14,
-    fontFamily: theme.fonts.subheading,
-    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.bold,
+    color: '#475569',
     marginBottom: 2,
   },
   stylistName: {
     fontSize: 12,
-    color: theme.colors.textSecondary,
-    marginBottom: 6,
+    color: '#64748B',
+    fontFamily: theme.fonts.regular,
+    marginBottom: 8,
   },
-  timeRow: {
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 8,
+  },
+  infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: 4,
   },
-  timeText: {
+  infoText: {
     fontSize: 12,
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.subheading,
+    color: '#334155',
+    fontFamily: theme.fonts.bold,
   },
   priceText: {
-    fontSize: 14,
-    color: theme.colors.primaryDark,
-    fontFamily: theme.fonts.heading,
+    fontSize: 18,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
   },
   actions: {
     flexDirection: 'row',
-    marginTop: theme.spacing.md,
-    gap: theme.spacing.sm,
+    marginTop: 20,
+    gap: 12,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-    paddingTop: theme.spacing.md,
+    borderTopColor: '#F1F5F9',
+    paddingTop: 16,
   },
   actionButton: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: theme.borderRadius.full,
+    height: 48,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -219,9 +228,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primaryDark,
   },
   primaryButtonText: {
-    color: '#fff',
-    fontFamily: theme.fonts.subheading,
-    fontSize: 12,
+    color: '#FFFFFF',
+    fontFamily: theme.fonts.bold,
+    fontSize: 14,
   },
   secondaryButton: {
     borderWidth: 1,
@@ -229,15 +238,15 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: theme.colors.primaryDark,
-    fontFamily: theme.fonts.subheading,
-    fontSize: 12,
+    fontFamily: theme.fonts.bold,
+    fontSize: 14,
   },
-  dangerButton: {
-    backgroundColor: theme.colors.error + '20',
+  cancelButton: {
+    backgroundColor: '#FEF2F2',
   },
-  dangerButtonText: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.subheading,
-    fontSize: 12,
+  cancelButtonText: {
+    color: '#EF4444',
+    fontFamily: theme.fonts.bold,
+    fontSize: 14,
   },
 });

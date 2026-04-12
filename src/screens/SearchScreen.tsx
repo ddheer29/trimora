@@ -1,55 +1,46 @@
-// SearchScreen.js
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
-  Animated,
   TextInput,
   View,
   StyleSheet,
   TouchableOpacity,
-  Modal,
   Text,
+  FlatList,
+  ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import theme from '../utils/Theme';
-import { Feather } from '@react-native-vector-icons/feather';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
+import { Search as SearchIcon, Filter, ChevronLeft } from 'lucide-react-native';
 import CommonContainer from '../components/CommonContainer';
-import { navigate } from '../utils/NavigationUtil';
 import { salonService } from '@/services/salonService';
 import { Salon } from '@/types';
-import SalonCard from '../components/Cards/SalonCard';
-import { FlatList } from 'react-native-gesture-handler';
-import { ActivityIndicator } from 'react-native';
-
-const genderOptions = ['Unisex', 'Female', 'Male'];
+import SearchResultCard from '../components/Cards/SearchResultCard';
+import { useNavigation } from '@react-navigation/native';
+import SearchFilterBottomSheet from '../components/Search/SearchFilterBottomSheet';
+import { TrueSheet } from '@lodev09/react-native-true-sheet';
 
 const SearchScreen = () => {
+  const navigation = useNavigation();
+  const filterSheetRef = useRef<TrueSheet>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilter, setShowFilter] = useState(false);
-  const [selectedGender, setSelectedGender] = useState<string | null>(null);
-  const [distance, setDistance] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
   const [results, setResults] = useState<Salon[]>([]);
   const [loading, setLoading] = useState(false);
-  const slideAnim = useRef(new Animated.Value(100)).current;
+  const [filters, setFilters] = useState({
+    distance: '5 km',
+    rating: 'All',
+    services: ['All Services'],
+    categories: ['All Categories'],
+    priceRange: 'All',
+    sortBy: 'Recommended',
+  });
 
-  const handleResetFilters = () => {
-    setSelectedGender(null);
-    setDistance('');
-    setMinPrice('');
-    setMaxPrice('');
-  };
-
-  const handleSearch = async () => {
+  const handleSearch = async (currentFilters = filters) => {
     try {
       setLoading(true);
-      const filters: any = {};
-      if (selectedGender) filters.gender = selectedGender.toLowerCase();
-      if (minPrice) filters.minPrice = Number(minPrice);
-      if (maxPrice) filters.maxPrice = Number(maxPrice);
-      // distance is not directly supported by search API, usually handled by lat/lng if nearby
-
-      const response = await salonService.searchSalons(searchQuery, filters);
+      // Map filters to API parameters if needed
+      const apiFilters: any = {};
+      
+      const response = await salonService.searchSalons(searchQuery, apiFilters);
       if (response.status === 'success') {
         setResults(response.data || []);
       }
@@ -60,172 +51,108 @@ const SearchScreen = () => {
     }
   };
 
-  const renderSalonItem = ({ item }: { item: Salon }) => (
-    <View style={{ marginBottom: theme.spacing.md }}>
-      <SalonCard
-        _id={item._id}
-        name={item.name}
-        images={item.images}
-        locationName={item.locationName}
-        rating={item.rating}
-      />
-    </View>
-  );
+  const handleApplyFilters = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+    handleSearch(newFilters);
+  };
 
-  useEffect(() => {
-    setTimeout(() => {
-      Animated.timing(slideAnim, {
-        toValue: -12,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    }, 300);
-  }, []);
+  const renderSalonItem = ({ item }: { item: Salon }) => (
+    <SearchResultCard salon={item} onPress={() => {}} />
+  );
 
   return (
     <CommonContainer
-      showBackButton
-      hideHeader={false}
-      headerStyle={{ borderBottomWidth: 0 }}
+      hideHeader
+      noPadding
+      backgroundColor="#FFFFFF"
+      statusBarBackgroundColor="#FFFFFF"
+      statusBarColor="dark-content"
     >
-      <Animated.View
-        style={[styles.container, { transform: [{ translateY: slideAnim }] }]}
-      >
-        <View style={styles.inputWrapper}>
-          <Feather
-            name="search"
-            size={20}
-            color={theme.colors.primaryDark}
-            style={styles.icon}
-          />
+      {/* Custom Header */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <ChevronLeft size={24} color="#0F172A" />
+        </TouchableOpacity>
+        
+        <View style={styles.searchBar}>
+          <SearchIcon size={20} color="#64748B" />
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
-            placeholder="Search for salon, service..."
-            placeholderTextColor={theme.colors.textPrimary}
-            style={styles.input}
-            cursorColor={theme.colors.primaryDark}
-            returnKeyType="search"
+            onSubmitEditing={() => handleSearch()}
+            placeholder="Search salons, services..."
+            placeholderTextColor="#94A3B8"
+            style={styles.searchInput}
+            cursorColor="#0F172A"
           />
         </View>
-        <TouchableOpacity
-          style={styles.filterIconWrapper}
-          onPress={() => setShowFilter(true)}
+      </View>
+
+      {/* Filter Row */}
+      <View style={styles.stickyFilterContainer}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={styles.filterContent}
         >
-          <Ionicons
-            name="filter-outline"
-            size={22}
-            color={theme.colors.primaryDark}
-          />
-        </TouchableOpacity>
-      </Animated.View>
+          <TouchableOpacity 
+            style={styles.filterButton}
+            onPress={() => filterSheetRef.current?.present()}
+          >
+            <Filter size={18} color="#FFFFFF" strokeWidth={2.5} />
+            <Text style={styles.filterButtonText}>Filters</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.chipButton}>
+            <Text style={styles.chipText}>{filters.distance}</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.chipButton}>
+            <Text style={styles.chipText}>{filters.sortBy}</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+
+      {/* Results Header */}
+      {results.length > 0 && (
+        <View style={styles.resultsInfo}>
+          <Text style={styles.resultsText}>
+            Found <Text style={styles.boldText}>{results.length}</Text> salons near you
+          </Text>
+        </View>
+      )}
 
       {loading ? (
-        <ActivityIndicator size="large" color={theme.colors.primaryDark} style={{ marginTop: 20 }} />
+        <ActivityIndicator
+          size="large"
+          color="#0F172A"
+          style={{ marginTop: 40 }}
+        />
       ) : (
         <FlatList
           data={results}
           keyExtractor={item => (item._id || item.id || Math.random().toString()).toString()}
           renderItem={renderSalonItem}
-          contentContainerStyle={{ padding: theme.spacing.md }}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             searchQuery ? (
-              <Text style={{ textAlign: 'center', marginTop: 20, color: theme.colors.textSecondary }}>
-                No salons found matching your search.
-              </Text>
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No salons found matching your search.</Text>
+              </View>
             ) : null
           }
         />
       )}
 
-      <Modal
-        visible={showFilter}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowFilter(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Filter Results</Text>
-
-            {/* Distance */}
-            <Text style={styles.label}>Distance (in km)</Text>
-            <TextInput
-              placeholder="e.g. 5"
-              keyboardType="numeric"
-              value={distance}
-              onChangeText={setDistance}
-              placeholderTextColor={theme.colors.textDisabled}
-              style={styles.inputField}
-            />
-
-            {/* Gender */}
-            <Text style={styles.label}>Gender</Text>
-            <View style={styles.genderContainer}>
-              {genderOptions.map(g => (
-                <TouchableOpacity
-                  key={g}
-                  style={[
-                    styles.genderOption,
-                    selectedGender === g && styles.genderSelected,
-                  ]}
-                  onPress={() => setSelectedGender(g)}
-                >
-                  <Text
-                    style={[
-                      styles.genderText,
-                      selectedGender === g && styles.genderTextSelected,
-                    ]}
-                  >
-                    {g}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Price */}
-            <Text style={styles.label}>Price Range</Text>
-            <View style={styles.priceRow}>
-              <TextInput
-                placeholder="Min"
-                value={minPrice}
-                onChangeText={setMinPrice}
-                keyboardType="numeric"
-                style={[styles.inputField, { flex: 1, marginRight: 8 }]}
-                placeholderTextColor={theme.colors.textDisabled}
-              />
-              <TextInput
-                placeholder="Max"
-                value={maxPrice}
-                onChangeText={setMaxPrice}
-                keyboardType="numeric"
-                style={[styles.inputField, { flex: 1 }]}
-                placeholderTextColor={theme.colors.textDisabled}
-              />
-            </View>
-
-            {/* Buttons */}
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={[styles.button, styles.resetButton]}
-                onPress={handleResetFilters}
-              >
-                <Text style={styles.resetText}>Reset</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.applyButton]}
-                onPress={() => {
-                  setShowFilter(false);
-                  handleSearch();
-                }}
-              >
-                <Text style={styles.applyText}>Apply</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <SearchFilterBottomSheet 
+        ref={filterSheetRef}
+        onApply={handleApplyFilters}
+        currentFilters={filters}
+      />
     </CommonContainer>
   );
 };
@@ -233,120 +160,101 @@ const SearchScreen = () => {
 export default SearchScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.full,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-    marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-    alignItems: 'center',
-    ...theme.shadows.soft,
-  },
-  inputWrapper: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 20,
+    backgroundColor: '#FFFFFF',
+    gap: 12,
   },
-  icon: {
-    marginRight: theme.spacing.sm,
-  },
-  input: {
-    flex: 1,
-    fontSize: theme.fontSizes.md,
-    color: theme.colors.textPrimary,
-    paddingVertical: 2,
-  },
-  filterIconWrapper: {
-    marginLeft: theme.spacing.md,
-  },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'flex-end',
-  },
-  modalContainer: {
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.lg,
-    borderTopLeftRadius: theme.borderRadius.lg,
-    borderTopRightRadius: theme.borderRadius.lg,
-    ...theme.shadows.medium,
-  },
-  modalTitle: {
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.fontSizes.xl,
-    color: theme.colors.primaryDark,
-    marginBottom: theme.spacing.md,
-  },
-  label: {
-    fontFamily: theme.fonts.subheading,
-    fontSize: theme.fontSizes.sm,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.xs,
-  },
-  inputField: {
-    backgroundColor: theme.colors.card,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.fontSizes.md,
-    color: theme.colors.textPrimary,
-    marginBottom: theme.spacing.md,
-  },
-  genderContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.md,
-  },
-  genderOption: {
-    flex: 1,
-    marginHorizontal: 4,
-    backgroundColor: theme.colors.card,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
+  backButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  genderSelected: {
-    backgroundColor: theme.colors.primaryDark,
-  },
-  genderText: {
-    fontFamily: theme.fonts.body,
-    color: theme.colors.textSecondary,
-  },
-  genderTextSelected: {
-    color: theme.colors.textOnPrimary,
-    fontFamily: theme.fonts.subheading,
-  },
-  priceRow: {
-    flexDirection: 'row',
-    marginBottom: theme.spacing.lg,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  button: {
+  searchBar: {
     flex: 1,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
+    height: 52,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 16,
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 16,
+    gap: 12,
   },
-  resetButton: {
-    backgroundColor: theme.colors.card,
-    marginRight: theme.spacing.sm,
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: theme.fonts.regular,
+    color: '#0F172A',
+    paddingVertical: 0,
   },
-  applyButton: {
-    backgroundColor: theme.colors.primaryDark,
-    marginLeft: theme.spacing.sm,
+  stickyFilterContainer: {
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
-  resetText: {
-    fontFamily: theme.fonts.body,
-    color: theme.colors.textPrimary,
+  filterContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    gap: 10,
   },
-  applyText: {
-    fontFamily: theme.fonts.heading,
-    color: theme.colors.textOnPrimary,
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    gap: 8,
+  },
+  filterButtonText: {
+    color: '#FFFFFF',
+    fontFamily: theme.fonts.bold,
+    fontSize: 14,
+  },
+  chipButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
+  },
+  chipText: {
+    color: '#0F172A',
+    fontFamily: theme.fonts.bold,
+    fontSize: 14,
+  },
+  resultsInfo: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  resultsText: {
+    fontSize: 16,
+    color: '#64748B',
+    fontFamily: theme.fonts.regular,
+  },
+  boldText: {
+    fontFamily: theme.fonts.bold,
+    color: '#0F172A',
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 60,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#94A3B8',
+    fontFamily: theme.fonts.regular,
   },
 });
