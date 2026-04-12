@@ -11,55 +11,30 @@ import {
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Feather } from '@react-native-vector-icons/feather';
-import { useFocusEffect } from '@react-navigation/native';
 import CommonContainer from '@components/CommonContainer';
 import theme from '@utils/Theme';
-import { salonService } from '@/services/salonService';
 import { navigate } from '@utils/NavigationUtil';
 import { Service } from '@/types';
+import { usePartnerServices, useDeleteService } from '@/hooks/useSalonQueries';
 
 const ManageServicesScreen = () => {
-  const [services, setServices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading } = usePartnerServices();
+  const { mutate: deleteService } = useDeleteService();
 
-  const fetchServices = async () => {
-    try {
-      const response = await salonService.getPartnerServices();
-      if (response && response.data) {
-        // Group services by category
-        const grouped = response.data.reduce((acc: any, service: Service) => {
-          const category = service.category || 'Other';
-          if (!acc[category]) {
-            acc[category] = [];
-          }
-          acc[category].push(service);
-          return acc;
-        }, {});
-
-        const sections = Object.keys(grouped).map(category => ({
-          title: category,
-          data: grouped[category],
-        }));
-
-        setServices(sections);
-      }
-    } catch (error) {
-      console.log('Error fetching services:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to load services',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchServices();
-    }, []),
-  );
+  // Group services by category for SectionList
+  const services = React.useMemo(() => {
+    if (!data?.data) return [];
+    const grouped = (data.data as Service[]).reduce((acc: any, service: Service) => {
+      const category = service.category || 'Other';
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(service);
+      return acc;
+    }, {});
+    return Object.keys(grouped).map(category => ({
+      title: category,
+      data: grouped[category],
+    }));
+  }, [data]);
 
   const handleDelete = (id: string) => {
     Alert.alert(
@@ -70,35 +45,29 @@ const ManageServicesScreen = () => {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: async () => {
-            try {
-              const response = await salonService.deleteService(id);
-              if (response.success || (response as any).status === 'success') {
+          onPress: () => {
+            deleteService(id, {
+              onSuccess: () => {
                 Toast.show({
                   type: 'success',
                   text1: 'Success',
                   text2: 'Service deleted successfully',
                 });
-                fetchServices(); // Refresh to update grouping and average price awareness
-              } else {
+              },
+              onError: () => {
                 Toast.show({
                   type: 'error',
                   text1: 'Error',
-                  text2: response.message || 'Failed to delete',
+                  text2: 'Something went wrong',
                 });
-              }
-            } catch (error) {
-              Toast.show({
-                type: 'error',
-                text1: 'Error',
-                text2: 'Something went wrong',
-              });
-            }
+              },
+            });
           },
         },
       ],
     );
   };
+
 
   const renderServiceItem = ({ item }: { item: Service }) => (
     <View style={styles.card}>

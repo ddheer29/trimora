@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  StatusBar,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -92,6 +93,7 @@ const ReelsFeedScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle={'light-content'} backgroundColor={'#000'} />
       <FlatList
         data={data || []}
         keyExtractor={keyExtractor}

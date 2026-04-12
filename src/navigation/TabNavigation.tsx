@@ -5,7 +5,7 @@ import HomeScreen from '../screens/BottomTabScreen/HomeScreen';
 import SettingScreen from '../screens/BottomTabScreen/SettingScreen';
 import AppointmentsScreen from '../screens/BottomTabScreen/AppointmentsScreen';
 import TrendsScreen from '../screens/BottomTabScreen/TrendsScreen';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
+import { Feather } from '@react-native-vector-icons/feather';
 import theme from '../utils/Theme';
 import { requestMissingPermissions } from '@utils/PermissionHandler';
 
@@ -61,21 +61,19 @@ const TabNavigation = () => {
           </Pressable>
         ),
         // eslint-disable-next-line react/no-unstable-nested-components
-        tabBarIcon: ({ focused, color }) => {
+        tabBarIcon: ({ color }) => {
           let iconName: any = 'help-circle';
           if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
+            iconName = 'home';
           } else if (route.name === 'Trends') {
-            iconName = focused ? 'images' : 'images-outline';
+            iconName = 'trending-up';
           } else if (route.name === 'Appointments') {
-            iconName = focused ? 'calendar' : 'calendar-outline';
+            iconName = 'calendar';
           } else if (route.name === 'Settings') {
-            iconName = focused ? 'settings' : 'settings-outline';
+            iconName = 'settings';
           }
 
-          return (
-            <Ionicons name={iconName} size={24} color={color} />
-          );
+          return <Feather name={iconName} size={24} color={color} />;
         },
       })}
     >

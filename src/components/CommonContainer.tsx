@@ -31,6 +31,7 @@ type CommonContainerProps = {
   containerStyle?: ViewStyle;
   headerStyle?: ViewStyle;
   titleStyle?: TextStyle;
+  statusBarBackgroundColor?: string;
   extraScrollProps?: ScrollViewProps;
 };
 
@@ -47,6 +48,7 @@ const CommonContainer = ({
   backgroundColor = theme.colors.background,
   scrollable = false,
   noPadding = false,
+  statusBarBackgroundColor = theme.colors.background,
   containerStyle,
   headerStyle,
   titleStyle,
@@ -97,10 +99,15 @@ const CommonContainer = ({
   const containerProps = scrollable ? { ...extraScrollProps } : {};
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor }, containerStyle]}
-    >
-      <StatusBar barStyle={statusBarColor} backgroundColor={backgroundColor} />
+    <>
+      <StatusBar
+        barStyle={statusBarColor}
+        backgroundColor={statusBarBackgroundColor}
+        translucent={false}
+      />
+      <SafeAreaView
+        style={[styles.safeArea, containerStyle, { backgroundColor }]}
+      >
 
       {!hideHeader && (customHeader ? customHeader : renderDefaultHeader())}
 
@@ -110,7 +117,8 @@ const CommonContainer = ({
       >
         {children}
       </ContainerComponent>
-    </SafeAreaView>
+      </SafeAreaView>
+    </>
   );
 };
 
@@ -145,7 +153,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
   },
   rightIcon: {
-    width: 40,
+    width: 50,
     alignItems: 'flex-end',
   },
   placeholder: {

@@ -8,58 +8,47 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import CommonContainer from '@components/CommonContainer';
 import theme from '../../utils/Theme';
-import { salonService } from '@/services/salonService';
 import { DashboardData, UpcomingBooking } from '@/types';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 import Icon from '@react-native-vector-icons/ionicons';
 import dayjs from 'dayjs';
+import { useDashboard, useUpcomingBookings } from '@/hooks/useSalonQueries';
 
 const { width } = Dimensions.get('window');
 
 const DashboardScreen = ({ navigation }: any) => {
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null,
-  );
-  const [upcomingBookings, setUpcomingBookings] = useState<UpcomingBooking[]>(
-    [],
-  );
   const [range, setRange] = useState<'7d' | '30d'>('7d');
 
-  const fetchData = async () => {
-    try {
-      const [dashRes, upcomingRes] = await Promise.all([
-        salonService.getDashboardData(range),
-        salonService.getUpcomingBookings(),
-      ]);
-      console.log('🚀 -> fetchData -> dashRes:', dashRes);
+  const {
+    data: dashRes,
+    isLoading: dashLoading,
+    isRefetching: dashRefetching,
+    refetch: refetchDash,
+  } = useDashboard(range);
 
-      if (dashRes.status === 'success') {
-        setDashboardData(dashRes.data);
-      }
-      if (upcomingRes.status === 'success') {
-        setUpcomingBookings(upcomingRes.data.upcomingBookings);
-      }
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+  const {
+    data: upcomingRes,
+    isLoading: upcomingLoading,
+    isRefetching: upcomingRefetching,
+    refetch: refetchUpcoming,
+  } = useUpcomingBookings();
+
+  const loading = dashLoading || upcomingLoading;
+  const refreshing = dashRefetching || upcomingRefetching;
+  const dashboardData: DashboardData | null =
+    dashRes?.status === 'success' ? (dashRes.data as DashboardData) : null;
+  const upcomingBookings: UpcomingBooking[] =
+    upcomingRes?.status === 'success'
+      ? (upcomingRes.data as any).upcomingBookings ?? []
+      : [];
+
+  const onRefresh = () => {
+    refetchDash();
+    refetchUpcoming();
   };
-
-  useEffect(() => {
-    fetchData();
-  }, [range]);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchData();
-  }, [range]);
 
   const renderStatCard = (
     label: string,
@@ -644,6 +633,6 @@ const styles = StyleSheet.create({
   pointerLabelText: {
     color: 'white',
     fontSize: 10,
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.bold,
   },
 });

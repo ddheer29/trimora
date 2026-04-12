@@ -1,43 +1,52 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import theme from '@utils/Theme';
 
 const COMBOS = [
-  { id: '1', title: 'Haircut + Beard Trim', price: 399, oldPrice: 549, save: 150 },
-  { id: '2', title: 'Basic Cleanup + Massage', price: 699, oldPrice: 999, save: 300 },
-  { id: '3', title: 'Keratin + Hair Spa', price: 1499, oldPrice: 1999, save: 500 },
+  {
+    id: '1',
+    name: 'Haircut + Beard Trim',
+    price: 399,
+    originalPrice: 549,
+    save: 150,
+    image: 'https://images.unsplash.com/photo-1759134248487-e8baaf31e33e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
+  },
+  {
+    id: '2',
+    name: 'Basic Cleanup + Massage',
+    price: 699,
+    originalPrice: 999,
+    save: 300,
+    image: 'https://images.unsplash.com/photo-1768363446104-b8a0c1716600?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
+  },
 ];
 
 const ComboPackages = () => {
-  const renderItem = ({ item }: { item: typeof COMBOS[0] }) => (
-    <TouchableOpacity style={styles.card}>
-      <View style={styles.saveBadge}>
-        <Text style={styles.saveText}>Save ₹{item.save}</Text>
-      </View>
-      <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
-      <View style={styles.priceRow}>
-        <Text style={styles.price}>₹{item.price}</Text>
-        <Text style={styles.oldPrice}>₹{item.oldPrice}</Text>
-      </View>
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add</Text>
-      </TouchableOpacity>
-    </TouchableOpacity>
-  );
-
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Combo Packages</Text>
+      <Text style={styles.title}>Combo Packages</Text>
+      <View style={styles.grid}>
+        {COMBOS.map((combo) => (
+          <View key={combo.id} style={styles.card}>
+            <View style={styles.imageContainer}>
+              <Image source={{ uri: combo.image }} style={styles.image} />
+              <View style={styles.saveBadge}>
+                <Text style={styles.saveText}>Save ₹{combo.save}</Text>
+              </View>
+            </View>
+            <View style={styles.info}>
+              <Text style={styles.comboName} numberOfLines={2}>{combo.name}</Text>
+              <View style={styles.priceContainer}>
+                <Text style={styles.price}>₹{combo.price}</Text>
+                <Text style={styles.originalPrice}>₹{combo.originalPrice}</Text>
+              </View>
+              <TouchableOpacity style={styles.addButton} activeOpacity={0.8}>
+                <Text style={styles.addButtonText}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
       </View>
-      <FlatList
-        data={COMBOS}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-      />
     </View>
   );
 };
@@ -46,77 +55,91 @@ export default ComboPackages;
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: theme.spacing.lg,
-  },
-  header: {
     paddingHorizontal: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
-  },
-  headerTitle: {
-    fontSize: theme.fontSizes.xl,
-    fontFamily: theme.fonts.bold,
-    color: theme.colors.primaryDark,
-  },
-  listContainer: {
-    paddingHorizontal: theme.spacing.sm,
-    gap: theme.spacing.md,
-  },
-  card: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: theme.spacing.sm,
-    width: 220,
-    marginRight: theme.spacing.sm, // Spacing fallback
-    ...theme.shadows.soft,
-  },
-  saveBadge: {
-    backgroundColor: '#DEF7EC', // Soft green
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-    marginBottom: theme.spacing.sm,
-  },
-  saveText: {
-    color: '#03543F', // Dark green text
-    fontSize: theme.fontSizes.xs,
-    fontFamily: theme.fonts.bold,
+    marginTop: theme.spacing.lg,
   },
   title: {
-    fontSize: theme.fontSizes.md,
+    fontSize: 20,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.primaryDark,
+    marginBottom: 16,
+    letterSpacing: -0.5,
+  },
+  grid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    width: '48.5%',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    ...theme.shadows.soft,
+  },
+  imageContainer: {
+    width: '100%',
+    height: 120,
+    position: 'relative',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  saveBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(16, 185, 129, 0.9)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  saveText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontFamily: theme.fonts.bold,
+  },
+  info: {
+    padding: 12,
+  },
+  comboName: {
+    fontSize: 14,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
-    marginBottom: theme.spacing.sm,
-    height: 40, // fixed height for alignment
+    marginBottom: 8,
+    lineHeight: 18,
+    height: 36,
   },
-  priceRow: {
+  priceContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
+    alignItems: 'baseline',
+    gap: 6,
+    marginBottom: 12,
   },
   price: {
-    fontSize: theme.fontSizes.lg,
+    fontSize: 17,
     fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
-    marginRight: 8,
   },
-  oldPrice: {
-    fontSize: theme.fontSizes.sm,
-    color: theme.colors.textDisabled,
+  originalPrice: {
+    fontSize: 12,
+    color: '#94A3B8',
     textDecorationLine: 'line-through',
+    fontFamily: theme.fonts.regular,
   },
   addButton: {
-    borderWidth: 1,
-    borderColor: theme.colors.accent,
-    paddingVertical: 6,
-    borderRadius: theme.borderRadius.sm,
+    width: '100%',
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#F59E0B',
     alignItems: 'center',
   },
   addButtonText: {
-    color: theme.colors.accent,
-    fontFamily: theme.fonts.semiBold,
-    fontSize: theme.fontSizes.sm,
+    color: '#D97706',
+    fontSize: 13,
+    fontFamily: theme.fonts.bold,
   },
 });

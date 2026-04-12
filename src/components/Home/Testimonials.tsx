@@ -1,40 +1,43 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Star } from 'lucide-react-native';
 import theme from '@utils/Theme';
 
-const REVIEWS = [
-  { id: '1', name: 'Rahul M.', text: 'Great haircut experience from start to finish. Highly recommended!', rating: 5, service: 'Haircut' },
-  { id: '2', name: 'Aarav S.', text: 'Very professional staff and clean environment.', rating: 5, service: 'Beard Trim' },
-  { id: '3', name: 'Vikram K.', text: 'Loved the facial massage. Will definitely visit again.', rating: 4, service: 'Gold Facial' },
+const TESTIMONIALS = [
+  {
+    text: 'Great haircut experience from start to finish. Highly recommended!',
+    author: 'Rahul M.',
+    service: 'for Haircut',
+    rating: 5
+  },
+  {
+    text: 'Very professional staff and relaxing environment. Will visit again.',
+    author: 'Aarav S.',
+    service: 'for Facial',
+    rating: 5
+  }
 ];
 
 const Testimonials = () => {
-  const renderItem = ({ item }: { item: typeof REVIEWS[0] }) => (
-    <View style={styles.card}>
-      <View style={styles.starsContainer}>
-        {Array.from({ length: item.rating }).map((_, idx) => (
-          <Text key={idx} style={styles.star}>⭐</Text>
-        ))}
-      </View>
-      <Text style={styles.reviewText}>"{item.text}"</Text>
-      <View style={styles.footer}>
-        <Text style={styles.name}>– {item.name}</Text>
-        <Text style={styles.service}>for {item.service}</Text>
-      </View>
-    </View>
-  );
-
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>What our customers say</Text>
-      <FlatList
-        data={REVIEWS}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-      />
+      <Text style={styles.title}>What our customers say</Text>
+      <View style={styles.list}>
+        {TESTIMONIALS.map((item, index) => (
+          <View key={index} style={styles.card}>
+            <View style={styles.stars}>
+              {[...Array(item.rating)].map((_, i) => (
+                <Star key={i} size={14} color="#F59E0B" fill="#F59E0B" />
+              ))}
+            </View>
+            <Text style={styles.quote}>"{item.text}"</Text>
+            <View style={styles.authorRow}>
+              <Text style={styles.author}>– {item.author}</Text>
+              <Text style={styles.service}>, {item.service}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
@@ -43,58 +46,53 @@ export default Testimonials;
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: theme.spacing.lg,
-    paddingVertical: theme.spacing.lg,
-    backgroundColor: '#F1F5F9', // Very light slate to separate it
+    paddingHorizontal: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
   },
-  headerTitle: {
-    fontSize: theme.fontSizes.xl,
+  title: {
+    fontSize: 20,
     fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
-    paddingHorizontal: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
+    marginBottom: 16,
+    letterSpacing: -0.5,
   },
-  listContainer: {
-    paddingHorizontal: theme.spacing.sm,
-    gap: theme.spacing.md,
+  list: {
+    gap: 12,
   },
   card: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.sm,
-    width: 280,
-    marginRight: theme.spacing.md,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: '#F1F5F9',
     ...theme.shadows.soft,
   },
-  starsContainer: {
+  stars: {
     flexDirection: 'row',
-    marginBottom: theme.spacing.sm,
+    gap: 4,
+    marginBottom: 12,
   },
-  star: {
-    fontSize: 12,
-    marginRight: 2,
-  },
-  reviewText: {
-    fontSize: theme.fontSizes.md,
-    color: theme.colors.textPrimary,
+  quote: {
+    fontSize: 14,
+    color: '#334155',
     fontStyle: 'italic',
     lineHeight: 22,
-    marginBottom: theme.spacing.md,
+    fontFamily: theme.fonts.regular,
+    marginBottom: 12,
   },
-  footer: {
+  authorRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
   },
-  name: {
+  author: {
+    fontSize: 13,
     fontFamily: theme.fonts.bold,
-    color: theme.colors.primaryDark,
-    fontSize: theme.fontSizes.sm,
-    marginRight: 4,
+    color: theme.colors.textPrimary,
   },
   service: {
-    fontSize: theme.fontSizes.xs,
-    color: theme.colors.textSecondary,
+    fontSize: 13,
+    color: '#64748B',
+    fontFamily: theme.fonts.regular,
   },
 });

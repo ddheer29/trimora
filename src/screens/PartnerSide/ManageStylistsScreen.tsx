@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,40 +11,17 @@ import {
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Feather } from '@react-native-vector-icons/feather';
-import { useFocusEffect } from '@react-navigation/native';
 import CommonContainer from '@components/CommonContainer';
 import theme from '@utils/Theme';
-import { salonService } from '@/services/salonService';
 import { navigate } from '@utils/NavigationUtil';
 import { Stylist } from '@/types';
+import { usePartnerStylists, useDeleteStylist } from '@/hooks/useSalonQueries';
 
 const ManageStylistsScreen = () => {
-  const [stylists, setStylists] = useState<Stylist[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading } = usePartnerStylists();
+  const { mutate: deleteStylist } = useDeleteStylist();
 
-  const fetchStylists = async () => {
-    try {
-      const response = await salonService.getPartnerStylists();
-      if (response && response.data) {
-        setStylists(response.data);
-      }
-    } catch (error) {
-      console.log('Error fetching stylists:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to load stylists',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchStylists();
-    }, []),
-  );
+  const stylists: Stylist[] = (data?.data as Stylist[]) ?? [];
 
   const handleDelete = (id: string) => {
     Alert.alert(
@@ -55,35 +32,29 @@ const ManageStylistsScreen = () => {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: async () => {
-            try {
-              const response = await salonService.deleteStylist(id);
-              if (response.success || (response as any).status === 'success') {
+          onPress: () => {
+            deleteStylist(id, {
+              onSuccess: () => {
                 Toast.show({
                   type: 'success',
                   text1: 'Success',
                   text2: 'Stylist deleted successfully',
                 });
-                setStylists(prev => prev.filter(s => s._id !== id));
-              } else {
+              },
+              onError: () => {
                 Toast.show({
                   type: 'error',
                   text1: 'Error',
-                  text2: response.message || 'Failed to delete',
+                  text2: 'Something went wrong',
                 });
-              }
-            } catch (error) {
-              Toast.show({
-                type: 'error',
-                text1: 'Error',
-                text2: 'Something went wrong',
-              });
-            }
+              },
+            });
           },
         },
       ],
     );
   };
+
 
   const renderStylistItem = ({ item }: { item: Stylist }) => (
     <View style={styles.card}>

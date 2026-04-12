@@ -11,7 +11,7 @@ const RecentlyBooked = () => {
           <Text style={styles.salonName}>Glow Hair Studio</Text>
           <Text style={styles.lastVisit}>Last visit: Haircut</Text>
         </View>
-        <TouchableOpacity style={styles.rebookButton}>
+        <TouchableOpacity style={styles.rebookButton} activeOpacity={0.8}>
           <Text style={styles.rebookText}>Rebook</Text>
         </TouchableOpacity>
       </View>
@@ -24,46 +24,49 @@ export default RecentlyBooked;
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: theme.spacing.sm,
-    marginVertical: theme.spacing.lg,
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
+    marginTop: theme.spacing.lg,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
     borderWidth: 1,
-    borderColor: theme.colors.primary, // Highlight it with the Midnight Slate primary color
+    borderColor: 'rgba(226, 232, 240, 0.6)',
     ...theme.shadows.soft,
   },
   content: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: theme.spacing.sm,
   },
   info: {
     flex: 1,
   },
   label: {
-    fontSize: theme.fontSizes.sm,
-    color: theme.colors.textSecondary,
-    marginBottom: 2,
+    fontSize: 13,
+    color: '#64748B',
+    marginBottom: 4,
+    fontFamily: theme.fonts.regular,
   },
   salonName: {
-    fontSize: theme.fontSizes.lg,
+    fontSize: 19,
     color: theme.colors.primaryDark,
     fontFamily: theme.fonts.bold,
-    marginBottom: 4,
+    marginBottom: 2,
+    letterSpacing: -0.5,
   },
   lastVisit: {
-    fontSize: theme.fontSizes.sm,
-    color: theme.colors.textSecondary,
+    fontSize: 13,
+    color: '#475569',
+    fontFamily: theme.fonts.medium,
   },
   rebookButton: {
     backgroundColor: theme.colors.primaryDark,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 99,
   },
   rebookText: {
-    color: theme.colors.textOnPrimary,
-    fontFamily: theme.fonts.semiBold,
-    fontSize: theme.fontSizes.sm,
+    color: '#FFFFFF',
+    fontFamily: theme.fonts.bold,
+    fontSize: 14,
   },
 });

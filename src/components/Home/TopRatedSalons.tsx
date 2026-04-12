@@ -1,52 +1,52 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Star, MapPin } from 'lucide-react-native';
 import theme from '@utils/Theme';
-import { navigate } from '@utils/NavigationUtil';
-import ViewAllCard from '../Cards/ViewAllCard';
 
 const TOP_SALONS = [
-  { id: '1', name: 'Hair Masters', rating: '4.9', reviews: 120, location: 'Connaught Place' },
-  { id: '2', name: 'Elite Salon', rating: '4.8', reviews: 304, location: 'Vasant Kunj' },
-  { id: '3', name: 'Style Hub', rating: '4.7', reviews: 89, location: 'Hauz Khas' },
+  {
+    id: '1',
+    name: 'Hair Masters',
+    location: 'Connaught Place',
+    rating: 4.9,
+    reviews: 370,
+    image: 'https://images.unsplash.com/photo-1759142235060-3191ee596c81?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
+  },
+  {
+    id: '2',
+    name: 'Elite Salon',
+    location: 'Vasant Kunj',
+    rating: 4.8,
+    reviews: 285,
+    image: 'https://images.unsplash.com/photo-1759134155377-4207d89b39ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
+  },
 ];
 
 const TopRatedSalons = () => {
-  const renderItem = ({ item }: { item: typeof TOP_SALONS[0] }) => (
-    <TouchableOpacity style={styles.card}>
-      <View style={styles.imagePlaceholder}>
-        <Text style={styles.placeholderText}>🏢</Text>
-      </View>
-      <View style={styles.cardContent}>
-        <View style={styles.ratingRow}>
-          <Text style={styles.star}>⭐</Text>
-          <Text style={styles.rating}>{item.rating}</Text>
-          <Text style={styles.reviews}>({item.reviews})</Text>
-        </View>
-        <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.location} numberOfLines={1}>{item.location}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Top Rated Salons</Text>
+      <Text style={styles.title}>Top Rated Salons</Text>
+      <View style={styles.grid}>
+        {TOP_SALONS.map((salon) => (
+          <TouchableOpacity key={salon.id} style={styles.card} activeOpacity={0.8}>
+            <View style={styles.imageContainer}>
+              <Image source={{ uri: salon.image }} style={styles.image} />
+              <View style={styles.ratingBadge}>
+                <Star size={12} color="#F59E0B" fill="#F59E0B" />
+                <Text style={styles.ratingText}>{salon.rating}</Text>
+              </View>
+            </View>
+            <View style={styles.info}>
+              <Text style={styles.name} numberOfLines={1}>{salon.name}</Text>
+              <View style={styles.locationRow}>
+                <MapPin size={12} color="#64748B" />
+                <Text style={styles.location} numberOfLines={1}>{salon.location}</Text>
+              </View>
+              <Text style={styles.reviews}>{salon.reviews} reviews</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
       </View>
-      <FlatList
-        data={TOP_SALONS}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-        ListFooterComponent={
-          <ViewAllCard 
-            onPress={() => navigate('SalonsScreen')} 
-            style={{ marginLeft: 8, height: 200 }} 
-          />
-        }
-      />
     </View>
   );
 };
@@ -55,72 +55,80 @@ export default TopRatedSalons;
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: theme.spacing.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.lg,
   },
   title: {
-    fontSize: theme.fontSizes.xl,
+    fontSize: 20,
     fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
+    marginBottom: 16,
+    letterSpacing: -0.5,
   },
-  listContainer: {
-    paddingHorizontal: theme.spacing.sm,
-    gap: theme.spacing.md,
+  grid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   card: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
-    width: 200,
-    marginRight: theme.spacing.md, // Spacing
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    width: '48.5%',
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    ...theme.shadows.soft,
   },
-  imagePlaceholder: {
+  imageContainer: {
+    width: '100%',
     height: 120,
-    backgroundColor: theme.colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
+    position: 'relative',
   },
-  placeholderText: {
-    fontSize: 40,
+  image: {
+    width: '100%',
+    height: '100%',
   },
-  cardContent: {
-    padding: theme.spacing.sm,
-  },
-  ratingRow: {
+  ratingBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 4,
   },
-  star: {
+  ratingText: {
     fontSize: 12,
-    marginRight: 4,
-  },
-  rating: {
     fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
-    fontSize: theme.fontSizes.sm,
-    marginRight: 4,
   },
-  reviews: {
-    color: theme.colors.textDisabled,
-    fontSize: theme.fontSizes.xs,
+  info: {
+    padding: 12,
   },
   name: {
-    fontSize: theme.fontSizes.md,
+    fontSize: 15,
     fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
-    marginBottom: 2,
+    marginBottom: 4,
+    letterSpacing: -0.2,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 4,
   },
   location: {
-    fontSize: theme.fontSizes.sm,
-    color: theme.colors.textSecondary,
+    fontSize: 12,
+    color: '#64748B',
+    fontFamily: theme.fonts.regular,
+    flex: 1,
+  },
+  reviews: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontFamily: theme.fonts.regular,
   },
 });

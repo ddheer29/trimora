@@ -28,6 +28,7 @@ import SalonPreviewScreen from '@screens/PartnerSide/SalonPreviewScreen';
 import ReelsFeedScreen from '@screens/BottomTabScreen/ReelsFeedScreen';
 import ManagePostsScreen from '@screens/PartnerSide/ManagePostsScreen';
 import CreatePostScreen from '@screens/PartnerSide/CreatePostScreen';
+import BookingScreen from '@screens/PartnerSide/BookingScreen';
 
 export type RootStackParamList = {
   SplashScreen: undefined;
@@ -139,6 +140,7 @@ const MainNavigator: FC = () => {
       <Stack.Screen name="ReelsFeedScreen" component={ReelsFeedScreen} />
       <Stack.Screen name="ManagePostsScreen" component={ManagePostsScreen} />
       <Stack.Screen name="CreatePostScreen" component={CreatePostScreen} />
+      <Stack.Screen name="BookingScreen" component={BookingScreen} />
     </Stack.Navigator>
   );
 };

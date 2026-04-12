@@ -1,41 +1,49 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import theme from '@utils/Theme';
 
 const DUMMY_SERVICES = [
-  { id: '1', name: 'Haircut', price: 199, salons: 45, icon: '✂️' },
-  { id: '2', name: 'Beard Trim', price: 99, salons: 38, icon: '🧔' },
-  { id: '3', name: 'Facial', price: 499, salons: 20, icon: '💆‍♂️' },
-  { id: '4', name: 'Hair Spa', price: 799, salons: 15, icon: '🧴' },
-  { id: '5', name: 'Manicure', price: 299, salons: 12, icon: '💅' },
-  { id: '6', name: 'Pedicure', price: 399, salons: 10, icon: '🦶' },
+  {
+    id: '1',
+    name: 'Haircut',
+    price: 199,
+    salons: 43,
+    image: 'https://images.unsplash.com/photo-1761931403671-d020a14928d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
+  },
+  {
+    id: '2',
+    name: 'Beard Trim',
+    price: 99,
+    salons: 58,
+    image: 'https://images.unsplash.com/photo-1603899968034-1a56ca48d172?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
+  },
+  {
+    id: '3',
+    name: 'Facial',
+    price: 499,
+    salons: 20,
+    image: 'https://images.unsplash.com/photo-1664549760921-2198b054a592?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
+  },
 ];
 
 const PopularServices = () => {
-  const renderItem = ({ item }: { item: typeof DUMMY_SERVICES[0] }) => (
-    <TouchableOpacity style={styles.card}>
-      <View style={styles.iconContainer}>
-        <Text style={styles.icon}>{item.icon}</Text>
-      </View>
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.price}>Starts ₹{item.price}</Text>
-      <Text style={styles.salons}>{item.salons} salons</Text>
-    </TouchableOpacity>
-  );
-
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Popular Services</Text>
+      <Text style={styles.title}>Popular Services</Text>
+      <View style={styles.grid}>
+        {DUMMY_SERVICES.map((item) => (
+          <TouchableOpacity key={item.id} style={styles.card} activeOpacity={0.8}>
+            <View style={styles.imageContainer}>
+              <Image source={{ uri: item.image }} style={styles.image} />
+            </View>
+            <View style={styles.info}>
+              <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
+              <Text style={styles.price}>Starts ₹{item.price}</Text>
+              <Text style={styles.salons}>{item.salons} salons</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
       </View>
-      <FlatList
-        data={DUMMY_SERVICES}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-      />
     </View>
   );
 };
@@ -44,56 +52,58 @@ export default PopularServices;
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: theme.spacing.lg,
-  },
-  header: {
     paddingHorizontal: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.lg,
   },
   title: {
-    fontSize: theme.fontSizes.xl,
+    fontSize: 20,
     fontFamily: theme.fonts.bold,
     color: theme.colors.primaryDark,
+    marginBottom: 16,
+    letterSpacing: -0.5,
   },
-  listContainer: {
-    paddingHorizontal: theme.spacing.sm,
-    gap: theme.spacing.md,
+  grid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
   },
   card: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: theme.spacing.sm,
-    width: 130,
-    marginRight: theme.spacing.sm, // Using marginRight instead of gap for older RN compat
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    backgroundColor: theme.colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: theme.spacing.sm,
+    width: '31%',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    ...theme.shadows.soft,
   },
-  icon: {
-    fontSize: 20,
+  imageContainer: {
+    width: '100%',
+    height: 90,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  info: {
+    padding: 10,
   },
   name: {
-    fontSize: theme.fontSizes.md,
+    fontSize: 14,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
     marginBottom: 4,
+    letterSpacing: -0.2,
   },
   price: {
-    fontSize: theme.fontSizes.sm,
-    color: theme.colors.accent,
-    fontFamily: theme.fonts.semiBold,
+    fontSize: 13,
+    color: '#D97706',
+    fontFamily: theme.fonts.bold,
     marginBottom: 2,
   },
   salons: {
-    fontSize: theme.fontSizes.xs,
-    color: theme.colors.textDisabled,
+    fontSize: 11,
+    color: '#64748B',
+    fontFamily: theme.fonts.regular,
   },
 });

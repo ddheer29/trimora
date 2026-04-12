@@ -1,13 +1,36 @@
 import 'react-native-gesture-handler';
 import { useEffect } from 'react';
-import { Platform, StatusBar } from 'react-native';
+import { AppState, Platform, StatusBar } from 'react-native';
+import {
+  QueryClient,
+  QueryClientProvider,
+  focusManager,
+} from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Navigation from './src/navigation/Navigation';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import Toast from 'react-native-toast-message';
-
 import notificationService from '@/services/notificationService';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Navigation from './src/navigation/Navigation';
+
+// Wire up React Native's AppState so React Query refetches on app foreground
+focusManager.setEventListener(handleFocus => {
+  const subscription = AppState.addEventListener('change', state => {
+    handleFocus(state === 'active');
+  });
+  return () => subscription.remove();
+});
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000, // data is fresh for 1 minute
+      gcTime: 5 * 60_000, // unused cache kept for 5 minutes
+      retry: 1, // retry failed requests once
+      refetchOnWindowFocus: true,
+    },
+  },
+});
 
 GoogleSignin.configure({
   webClientId:
@@ -19,28 +42,26 @@ GoogleSignin.configure({
 });
 
 function App() {
-  useEffect(() => {
-    notificationService.requestUserPermission();
-    notificationService.setupNotificationHandlers();
-    const unsubscribe = notificationService.setupForegroundListener();
-    notificationService.onTokenRefresh();
+  // useEffect(() => {
+  //   notificationService.requestUserPermission();
+  //   notificationService.setupNotificationHandlers();
+  //   const unsubscribe = notificationService.setupForegroundListener();
+  //   notificationService.onTokenRefresh();
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  //   return () => {
+  //     unsubscribe();
+  //   };
+  // }, []);
 
   return (
-    <GestureHandlerRootView>
-      <SafeAreaProvider>
-        <StatusBar
-          translucent={Platform.OS === 'ios'}
-          backgroundColor="transparent"
-        />
-        <Navigation />
-        <Toast />
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView>
+        <SafeAreaProvider>
+          <Navigation />
+          <Toast />
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }
 

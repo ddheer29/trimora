@@ -10,18 +10,27 @@ import theme from '@utils/Theme';
 
 const SalonsScreen = () => {
   const route = useRoute();
-  const { serviceCategory } = route.params;
+  const { serviceCategory } = (route.params as any) || {};
   const [salons, setSalons] = useState<Salon[]>([]);
   const [loading, setLoading] = useState(false);
 
   const getSalons = async () => {
     try {
       setLoading(true);
-      const response = await salonService.getSalonsByService(
-        serviceCategory,
-        28.535516,
-        77.391026,
-      );
+      let response;
+      // Coordinates for Noida area as used in other parts of the app
+      const lat = 28.535516;
+      const lng = 77.391026;
+
+      if (serviceCategory) {
+        response = await salonService.getSalonsByService(
+          serviceCategory,
+          lat,
+          lng,
+        );
+      } else {
+        response = await salonService.getNearBySalons(lat, lng);
+      }
       setSalons(response?.data?.salons || []);
     } catch (error) {
       console.log('🚀 -> getSalons -> error:', error);
@@ -44,7 +53,7 @@ const SalonsScreen = () => {
 
   return (
     <CommonContainer
-      title={serviceCategory + ' Salons'}
+      title={serviceCategory ? `${serviceCategory} Salons` : 'Salons Near You'}
       showBackButton={true}
       hideHeader={false}
     >

@@ -9,68 +9,47 @@ import {
   Linking,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import CommonContainer from '@components/CommonContainer';
 import theme from '../../utils/Theme';
-import { salonService } from '@/services/salonService';
 import dayjs from 'dayjs';
 import Icon from '@react-native-vector-icons/ionicons';
 import { Booking } from '@/types';
+import {
+  usePartnerBookingDetail,
+  useUpdateBookingStatus,
+} from '@/hooks/useSalonQueries';
 
 const BookingDetailsScreen = ({ route }: any) => {
   const { bookingId } = route.params;
-  const [booking, setBooking] = useState<Booking | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
+  const { data, isLoading: loading } = usePartnerBookingDetail(bookingId);
+  const { mutate: updateStatus, isPending: updating } =
+    useUpdateBookingStatus();
 
-  const fetchDetail = async () => {
-    try {
-      setLoading(true);
-      const res = await salonService.getBookingDetail(bookingId);
-      console.log('🚀 -> fetchDetail -> res:', res);
-      if (res.status === 'success') {
-        setBooking(res.data.booking);
-      }
-    } catch (error) {
-      console.error('Error fetching booking detail:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Could not fetch booking details',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const booking: Booking | null = (data as any)?.data?.booking ?? null;
 
-  useEffect(() => {
-    fetchDetail();
-  }, [bookingId]);
-
-  const handleUpdateStatus = async (
+  const handleUpdateStatus = (
     status: 'confirmed' | 'cancelled' | 'completed',
   ) => {
-    try {
-      setUpdating(true);
-      const res = await salonService.updateBookingStatus(bookingId, status);
-      if (res.status === 'success') {
-        Toast.show({
-          type: 'success',
-          text1: 'Success',
-          text2: `Booking ${status} successfully`,
-        });
-        fetchDetail();
-      }
-    } catch (error) {
-      console.error('Error updating status:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to update booking status',
-      });
-    } finally {
-      setUpdating(false);
-    }
+    updateStatus(
+      { bookingId, status },
+      {
+        onSuccess: () => {
+          Toast.show({
+            type: 'success',
+            text1: 'Success',
+            text2: `Booking ${status} successfully`,
+          });
+        },
+        onError: () => {
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: 'Failed to update booking status',
+          });
+        },
+      },
+    );
   };
 
   if (loading) {

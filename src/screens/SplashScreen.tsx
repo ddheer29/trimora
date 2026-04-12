@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, View, Text } from 'react-native';
+import {
+  Animated,
+  StyleSheet,
+  View,
+  Text,
+  StatusBar,
+  Platform,
+} from 'react-native';
 import { resetAndNavigate } from '../utils/NavigationUtil';
 import theme from '../utils/Theme';
 import { useUserStore } from '../store/userStore';
@@ -92,7 +99,14 @@ const SplashScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={{ opacity, transform: [{ scale }], alignItems: 'center' }}>
+      <StatusBar
+        translucent={Platform.OS === 'ios'}
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
+      <Animated.View
+        style={{ opacity, transform: [{ scale }], alignItems: 'center' }}
+      >
         <Text style={styles.appName}>Trimora</Text>
         <Text style={styles.tagline}>Your style, your time.</Text>
       </Animated.View>

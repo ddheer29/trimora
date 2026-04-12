@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Alert, Text } from 'react-native';
 import {
   ExpandableCalendar,
   TimelineEventProps,
@@ -16,6 +16,7 @@ import { bookingService } from '../../services/bookingService';
 import { useUserStore } from '../../store/userStore';
 import { TimelineBookingEvent } from '../../types';
 import CommonContainer from '@components/CommonContainer';
+import theme from '@utils/Theme';
 
 const INITIAL_TIME = { hour: 9, minutes: 0 };
 
@@ -111,7 +112,15 @@ const SchedulesScreen = () => {
   }
 
   return (
-    <CommonContainer noPadding={true}>
+    <CommonContainer
+      title="Schedules"
+      noPadding={true}
+      hideHeader={false}
+      rightIcon={
+        <Ionicons name="list-circle" size={28} color={theme.colors.primary} />
+      }
+      onRightIconPress={() => navigation.navigate('BookingScreen')}
+    >
       <View style={styles.container}>
         <CalendarProvider
           date={currentDate}

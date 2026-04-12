@@ -22,6 +22,7 @@ const TrendsScreen = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [searchText, setSearchText] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   const searchTimeout = useRef<any>(null);
 
   const fetchTrends = async (pageNum: number, query: string = searchText) => {
@@ -29,7 +30,12 @@ const TrendsScreen = () => {
 
     try {
       setLoading(true);
-      const response = await trendService.getGalleryFeed(pageNum, 30, undefined, query);
+      const response = await trendService.getGalleryFeed(
+        pageNum,
+        30,
+        undefined,
+        query,
+      );
 
       if (response.status === 'success') {
         const newPosts = response.data.posts || [];
@@ -92,7 +98,12 @@ const TrendsScreen = () => {
   return (
     <CommonContainer noPadding>
       <View style={styles.header}>
-        <View style={styles.searchContainer}>
+        <View
+          style={[
+            styles.searchContainer,
+            isFocused && { borderColor: theme.colors.accent },
+          ]}
+        >
           <Ionicons name="search-outline" size={20} color="#94A3B8" />
           <TextInput
             style={styles.searchInput}
@@ -100,6 +111,8 @@ const TrendsScreen = () => {
             placeholderTextColor="#94A3B8"
             value={searchText}
             onChangeText={setSearchText}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             autoCorrect={false}
           />
           {searchText.length > 0 && (
@@ -163,12 +176,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F1F5F9', // Light Slate 100
+    backgroundColor: '#F1F5F9',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 45,
     borderWidth: 1,
-    borderColor: '#E2E8F0', // Border color
+    borderColor: '#E2E8F0',
   },
   searchInput: {
     flex: 1,

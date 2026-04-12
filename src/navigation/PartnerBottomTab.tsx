@@ -95,11 +95,6 @@ const TabNavigation = () => {
         options={{ tabBarLabel: 'Portfolio' }}
       />
       <Tab.Screen
-        name="Booking"
-        component={BookingScreen}
-        options={{ tabBarLabel: 'Booking' }}
-      />
-      <Tab.Screen
         name="Setting"
         component={SettingScreen}
         options={{ tabBarLabel: 'Setting' }}

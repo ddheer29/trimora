@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { Feather } from '@react-native-vector-icons/feather';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
+import { Search } from 'lucide-react-native';
 import theme from '../../utils/Theme';
 import { navigate } from '../../utils/NavigationUtil';
 
@@ -11,69 +10,32 @@ const SearchBar = () => (
     activeOpacity={0.9}
     onPress={() => navigate('SearchScreen')}
   >
-    <View style={styles.inputWrapper}>
-      <Feather
-        name="search"
-        size={20}
-        color={theme.colors.textSecondary}
-        style={styles.icon}
-      />
-      <View>
-        <Text style={styles.searchTitle}>Where to?</Text>
-        <Text style={styles.searchSubtitle}>Search salons, services...</Text>
-      </View>
-    </View>
-
-    <TouchableOpacity style={styles.filterIconWrapper}>
-      <Ionicons
-        name="options-outline" // More premium looking filter icon
-        size={20}
-        color={theme.colors.textOnPrimary}
-      />
-    </TouchableOpacity>
+    <Search
+      size={20}
+      color="#94A3B8"
+      style={styles.icon}
+    />
+    <Text style={styles.placeholder}>Search salons, services...</Text>
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.full,
-    paddingLeft: theme.spacing.lg,
-    paddingRight: theme.spacing.sm,
-    paddingVertical: 10,
-    marginTop: theme.spacing.sm,
-    marginBottom: theme.spacing.sm,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    ...theme.shadows.medium, // Stronger elevation
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+    marginTop: 8,
   },
   icon: {
-    marginRight: theme.spacing.md,
+    marginRight: 12,
   },
-  searchTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.fontSizes.sm,
-    fontFamily: theme.fonts.bold,
-    marginBottom: 2,
-  },
-  searchSubtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.fontSizes.xs,
-  },
-  filterIconWrapper: {
-    backgroundColor: theme.colors.primaryDark,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+  placeholder: {
+    color: '#94A3B8',
+    fontSize: 15,
+    fontFamily: theme.fonts.regular,
   },
 });
 
