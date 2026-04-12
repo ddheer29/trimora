@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import { Menu, MapPin, ChevronRight } from 'lucide-react-native';
 import CommonContainer from '@components/CommonContainer';
@@ -103,7 +103,11 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.horizontalScroll}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.horizontalScroll}
+        >
           {nearBySalons?.slice(0, 3).map((salon: Salon) => (
             <View key={salon._id} style={styles.salonCardWrapper}>
               <SalonCard
@@ -119,11 +123,11 @@ const HomeScreen = () => {
               style={styles.viewAllCard}
             />
           )}
-        </View>
+        </ScrollView>
       </View>
 
       {/* Map CTA */}
-      <View style={styles.mapCtaContainer}>
+      {/* <View style={styles.mapCtaContainer}>
         <TouchableOpacity
           style={styles.mapCta}
           activeOpacity={0.9}
@@ -137,7 +141,7 @@ const HomeScreen = () => {
             <ChevronRight size={16} color="#FFFFFF" />
           </View>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Combo Packages */}
       <ComboPackages />
@@ -219,6 +223,7 @@ const styles = StyleSheet.create({
   },
   horizontalScroll: {
     paddingLeft: theme.spacing.sm,
+    flexDirection: 'row',
   },
   salonCardWrapper: {
     marginBottom: 16,

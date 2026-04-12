@@ -48,7 +48,6 @@ const TabNavigation = () => {
         // eslint-disable-next-line react/no-unstable-nested-components
         tabBarButton: props => (
           <Pressable
-            android_ripple={{ color: '#EAD7D7' }}
             // eslint-disable-next-line react-native/no-inline-styles
             style={{
               flex: 1,
