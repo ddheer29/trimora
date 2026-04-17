@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 import { Pressable } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
+import { Feather } from '@react-native-vector-icons/feather';
 import theme from '../utils/Theme';
 import DashboardScreen from '@screens/PartnerSide/DashboardScreen';
-import BookingScreen from '@screens/PartnerSide/BookingScreen';
 import SettingScreen from '@screens/PartnerSide/SettingScreen';
 import SchedulesScreen from '@screens/PartnerSide/SchedulesScreen';
 import ManagePostsScreen from '@screens/PartnerSide/ManagePostsScreen';
@@ -48,7 +47,6 @@ const TabNavigation = () => {
         // eslint-disable-next-line react/no-unstable-nested-components
         tabBarButton: props => (
           <Pressable
-            android_ripple={{ color: '#EAD7D7' }}
             // eslint-disable-next-line react-native/no-inline-styles
             style={{
               flex: 1,
@@ -64,18 +62,16 @@ const TabNavigation = () => {
         tabBarIcon: ({ focused, color }) => {
           let iconName: any = 'help-circle';
           if (route.name === 'Dashboard') {
-            iconName = focused ? 'home' : 'home-outline';
+            iconName = 'home';
           } else if (route.name === 'Schedules') {
-            iconName = focused ? 'calendar' : 'calendar-outline';
+            iconName = 'calendar';
           } else if (route.name === 'Posts') {
-            iconName = focused ? 'images' : 'images-outline';
-          } else if (route.name === 'Booking') {
-            iconName = focused ? 'book' : 'book-outline';
+            iconName = 'camera';
           } else if (route.name === 'Setting') {
-            iconName = focused ? 'settings' : 'settings-outline';
+            iconName = 'settings';
           }
 
-          return <Ionicons name={iconName} size={24} color={color} />;
+          return <Feather name={iconName} size={24} color={color} />;
         },
       })}
     >

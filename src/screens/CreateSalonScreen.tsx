@@ -23,7 +23,6 @@ import { salonService } from '@/services/salonService';
 import { launchImageLibrary } from 'react-native-image-picker';
 import theme from '@utils/Theme';
 
-
 const CreateSalonScreen = () => {
   const navigation = useNavigation();
 

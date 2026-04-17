@@ -42,16 +42,17 @@ const CustomAlert = ({
   return (
     <Modal
       transparent
-      animationType="fade"
+      animationType="none"
       visible={visible}
       onRequestClose={onRequestClose}
     >
       <Pressable style={styles.overlay} onPress={onRequestClose}>
-        <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
-          
+        <Pressable style={styles.card} onPress={e => e.stopPropagation()}>
           {iconName && (
             <View style={[styles.haloRing, { backgroundColor: iconBgColor }]}>
-              <View style={[styles.iconWrapper, { backgroundColor: iconColor }]}>
+              <View
+                style={[styles.iconWrapper, { backgroundColor: iconColor }]}
+              >
                 <Ionicons name={iconName} size={28} color="#FFFFFF" />
               </View>
             </View>
@@ -65,7 +66,7 @@ const CustomAlert = ({
               const isCancel = option.style === 'cancel';
               const isDestructive = option.style === 'destructive';
               const isDefault = !isCancel && !isDestructive;
-              
+
               return (
                 <TouchableOpacity
                   key={index}
@@ -103,7 +104,7 @@ export default CustomAlert;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },

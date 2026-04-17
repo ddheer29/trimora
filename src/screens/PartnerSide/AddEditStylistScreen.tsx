@@ -115,6 +115,8 @@ const AddEditStylistScreen = ({ route }: RouteParams) => {
       showBackButton
       title={isEditing ? 'Edit Stylist' : 'Add Stylist'}
       hideHeader={false}
+      noPadding
+      backgroundColor="#FFFFFF"
     >
       <ScrollView contentContainerStyle={styles.container}>
         <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
@@ -178,6 +180,8 @@ const styles = StyleSheet.create({
   container: {
     padding: theme.spacing.lg,
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    flex: 1,
   },
   imagePicker: {
     width: 120,
@@ -188,7 +192,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
     position: 'relative',
-    ...theme.shadows.medium,
+    borderWidth: 1,
+    borderColor: '#f3f4f5ff',
   },
   image: {
     width: 120,
@@ -233,21 +238,21 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.md,
     fontFamily: theme.fonts.body,
     marginBottom: 20,
-    ...theme.shadows.soft,
+    borderWidth: 1,
+    borderColor: '#f3f4f5ff',
   },
   saveButton: {
     backgroundColor: theme.colors.primaryDark,
     width: '100%',
-    height: 56,
-    borderRadius: theme.borderRadius.lg,
+    paddingVertical: 12,
+    borderRadius: theme.borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
-    ...theme.shadows.medium,
   },
   saveButtonText: {
     color: '#fff',
     fontFamily: theme.fonts.heading,
-    fontSize: theme.fontSizes.lg,
+    fontSize: theme.fontSizes.md,
   },
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PhoneNumberScreen from '../screens/auth/PhoneNumberScreen';
 import VerifyOtpScreen from '../screens/auth/VerifyOtpScreen';
+import { StatusBar } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 

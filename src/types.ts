@@ -262,3 +262,12 @@ export interface TimelineBookingsApiResponse {
   status: string;
   data: TimelineBookingEvent[];
 }
+
+export interface RecommendationsApiResponse {
+  status: string;
+  source: 'ml' | 'fallback';
+  results: number;
+  data: {
+    salons: Salon[];
+  };
+}

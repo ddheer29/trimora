@@ -6,6 +6,7 @@ import PhoneInput from '@components/Input/PhoneInput';
 import { navigate } from '@utils/NavigationUtil';
 import { authService } from '@/services/authService';
 import Toast from 'react-native-toast-message';
+import CommonContainer from '@components/CommonContainer';
 
 const PhoneNumberScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -27,7 +28,6 @@ const PhoneNumberScreen = () => {
     setLoginLoading(true);
     try {
       const response = await authService.sendOtp(phoneNumber, loginAs);
-      console.log('🚀 -> handleLogin -> response:', response);
 
       if (response.status === 'success') {
         Toast.show({
@@ -93,99 +93,101 @@ const PhoneNumberScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>
-            Enter your phone number to continue.
-          </Text>
-        </View>
-        <View style={styles.bottomContainer}>
-          <View>
-            <View style={styles.phoneInputContainer}>
-              <PhoneInput
-                value={formatPhoneNumber(phoneNumber)}
-                enableLocationDetection={false}
-                askForPermission={false}
-                defaultCountry="IN"
-                onChangeText={handlePhoneNumberChange}
-                onCountryChange={setSelectedCountry}
-                theme={theme}
-                containerStyle={styles.phoneInputContainerStyle}
-                countryCodeButtonStyle={styles.countryCodeButtonStyle}
-                inputStyle={styles.phoneInputStyle}
-                placeholder="Enter your phone number"
-                placeholderTextColor={theme.colors.textDisabled}
-                autoFocus={true}
-                keyboardType="phone-pad"
-              />
-            </View>
-
-            <CustomButton
-              title="Login"
-              loading={loginLoading}
-              onPress={handleLogin}
-              backgroundColor={theme.colors.primaryDark}
-              loadingColor={theme.colors.textOnPrimary}
-              disabledBackgroundColor={theme.colors.border}
-              disabled={
-                !phoneNumber || phoneNumber.replace(/\D/g, '').length < 10
-              }
-            />
-
-            {/* Divider or Space */}
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            {/* Toggle Button / Switch Roles */}
-            <View style={styles.toggleContainer}>
-              <Text style={styles.rolePromptText}>
-                {loginAs === 'customer'
-                  ? 'Are you a Salon Partner?'
-                  : 'Looking to book a service?'}
-              </Text>
-              <Text
-                style={styles.switchRoleText}
-                onPress={() =>
-                  setLoginAs(loginAs === 'customer' ? 'partner' : 'customer')
-                }
-              >
-                {loginAs === 'customer'
-                  ? 'Login as Partner'
-                  : 'Login as Customer'}
-              </Text>
-            </View>
+    <CommonContainer noPadding>
+      <View style={styles.container}>
+        <View style={styles.contentContainer}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>
+              Enter your phone number to continue.
+            </Text>
           </View>
+          <View style={styles.bottomContainer}>
+            <View>
+              <View style={styles.phoneInputContainer}>
+                <PhoneInput
+                  value={formatPhoneNumber(phoneNumber)}
+                  enableLocationDetection={false}
+                  askForPermission={false}
+                  defaultCountry="IN"
+                  onChangeText={handlePhoneNumberChange}
+                  onCountryChange={setSelectedCountry}
+                  theme={theme}
+                  containerStyle={styles.phoneInputContainerStyle}
+                  countryCodeButtonStyle={styles.countryCodeButtonStyle}
+                  inputStyle={styles.phoneInputStyle}
+                  placeholder="Enter your phone number"
+                  placeholderTextColor={theme.colors.textDisabled}
+                  autoFocus={true}
+                  keyboardType="phone-pad"
+                />
+              </View>
 
-          {/* Footer with Agreements at absolute bottom */}
-          <View style={styles.footerContainer}>
-            <View style={styles.agreementTextContainer}>
-              <Text style={styles.agreementText}>
-                By continuing, you agree to our
-              </Text>
+              <CustomButton
+                title="Login"
+                loading={loginLoading}
+                onPress={handleLogin}
+                backgroundColor={theme.colors.primaryDark}
+                loadingColor={theme.colors.textOnPrimary}
+                disabledBackgroundColor={theme.colors.border}
+                disabled={
+                  !phoneNumber || phoneNumber.replace(/\D/g, '').length < 10
+                }
+              />
+
+              {/* Divider or Space */}
+              <View style={styles.dividerContainer}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              {/* Toggle Button / Switch Roles */}
+              <View style={styles.toggleContainer}>
+                <Text style={styles.rolePromptText}>
+                  {loginAs === 'customer'
+                    ? 'Are you a Salon Partner?'
+                    : 'Looking to book a service?'}
+                </Text>
+                <Text
+                  style={styles.switchRoleText}
+                  onPress={() =>
+                    setLoginAs(loginAs === 'customer' ? 'partner' : 'customer')
+                  }
+                >
+                  {loginAs === 'customer'
+                    ? 'Login as Partner'
+                    : 'Login as Customer'}
+                </Text>
+              </View>
             </View>
-            <View style={styles.linksContainer}>
-              <Text
-                style={styles.linkText}
-                onPress={() => navigate('TermsOfService')}
-              >
-                Terms of Service
-              </Text>
-              <Text
-                style={styles.linkText}
-                onPress={() => navigate('PrivacyPolicy')}
-              >
-                Privacy Policy
-              </Text>
+
+            {/* Footer with Agreements at absolute bottom */}
+            <View style={styles.footerContainer}>
+              <View style={styles.agreementTextContainer}>
+                <Text style={styles.agreementText}>
+                  By continuing, you agree to our
+                </Text>
+              </View>
+              <View style={styles.linksContainer}>
+                <Text
+                  style={styles.linkText}
+                  onPress={() => navigate('TermsOfService')}
+                >
+                  Terms of Service
+                </Text>
+                <Text
+                  style={styles.linkText}
+                  onPress={() => navigate('PrivacyPolicy')}
+                >
+                  Privacy Policy
+                </Text>
+              </View>
             </View>
           </View>
         </View>
       </View>
-    </View>
+    </CommonContainer>
   );
 };
 
@@ -196,7 +198,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
     alignItems: 'center',
-    paddingTop: theme.spacing.xl * 3,
+    paddingTop: theme.spacing.xl,
   },
   contentContainer: {
     flex: 1,

@@ -99,6 +99,8 @@ const AddEditServiceScreen = ({ route }: RouteParams) => {
       showBackButton
       title={isEditing ? 'Edit Service' : 'Add Service'}
       hideHeader={false}
+      backgroundColor="#FFFFFF"
+      noPadding
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -218,6 +220,8 @@ export default AddEditServiceScreen;
 const styles = StyleSheet.create({
   container: {
     padding: theme.spacing.lg,
+    backgroundColor: '#FFFFFF',
+    flex: 1,
   },
   form: {
     width: '100%',
@@ -235,7 +239,8 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.md,
     fontFamily: theme.fonts.body,
     marginBottom: 20,
-    ...theme.shadows.soft,
+    borderWidth: 1,
+    borderColor: '#f3f4f5ff',
   },
   textArea: {
     height: 100,
@@ -253,7 +258,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: theme.borderRadius.full,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: '#f3f4f5ff',
     marginRight: 10,
   },
   genderChipSelected: {
@@ -272,17 +277,16 @@ const styles = StyleSheet.create({
   saveButton: {
     backgroundColor: theme.colors.primaryDark,
     width: '100%',
-    height: 56,
-    borderRadius: theme.borderRadius.lg,
+    paddingVertical: 12,
+    borderRadius: theme.borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 30,
-    ...theme.shadows.medium,
   },
   saveButtonText: {
     color: '#fff',
     fontFamily: theme.fonts.heading,
-    fontSize: theme.fontSizes.lg,
+    fontSize: theme.fontSizes.md,
   },
 });

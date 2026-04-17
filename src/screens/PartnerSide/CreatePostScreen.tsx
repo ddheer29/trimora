@@ -146,10 +146,17 @@ const CreatePostScreen = () => {
           <TouchableOpacity style={styles.mediaPlaceholder} onPress={pickMedia}>
             {media ? (
               type === 'photo' ? (
-                <Image source={{ uri: media.uri }} style={styles.previewImage} />
+                <Image
+                  source={{ uri: media.uri }}
+                  style={styles.previewImage}
+                />
               ) : (
                 <View style={styles.videoPreviewContainer}>
-                  <Feather name="video" size={50} color={theme.colors.primaryDark} />
+                  <Feather
+                    name="video"
+                    size={50}
+                    color={theme.colors.primaryDark}
+                  />
                   <Text style={styles.videoNameText} numberOfLines={1}>
                     {media.fileName || 'Video Selected'}
                   </Text>
@@ -217,6 +224,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    paddingBottom: 50,
   },
   typeSelector: {
     flexDirection: 'row',
@@ -319,7 +327,7 @@ const styles = StyleSheet.create({
   uploadButton: {
     backgroundColor: theme.colors.primaryDark,
     borderRadius: 12,
-    paddingVertical: 16,
+    paddingVertical: 12,
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 40,
@@ -330,6 +338,6 @@ const styles = StyleSheet.create({
   uploadButtonText: {
     color: '#fff',
     fontFamily: theme.fonts.heading,
-    fontSize: 16,
+    fontSize: 14,
   },
 });

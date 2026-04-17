@@ -1,62 +1,86 @@
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   ScrollView,
-  Image,
-  Alert,
 } from 'react-native';
-import React, { useState } from 'react';
-import { Feather } from '@react-native-vector-icons/feather';
-import CommonContainer from '@components/CommonContainer';
-import theme from '@utils/Theme';
-import { navigate, resetAndNavigate } from '@utils/NavigationUtil';
+import LinearGradient from 'react-native-linear-gradient';
+import {
+  Home,
+  Users,
+  Scissors,
+  Image as ImageIcon,
+  Bell,
+  LogOut,
+  ChevronRight,
+} from 'lucide-react-native';
 import { useUserStore } from '@/store/userStore';
+import { navigate, resetAndNavigate } from '@utils/NavigationUtil';
+import CommonContainer from '@components/CommonContainer';
 import CustomAlert from '@components/CustomAlert';
+import theme from '@utils/Theme';
 import notificationService from '@/services/notificationService';
 
 const SettingScreen = () => {
-  const { user } = useUserStore();
+  const { user, logout } = useUserStore();
   const [isLogoutAlertVisible, setLogoutAlertVisible] = useState(false);
+
+  const userProfile = {
+    name: user?.name || 'Partner',
+    email: user?.email || 'salon.partner@email.com',
+    initial: (user?.name || 'P')[0].toUpperCase(),
+  };
 
   const menuItems = [
     {
       title: 'Edit Salon Details',
-      icon: 'home',
+      subtitle: 'Update your business information',
+      icon: Home,
       onPress: () => navigate('SalonSetupFormScreen', { isEdit: true }),
     },
     {
       title: 'Manage Stylists',
-      icon: 'users',
+      subtitle: 'Add or remove team members',
+      icon: Users,
       onPress: () => navigate('ManageStylistsScreen'),
     },
     {
       title: 'Manage Services',
-      icon: 'scissors',
+      subtitle: 'Configure your service menu',
+      icon: Scissors,
       onPress: () => navigate('ManageServicesScreen'),
     },
     {
-      title: 'Portfolio & Posts',
-      icon: 'image',
-      onPress: () => navigate('ManagePostsScreen'),
-    },
-    {
       title: 'Notifications',
-      icon: 'bell',
+      subtitle: 'Manage alert preferences',
+      icon: Bell,
       onPress: () => navigate('NotificationsScreen'),
     },
   ];
 
+  const handleLogout = () => {
+    setLogoutAlertVisible(true);
+  };
+
   return (
-    <CommonContainer title="Settings" hideHeader={false}>
+    <CommonContainer
+      scrollable
+      backgroundColor="#F9FAFB"
+      title="Settings"
+      hideHeader={false}
+      noPadding
+      headerStyle={styles.header}
+      titleStyle={styles.headerTitle}
+    >
       <CustomAlert
         visible={isLogoutAlertVisible}
         title="Logout"
         message="Are you sure you want to log out?"
         iconName="log-out-outline"
         iconBgColor="#F1F5F9"
-        iconColor={theme.colors.primaryDark}
+        iconColor={theme.colors.error}
         options={[
           {
             text: 'Cancel',
@@ -69,7 +93,7 @@ const SettingScreen = () => {
             onPress: () => {
               setLogoutAlertVisible(false);
               notificationService.unregisterToken();
-              useUserStore.getState().logout();
+              logout();
               resetAndNavigate('AuthNavigator');
             },
           },
@@ -77,136 +101,176 @@ const SettingScreen = () => {
         onRequestClose={() => setLogoutAlertVisible(false)}
       />
 
-      <ScrollView style={styles.container}>
+      <View style={styles.content}>
+        {/* Profile Card */}
         <TouchableOpacity
-          style={styles.profileSection}
-          activeOpacity={0.7}
+          style={styles.profileCard}
+          activeOpacity={0.9}
           onPress={() => navigate('SalonPreviewScreen')}
         >
-          <Image
-            source={{
-              uri: user?.profilePhoto || 'https://via.placeholder.com/150',
-            }}
-            style={styles.avatar}
-          />
+          <LinearGradient
+            colors={['#A855F7', '#EC4899']}
+            style={styles.avatarGradient}
+          >
+            <Text style={styles.avatarText}>{userProfile.initial}</Text>
+          </LinearGradient>
           <View style={styles.profileInfo}>
-            <Text style={styles.userName}>{user?.name || 'Partner'}</Text>
-            <Text style={styles.userRole}>Salon Partner</Text>
+            <Text style={styles.profileName}>{userProfile.name}</Text>
+            <Text style={styles.profileRole}>Salon Partner</Text>
           </View>
+          <ChevronRight size={20} color="#94A3B8" />
         </TouchableOpacity>
 
-        <View style={styles.menuSection}>
+        {/* Settings Group */}
+        <View style={styles.settingsGroup}>
           {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.menuItem}
-              onPress={item.onPress}
-            >
-              <View style={styles.menuIconContainer}>
-                <Feather
-                  name={item.icon as any}
-                  size={20}
-                  color={theme.colors.textOnPrimary}
-                />
-              </View>
-              <Text style={styles.menuTitle}>{item.title}</Text>
-              <Feather
-                name="chevron-right"
-                size={20}
-                color={theme.colors.textDisabled}
-              />
-            </TouchableOpacity>
+            <React.Fragment key={index}>
+              <TouchableOpacity
+                style={styles.settingItem}
+                activeOpacity={0.7}
+                onPress={item.onPress}
+              >
+                <View style={styles.iconContainer}>
+                  <item.icon size={22} color="#475569" />
+                </View>
+                <View style={styles.settingTextContainer}>
+                  <Text style={styles.settingTitle}>{item.title}</Text>
+                  <Text style={styles.settingSubtitle}>{item.subtitle}</Text>
+                </View>
+                <ChevronRight size={18} color="#CBD5E1" />
+              </TouchableOpacity>
+              {index < menuItems.length - 1 && <View style={styles.divider} />}
+            </React.Fragment>
           ))}
         </View>
 
+        {/* Logout Button */}
         <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => setLogoutAlertVisible(true)}
+          style={styles.logoutCard}
+          activeOpacity={0.8}
+          onPress={handleLogout}
         >
-          <Feather name="log-out" size={20} color="red" />
+          <LogOut size={24} color={theme.colors.error} />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-      </ScrollView>
+
+        <View style={{ height: 40 }} />
+      </View>
     </CommonContainer>
   );
 };
 
-export default SettingScreen;
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: theme.spacing.lg,
+  header: {
+    height: 80,
+    borderBottomWidth: 0,
+    backgroundColor: '#F9FAFB',
+    paddingHorizontal: 20,
+    justifyContent: 'flex-end',
+    paddingBottom: 8,
   },
-  profileSection: {
+  headerTitle: {
+    fontSize: 28,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
+  },
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+  },
+  profileCard: {
+    backgroundColor: theme.colors.card,
+    borderRadius: 24,
+    padding: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
-    backgroundColor: theme.colors.card,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
+    marginBottom: 24,
     ...theme.shadows.soft,
   },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: theme.spacing.md,
+  avatarGradient: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontFamily: theme.fonts.bold,
   },
   profileInfo: {
     flex: 1,
+    marginLeft: 16,
   },
-  userName: {
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.fontSizes.lg,
+  profileName: {
+    fontSize: 18,
+    fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
+    marginBottom: 4,
   },
-  userRole: {
-    fontFamily: theme.fonts.body,
-    fontSize: theme.fontSizes.sm,
+  profileRole: {
+    fontSize: 14,
+    fontFamily: theme.fonts.regular,
     color: theme.colors.textSecondary,
   },
-  menuSection: {
+  settingsGroup: {
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.sm,
-    ...theme.shadows.soft,
-    marginBottom: 30,
+    borderRadius: 24,
+    overflow: 'hidden',
+    marginBottom: 24,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
   },
-  menuItem: {
+  settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    padding: 20,
   },
-  menuIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.colors.primaryLight,
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: theme.spacing.md,
   },
-  menuTitle: {
+  settingTextContainer: {
     flex: 1,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.fontSizes.md,
-    color: theme.colors.textPrimary,
+    marginLeft: 16,
   },
-  logoutButton: {
+  settingTitle: {
+    fontSize: 16,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
+    marginBottom: 2,
+  },
+  settingSubtitle: {
+    fontSize: 12,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textSecondary,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginLeft: 80, // Offset to align with text
+  },
+  logoutCard: {
+    backgroundColor: theme.colors.card,
+    borderRadius: 24,
+    padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: theme.spacing.md,
-    marginBottom: 50,
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
   },
   logoutText: {
-    marginLeft: theme.spacing.sm,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.fontSizes.md,
-    color: 'red',
+    fontSize: 16,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.error,
   },
 });
+
+export default SettingScreen;

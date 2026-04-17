@@ -27,6 +27,7 @@ import ComboPackages from '@components/Home/ComboPackages';
 import Testimonials from '@components/Home/Testimonials';
 import SalonCard from '@components/Cards/SalonCard';
 import ViewAllCard from '@components/Cards/ViewAllCard';
+import SuggestedForYou from '@components/Home/SuggestedForYou';
 
 const { width } = Dimensions.get('window');
 
@@ -80,6 +81,9 @@ const HomeScreen = () => {
 
       {/* Promo Banner */}
       <PromoBanner />
+
+      {/* Suggested for You (AI/ML Recommendations) */}
+      <SuggestedForYou />
 
       {/* Categories */}
       <CategoryGrid />

@@ -253,6 +253,7 @@ const SalonSetupFormScreen = ({ route }: any) => {
             <TextInput
               style={styles.input}
               placeholder="e.g. Trendy Cuts"
+              placeholderTextColor={theme.colors.textDisabled}
               value={formData.name}
               onChangeText={text => setFormData({ ...formData, name: text })}
               autoFocus
@@ -294,6 +295,7 @@ const SalonSetupFormScreen = ({ route }: any) => {
             <TextInput
               style={styles.input}
               placeholder="Area Name (e.g. New Delhi)"
+              placeholderTextColor={theme.colors.textDisabled}
               value={formData.locationName}
               onChangeText={text =>
                 setFormData({ ...formData, locationName: text })
@@ -333,6 +335,7 @@ const SalonSetupFormScreen = ({ route }: any) => {
               <TextInput
                 style={[styles.input, { flex: 1, marginBottom: 0 }]}
                 placeholder="e.g. AC, WiFi"
+                placeholderTextColor={theme.colors.textDisabled}
                 value={newAmenity}
                 onChangeText={setNewAmenity}
               />
@@ -366,6 +369,7 @@ const SalonSetupFormScreen = ({ route }: any) => {
                 <TextInput
                   style={styles.input}
                   placeholder="09:00"
+                  placeholderTextColor={theme.colors.textDisabled}
                   value={formData.openingTime}
                   onChangeText={text =>
                     setFormData({ ...formData, openingTime: text })
@@ -378,6 +382,7 @@ const SalonSetupFormScreen = ({ route }: any) => {
                 <TextInput
                   style={styles.input}
                   placeholder="20:00"
+                  placeholderTextColor={theme.colors.textDisabled}
                   value={formData.closingTime}
                   onChangeText={text =>
                     setFormData({ ...formData, closingTime: text })
@@ -389,6 +394,7 @@ const SalonSetupFormScreen = ({ route }: any) => {
             <TextInput
               style={styles.input}
               placeholder="30"
+              placeholderTextColor={theme.colors.textDisabled}
               keyboardType="numeric"
               value={formData.slotDuration}
               onChangeText={text =>
@@ -406,6 +412,8 @@ const SalonSetupFormScreen = ({ route }: any) => {
     <CommonContainer
       showBackButton={isEdit}
       hideHeader={false}
+      noPadding
+      backgroundColor="#FFFFFF"
       title={isEdit ? 'Edit Salon Details' : 'Salon Setup'}
       isTitleCentered={true}
     >
@@ -459,6 +467,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: theme.spacing.lg,
+    backgroundColor: '#FFFFFF',
   },
   header: {
     marginBottom: theme.spacing.xl,
@@ -505,7 +514,8 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.md,
     color: theme.colors.textPrimary,
     marginBottom: theme.spacing.xl,
-    ...theme.shadows.soft,
+    borderWidth: 1,
+    borderColor: '#f3f4f5ff',
   },
   addImageButton: {
     width: 100,
@@ -549,7 +559,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.lg,
     overflow: 'hidden',
     marginTop: theme.spacing.md,
-    ...theme.shadows.medium,
+    borderWidth: 1,
+    borderColor: '#f3f4f5ff',
   },
   map: {
     flex: 1,
@@ -581,7 +592,6 @@ const styles = StyleSheet.create({
   amenityChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.primaryLight,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
     borderRadius: theme.borderRadius.full,
@@ -606,11 +616,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flex: 1,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
+    paddingVertical: 12,
+    borderRadius: theme.borderRadius.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: theme.colors.primaryDark,
+    borderColor: '#f3f4f5ff',
     marginRight: theme.spacing.md,
   },
   backButtonText: {
@@ -620,10 +630,9 @@ const styles = StyleSheet.create({
   nextButton: {
     flex: 2,
     backgroundColor: theme.colors.primaryDark,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
+    paddingVertical: 12,
+    borderRadius: theme.borderRadius.md,
     alignItems: 'center',
-    ...theme.shadows.medium,
   },
   nextButtonText: {
     color: theme.colors.textOnPrimary,

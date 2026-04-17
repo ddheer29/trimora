@@ -8,9 +8,21 @@ import {
   BookingsApiResponse,
   DashboardApiResponse,
   UpcomingBookingsApiResponse,
+  RecommendationsApiResponse,
 } from '../types';
 
 export const salonService = {
+  // Get recommendations
+  getRecommendations: async (
+    latitude: number,
+    longitude: number,
+  ): Promise<RecommendationsApiResponse> => {
+    const response = await api.get('/customers/recommendations', {
+      params: { lat: latitude, lon: longitude },
+    });
+    return response.data;
+  },
+
   // Get nearby salons
   getNearBySalons: async (
     latitude: number,

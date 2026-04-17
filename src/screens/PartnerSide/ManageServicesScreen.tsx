@@ -3,9 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
-  FlatList,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
   SectionList,
 } from 'react-native';
@@ -16,20 +14,28 @@ import theme from '@utils/Theme';
 import { navigate } from '@utils/NavigationUtil';
 import { Service } from '@/types';
 import { usePartnerServices, useDeleteService } from '@/hooks/useSalonQueries';
+import CustomAlert from '@components/CustomAlert';
 
 const ManageServicesScreen = () => {
   const { data, isLoading: loading } = usePartnerServices();
   const { mutate: deleteService } = useDeleteService();
+  const [isDeleteAlertVisible, setDeleteAlertVisible] = useState(false);
+  const [serviceToDeleteId, setServiceToDeleteId] = useState<string | null>(
+    null,
+  );
 
   // Group services by category for SectionList
   const services = React.useMemo(() => {
     if (!data?.data) return [];
-    const grouped = (data.data as Service[]).reduce((acc: any, service: Service) => {
-      const category = service.category || 'Other';
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(service);
-      return acc;
-    }, {});
+    const grouped = (data.data as Service[]).reduce(
+      (acc: any, service: Service) => {
+        const category = service.category || 'Other';
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(service);
+        return acc;
+      },
+      {},
+    );
     return Object.keys(grouped).map(category => ({
       title: category,
       data: grouped[category],
@@ -37,37 +43,34 @@ const ManageServicesScreen = () => {
   }, [data]);
 
   const handleDelete = (id: string) => {
-    Alert.alert(
-      'Delete Service',
-      'Are you sure you want to remove this service? This will update your salon average price.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            deleteService(id, {
-              onSuccess: () => {
-                Toast.show({
-                  type: 'success',
-                  text1: 'Success',
-                  text2: 'Service deleted successfully',
-                });
-              },
-              onError: () => {
-                Toast.show({
-                  type: 'error',
-                  text1: 'Error',
-                  text2: 'Something went wrong',
-                });
-              },
-            });
-          },
-        },
-      ],
-    );
+    setServiceToDeleteId(id);
+    setDeleteAlertVisible(true);
   };
 
+  const confirmDelete = () => {
+    if (serviceToDeleteId) {
+      deleteService(serviceToDeleteId, {
+        onSuccess: () => {
+          Toast.show({
+            type: 'success',
+            text1: 'Success',
+            text2: 'Service deleted successfully',
+          });
+          setDeleteAlertVisible(false);
+          setServiceToDeleteId(null);
+        },
+        onError: () => {
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: 'Something went wrong',
+          });
+          setDeleteAlertVisible(false);
+          setServiceToDeleteId(null);
+        },
+      });
+    }
+  };
 
   const renderServiceItem = ({ item }: { item: Service }) => (
     <View style={styles.card}>
@@ -103,7 +106,34 @@ const ManageServicesScreen = () => {
   );
 
   return (
-    <CommonContainer showBackButton title="Manage Services" hideHeader={false}>
+    <CommonContainer
+      showBackButton
+      title="Manage Services"
+      noPadding
+      hideHeader={false}
+      backgroundColor="#FFFFFF"
+    >
+      <CustomAlert
+        visible={isDeleteAlertVisible}
+        title="Delete Service"
+        message="Are you sure you want to remove this service? This will update your salon average price."
+        iconName="trash-outline"
+        iconBgColor="#FEE2E2"
+        iconColor="#EF4444"
+        onRequestClose={() => setDeleteAlertVisible(false)}
+        options={[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setDeleteAlertVisible(false),
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: confirmDelete,
+          },
+        ]}
+      />
       <View style={styles.container}>
         {loading ? (
           <ActivityIndicator
@@ -151,6 +181,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: theme.spacing.md,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
   },
   listContent: {
     paddingBottom: 80,
@@ -159,7 +191,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.heading,
     fontSize: theme.fontSizes.lg,
     color: theme.colors.primaryDark,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#FFFFFF',
     paddingVertical: theme.spacing.sm,
     marginTop: theme.spacing.md,
   },
@@ -170,7 +202,8 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     marginBottom: theme.spacing.sm,
     alignItems: 'center',
-    ...theme.shadows.soft,
+    borderWidth: 1,
+    borderColor: '#f3f4f5ff',
   },
   cardContent: {
     flex: 1,
@@ -228,12 +261,11 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     backgroundColor: theme.colors.primaryDark,
-    height: 56,
-    borderRadius: theme.borderRadius.lg,
+    paddingVertical: 12,
+    borderRadius: theme.borderRadius.md,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    ...theme.shadows.medium,
   },
   addButtonText: {
     color: '#fff',
