@@ -116,6 +116,7 @@ const SchedulesScreen = () => {
       title="Schedules"
       noPadding={true}
       hideHeader={false}
+      showBackButton
       rightIcon={
         <Ionicons name="list-circle" size={28} color={theme.colors.primary} />
       }

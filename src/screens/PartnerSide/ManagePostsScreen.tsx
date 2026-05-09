@@ -84,7 +84,12 @@ const ManagePostsScreen = () => {
   );
 
   return (
-    <CommonContainer title="Manage Portfolio" hideHeader={false} noPadding>
+    <CommonContainer
+      title="Manage Portfolio"
+      showBackButton
+      hideHeader={false}
+      noPadding
+    >
       <FlatList
         data={posts}
         renderItem={renderItem}

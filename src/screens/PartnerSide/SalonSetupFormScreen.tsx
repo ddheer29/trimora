@@ -224,7 +224,7 @@ const SalonSetupFormScreen = ({ route }: any) => {
           text1: 'Success',
           text2: isEdit ? 'Salon details updated!' : 'Salon setup complete!',
         });
-        resetAndNavigate('PartnerBottomTab');
+        resetAndNavigate('PartnerHomeScreen');
       } else {
         Toast.show({
           type: 'error',

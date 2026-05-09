@@ -53,7 +53,7 @@ const SplashScreen = () => {
         }
 
         if (user?.role === 'partner') {
-          resetAndNavigate('PartnerBottomTab');
+          resetAndNavigate('PartnerHomeScreen');
         } else {
           resetAndNavigate('MainTabs');
         }

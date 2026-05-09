@@ -73,6 +73,7 @@ const SettingScreen = () => {
       noPadding
       headerStyle={styles.header}
       titleStyle={styles.headerTitle}
+      showBackButton
     >
       <CustomAlert
         visible={isLogoutAlertVisible}

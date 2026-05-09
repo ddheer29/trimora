@@ -8,7 +8,10 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import SearchScreen from '../screens/SearchScreen';
 import BookingCalendarScreen from '../screens/Calendar/BookingCalendarScreen';
 import AuthNavigator from './AuthNavigator';
-import PartnerBottomTab from './PartnerBottomTab';
+import PartnerHomeScreen from '@screens/PartnerSide/PartnerHomeScreen';
+import DashboardScreen from '@screens/PartnerSide/DashboardScreen';
+import SchedulesScreen from '@screens/PartnerSide/SchedulesScreen';
+import SettingScreen from '@screens/PartnerSide/SettingScreen';
 import CreateSalonScreen from '@screens/CreateSalonScreen';
 import SalonSetupWelcomeScreen from '@screens/PartnerSide/SalonSetupWelcomeScreen';
 import SalonSetupFormScreen from '@screens/PartnerSide/SalonSetupFormScreen';
@@ -34,7 +37,10 @@ export type RootStackParamList = {
   SplashScreen: undefined;
   MainApp: undefined;
   NotificationsScreen: undefined;
-  PartnerBottomTab: undefined;
+  PartnerHomeScreen: undefined;
+  DashboardScreen: undefined;
+  SchedulesScreen: undefined;
+  SettingScreen: undefined;
   MainTabs: undefined;
   StylistAndTimeSlotScreen: undefined;
   BookingForScreen: undefined;
@@ -65,8 +71,23 @@ const MainNavigator: FC = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="PartnerBottomTab"
-        component={PartnerBottomTab}
+        name="PartnerHomeScreen"
+        component={PartnerHomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="DashboardScreen"
+        component={DashboardScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SchedulesScreen"
+        component={SchedulesScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SettingScreen"
+        component={SettingScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen

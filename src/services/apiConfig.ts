@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useUserStore } from '../store/userStore';
 
-const BASE_URL = 'http://172.16.2.112:5001/api';
+const BASE_URL = 'http://localhost:5001/api';
 
 let isRefreshing = false;
 let failedQueue: any[] = [];

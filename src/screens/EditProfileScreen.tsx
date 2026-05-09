@@ -210,7 +210,7 @@ const EditProfileScreen = () => {
         // Navigate based on role and profile completion status using the latest data
         if (updatedUserData.isProfileCompleted) {
           if (updatedUserData.role === 'partner') {
-            resetAndNavigate('PartnerBottomTab');
+            resetAndNavigate('PartnerHomeScreen');
           } else {
             resetAndNavigate('MainTabs');
           }

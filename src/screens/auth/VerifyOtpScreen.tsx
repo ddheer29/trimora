@@ -67,7 +67,7 @@ const VerifyOtpScreen = () => {
         const actualUser = response.data.user;
         if (actualUser.role === 'partner') {
           if (actualUser.isProfileCompleted) {
-            resetAndNavigate('PartnerBottomTab');
+            resetAndNavigate('PartnerHomeScreen');
           } else {
             resetAndNavigate('SalonSetupWelcomeScreen');
           }

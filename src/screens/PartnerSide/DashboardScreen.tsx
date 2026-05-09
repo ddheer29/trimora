@@ -82,7 +82,12 @@ const DashboardScreen = ({ navigation }: any) => {
   const stats = dashboardData?.stats;
 
   return (
-    <CommonContainer title="Dashboard">
+    <CommonContainer
+      title="Dashboard"
+      showBackButton
+      hideHeader={false}
+      backgroundColor={'#FFFFFF'}
+    >
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
@@ -414,7 +419,6 @@ export default DashboardScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
   },
   scrollContent: {
     paddingVertical: theme.spacing.md,
@@ -441,7 +445,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#E9ECEF',
-    ...theme.shadows.soft,
   },
   rangeButtonText: {
     fontSize: theme.fontSizes.sm,
@@ -468,7 +471,6 @@ const styles = StyleSheet.create({
     gap: 12,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    ...theme.shadows.soft,
   },
   statIconContainer: {
     width: 36,
@@ -494,7 +496,6 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    ...theme.shadows.soft,
   },
   chartTitle: {
     fontSize: theme.fontSizes.md,
@@ -535,7 +536,6 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    ...theme.shadows.soft,
   },
   sectionHeader: {
     flexDirection: 'row',
